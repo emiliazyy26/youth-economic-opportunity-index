@@ -22,7 +22,7 @@ def test_min_max_score_invert():
 def test_derive_housing_burden_fills_missing_rows_only():
     df = pd.DataFrame(
         {
-            "house_price": [100.0, 120.0, None],
+            "house_price": [20_000.0, 24_000.0, None],
             "disposable_income": [50_000.0, 60_000.0, 70_000.0],
             "housing_burden": [None, 0.5, None],
         }
@@ -30,7 +30,7 @@ def test_derive_housing_burden_fills_missing_rows_only():
 
     result = derive_housing_burden(df)
 
-    assert result["housing_burden"].iloc[0] == 0.002
+    assert result["housing_burden"].iloc[0] == 0.4
     assert result["housing_burden"].iloc[1] == 0.5
     assert pd.isna(result["housing_burden"].iloc[2])
 
@@ -48,7 +48,7 @@ def test_build_scores_rewards_lower_housing_burden():
             "gdp_per_capita": [100_000.0, 100_000.0],
             "population_growth": [0.01, 0.01],
             "innovation_index": [10.0, 10.0],
-            "housing_burden": [0.001, 0.002],
+            "housing_burden": [0.20, 0.30],
         }
     )
 
