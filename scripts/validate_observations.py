@@ -39,7 +39,7 @@ REASONABLE_RANGES: dict[str, tuple[float, float]] = {
     "disposable_income": (20000, 120000),     # 元/人
     "population": (3000000, 35000000),        # 人
     "innovation_index": (0.5, 800),           # 亿元（科技支出）
-    "housing_burden": (0.0005, 0.005),        # 比率
+    "housing_burden": (0.10, 0.90),        # 元/㎡ / 元/人·年
     "population_growth": (-0.05, 0.05),       # -5% ~ +5%
 }
 

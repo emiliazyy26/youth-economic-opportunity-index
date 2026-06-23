@@ -16,9 +16,16 @@ build/
 # Jupyter
 notebooks/.ipynb_checkpoints/
 
-# 本地数据（保留目录占位）
-data/raw/*
-!data/raw/.gitkeep
+# 数据目录 — 跟踪核心产出和手工采集，忽略临时/调试产物
+data/raw/_debug_*.html
+data/raw/_playwright_budget/
+data/raw/.ipynb_checkpoints/
+data/raw/*.pyc
+
+# 年鉴文件较大，暂不跟踪
+data/raw/yearbooks/
+!data/raw/yearbooks/.gitkeep
+
 data/interim/*
 !data/interim/.gitkeep
 data/processed/*

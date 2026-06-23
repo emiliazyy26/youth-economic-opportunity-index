@@ -10,6 +10,11 @@ import requests
 
 from uei.city_names import CITY_NAME_EN, CITY_NAME_ZH, CITY_REGCODE
 from uei.communique_fetch import fetch_communique_panel
+from uei.house_price_yuan import (
+    build_house_price_yuan_sqm,
+    load_house_price_yuan_sqm,
+    save_house_price_yuan_sqm,
+)
 from uei.config import (
     ALL_CITIES,
     HOUSING_ANNUAL_FILE,
@@ -51,7 +56,7 @@ METRIC_UNITS = {
     "gdp_total": "100 million yuan",
     "disposable_income": "yuan/person",
     "population": "person",
-    "house_price": "index",
+    "house_price": "yuan/sqm",
     "university_resource": "count",
     "rd_expenditure": "100 million yuan",
     "science_technology_expenditure": "100 million yuan",
@@ -139,6 +144,21 @@ def build_annual_housing_index(primary_csv: Path, fallback_csv: Path) -> pd.Data
     return combined.sort_values(["city", "year"]).drop_duplicates(
         ["city", "year"], keep="first"
     )
+
+
+def ensure_house_price_yuan_sqm() -> pd.DataFrame:
+    """加载或抓取元/㎡新房均价（20 城统一口径）。"""
+    housing = load_house_price_yuan_sqm()
+    expected_rows = len(ALL_CITIES) * len(YEARS)
+    if len(housing) >= expected_rows:
+        return housing
+
+    print("Fetching house_price (yuan/sqm) from gotohui ...")
+    fetched = build_house_price_yuan_sqm()
+    if fetched.empty:
+        return housing
+    save_house_price_yuan_sqm(fetched)
+    return fetched
 
 
 def _find_city_column(df: pd.DataFrame) -> str | None:
@@ -427,9 +447,9 @@ def build_source_observations(
         ),
         _frame_to_observations(
             housing,
-            source_type="nbs_housing_index",
-            extraction_method="csv_annual_mean",
-            is_official_source=True,
+            source_type="third_party_index",
+            extraction_method="web_annual_mean",
+            is_official_source=False,
             metrics=["house_price"],
         ),
     ]
@@ -624,7 +644,7 @@ def build_missing_data_report(observations: pd.DataFrame) -> pd.DataFrame:
                 if metric == "house_price":
                     status = "not_applicable"
                     explanation = (
-                        "Not covered by bundled NBS 70-city housing index or source unavailable"
+                        "Not covered by bundled yuan/sqm house price file or source unavailable"
                     )
                 records.append(
                     {
@@ -689,7 +709,13 @@ def print_status(panel: pd.DataFrame, observations: pd.DataFrame, missing: pd.Da
 def main() -> None:
     print("Downloading external datasets...")
     files = download_external_files()
-    housing = build_annual_housing_index(files["housing_70city"], files["housing_alt"])
+    housing_index = build_annual_housing_index(files["housing_70city"], files["housing_alt"])
+    housing = ensure_house_price_yuan_sqm()
+    if housing.empty:
+        print("WARN: yuan/sqm house prices unavailable; falling back to NBS index.")
+        housing = housing_index
+    else:
+        housing_index.to_csv(EXTERNAL_DIR / "house_price_nbs_index.csv", index=False)
 
     print("Loading yearbook files from data/raw/yearbooks/ ...")
     yearbook = load_yearbook_panel()

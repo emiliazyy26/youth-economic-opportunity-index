@@ -1,0 +1,5 @@
+city,year,metric,status,attempted_sources,explanation
+Chengdu,2025,rd_expenditure,not_found,communique/yearbook/nbs_api/external_csv,Official source value not found in current source files
+Hefei,2025,rd_expenditure,not_found,communique/yearbook/nbs_api/external_csv,Official source value not found in current source files
+Kunming,2025,rd_expenditure,not_found,communique/yearbook/nbs_api/external_csv,Official source value not found in current source files
+Nanchang,2025,rd_expenditure,not_found,communique/yearbook/nbs_api/external_csv,Official source value not found in current source files
