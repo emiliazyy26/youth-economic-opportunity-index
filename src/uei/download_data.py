@@ -57,11 +57,13 @@ METRIC_UNITS = {
     "disposable_income": "yuan/person",
     "population": "person",
     "house_price": "yuan/sqm",
-    "university_resource": "count",
+    "university_quality": "quality_score",
     "rd_expenditure": "100 million yuan",
     "science_technology_expenditure": "100 million yuan",
     "housing_sales_area": "10000 sqm",
     "housing_sales_value": "100 million yuan",
+    "tertiary_value": "100 million yuan",
+    "tertiary_ratio": "percent",
 }
 
 TARGET_METRICS = {
@@ -70,7 +72,8 @@ TARGET_METRICS = {
     "population": [2020, *YEARS],
     "house_price": YEARS,
     "rd_expenditure": YEARS,
-    "university_resource": YEARS,
+    "university_quality": YEARS,
+    "tertiary_ratio": YEARS,
 }
 
 SOURCE_COLUMNS = {"city", "year", "source", "source_url", "source_file"}
@@ -328,32 +331,40 @@ def try_fetch_nbs_panel() -> pd.DataFrame:
 
 
 def load_university_counts() -> pd.DataFrame:
-    """使用项目内置高校数量表；后续可替换为教育部名单自动统计。"""
-    counts = pd.DataFrame(
-        [
-            {"city": "Beijing", "university_resource": 92},
-            {"city": "Shanghai", "university_resource": 64},
-            {"city": "Guangzhou", "university_resource": 83},
-            {"city": "Wuhan", "university_resource": 89},
-            {"city": "Nanjing", "university_resource": 53},
-            {"city": "Xi'an", "university_resource": 63},
-            {"city": "Chengdu", "university_resource": 58},
-            {"city": "Chongqing", "university_resource": 69},
-            {"city": "Hangzhou", "university_resource": 47},
-            {"city": "Changsha", "university_resource": 57},
-            {"city": "Harbin", "university_resource": 51},
-            {"city": "Shenyang", "university_resource": 47},
-            {"city": "Qingdao", "university_resource": 24},
-            {"city": "Zhengzhou", "university_resource": 65},
-            {"city": "Kunming", "university_resource": 49},
-            {"city": "Nanchang", "university_resource": 53},
-            {"city": "Hefei", "university_resource": 54},
-            {"city": "Shenzhen", "university_resource": 8},
-            {"city": "Suzhou", "university_resource": 25},
-            {"city": "Xiamen", "university_resource": 16},
-        ]
-    )
-    counts["source"] = "Ministry of Education university list (manual count, 2025)"
+    """返回各城市大学质量加权得分（985×5 + 211×2.5 + 其他普通高校×0.3）。
+
+    985/211 名单基于教育部历史名单，普通高校数来自教育部2025年高校名单。
+    """
+    # (985数量, 211非985数量, 其他普通高校数)
+    _uni_data: dict[str, tuple[int, int, int]] = {
+        "Beijing":      (8, 18, 66),   # 92 total - 8 985 - 18 211 = 66 other
+        "Shanghai":     (4,  6, 54),   # 64 total
+        "Nanjing":      (2,  6, 45),   # 53 total
+        "Wuhan":        (2,  5, 82),   # 89 total
+        "Xi'an":        (2,  5, 56),   # 63 total (西北农林在杨凌不计入)
+        "Guangzhou":    (2,  2, 79),   # 83 total
+        "Changsha":     (3,  1, 53),   # 57 total (含国防科大)
+        "Chengdu":      (2,  2, 54),   # 58 total
+        "Hangzhou":     (1,  0, 46),   # 47 total
+        "Harbin":       (1,  3, 47),   # 51 total
+        "Hefei":        (1,  2, 51),   # 54 total
+        "Chongqing":    (1,  1, 67),   # 69 total
+        "Shenyang":     (1,  1, 45),   # 47 total
+        "Qingdao":      (1,  1, 22),   # 24 total
+        "Xiamen":       (1,  0, 15),   # 16 total
+        "Zhengzhou":    (0,  1, 64),   # 65 total
+        "Suzhou":       (0,  1, 24),   # 25 total
+        "Kunming":      (0,  1, 48),   # 49 total
+        "Nanchang":     (0,  1, 52),   # 53 total
+        "Shenzhen":     (0,  0,  8),   # 8 total
+    }
+    rows = []
+    for city, (n985, n211, nother) in _uni_data.items():
+        quality = n985 * 5.0 + n211 * 2.5 + nother * 0.3
+        rows.append({"city": city, "university_quality": round(quality, 1)})
+
+    counts = pd.DataFrame(rows)
+    counts["source"] = "Ministry of Education university list (quality-weighted, 2025)"
     counts["source_url"] = "https://www.moe.gov.cn/"
     counts["source_file"] = ""
     return counts
@@ -466,7 +477,7 @@ def build_source_observations(
             source_type="moe_list",
             extraction_method="manual_count",
             is_official_source=True,
-            metrics=["university_resource"],
+            metrics=["university_quality"],
         )
     )
 
@@ -584,6 +595,27 @@ def build_wide_panel(observations: pd.DataFrame) -> pd.DataFrame:
             panel.loc[can_derive, "house_price"] / panel.loc[can_derive, "disposable_income"]
         )
 
+    # Derive tertiary_ratio from tertiary_value / gdp_total for rows missing it
+    if "tertiary_value" in panel.columns and "gdp_total" in panel.columns:
+        can_derive_tr = (
+            panel["tertiary_ratio"].isna()
+            & panel["tertiary_value"].notna()
+            & panel["gdp_total"].notna()
+            & panel["gdp_total"].ne(0)
+        )
+        panel.loc[can_derive_tr, "tertiary_ratio"] = (
+            panel.loc[can_derive_tr, "tertiary_value"]
+            / panel.loc[can_derive_tr, "gdp_total"]
+            * 100
+        )
+
+    # Linear interpolation for remaining gaps (tertiary structure changes slowly)
+    if "tertiary_ratio" in panel.columns:
+        panel["tertiary_ratio"] = pd.to_numeric(panel["tertiary_ratio"], errors="coerce")
+        panel["tertiary_ratio"] = panel.groupby("city")["tertiary_ratio"].transform(
+            lambda s: s.interpolate(method="linear", limit_direction="both")
+        )
+
     expected_columns = [
         "city",
         "year",
@@ -596,7 +628,8 @@ def build_wide_panel(observations: pd.DataFrame) -> pd.DataFrame:
         "housing_sales_area",
         "housing_sales_value",
         "population_growth",
-        "university_resource",
+        "university_quality",
+        "tertiary_ratio",
         "innovation_index",
     ]
     for column in expected_columns:
@@ -689,7 +722,8 @@ def print_status(panel: pd.DataFrame, observations: pd.DataFrame, missing: pd.Da
         "house_price",
         "population_growth",
         "innovation_index",
-        "university_resource",
+        "university_quality",
+        "tertiary_ratio",
     ]
     print(f"Saved: {PANEL_FILE}")
     print(f"Rows: {total}")

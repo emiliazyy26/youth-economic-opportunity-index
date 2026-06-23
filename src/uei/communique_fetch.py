@@ -315,6 +315,21 @@ def parse_communique_metrics(text: str, year: int | None = None) -> dict[str, fl
                 metrics["gdp_total"] = float(gdp_total_match.group(1))
                 break
 
+    # 第三产业：优先提取结构占比，备选提取绝对值
+    tertiary_ratio_match = re.search(
+        r"三次产业(?:增加值)?结构(?:为)?\s*[\d.]+\s*[：:]\s*[\d.]+\s*[：:]\s*([\d.]+)",
+        text,
+    )
+    if tertiary_ratio_match:
+        metrics["tertiary_ratio"] = float(tertiary_ratio_match.group(1))
+    else:
+        tertiary_value_match = re.search(
+            r"第三产业增加值(?:为|达到)?\s*(\d+(?:\.\d+)?)\s*亿元",
+            text,
+        )
+        if tertiary_value_match:
+            metrics["tertiary_value"] = float(tertiary_value_match.group(1))
+
     return metrics
 
 

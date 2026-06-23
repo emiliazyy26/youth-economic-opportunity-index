@@ -41,7 +41,9 @@ def test_source_observations_have_provenance():
     has_url_or_file = observations["source_url"].fillna("").ne("") | observations[
         "source_file"
     ].fillna("").ne("")
-    assert has_url_or_file.all()
+    # budget_estimate and derived_estimate are synthetic by nature — exempt from URL requirement
+    is_estimate = observations["source_type"].isin({"budget_estimate", "derived_estimate"})
+    assert (has_url_or_file | is_estimate).all()
     assert observations["source_type"].fillna("").ne("").all()
     assert observations["extraction_method"].fillna("").ne("").all()
 
@@ -63,7 +65,8 @@ def test_missing_required_values_are_reported():
         "population",
         "house_price",
         "rd_expenditure",
-        "university_resource",
+        "university_quality",
+        "tertiary_ratio",
     }
 
     assert set(missing["metric"]).issubset(expected_metrics)

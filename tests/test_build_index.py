@@ -48,6 +48,8 @@ def test_build_scores_rewards_lower_housing_burden():
             "gdp_per_capita": [100_000.0, 100_000.0],
             "population_growth": [0.01, 0.01],
             "innovation_index": [10.0, 10.0],
+            "university_quality": [50.0, 50.0],
+            "tertiary_ratio": [50.0, 50.0],
             "housing_burden": [0.20, 0.30],
         }
     )

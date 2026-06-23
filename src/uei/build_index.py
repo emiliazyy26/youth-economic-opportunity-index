@@ -33,8 +33,10 @@ def build_scores(df: pd.DataFrame) -> pd.DataFrame:
         scored = group.copy()
         scored["income_score"] = min_max_score(scored["disposable_income"])
         scored["gdp_score"] = min_max_score(scored["gdp_per_capita"])
+        scored["talent_capital_score"] = min_max_score(scored["university_quality"])
         scored["population_growth_score"] = min_max_score(scored["population_growth"])
         scored["innovation_score"] = min_max_score(scored["innovation_index"])
+        scored["industry_structure_score"] = min_max_score(scored["tertiary_ratio"])
         scored["housing_burden_score"] = min_max_score(scored["housing_burden"], invert=True)
 
         scored["ueoi_score"] = sum(

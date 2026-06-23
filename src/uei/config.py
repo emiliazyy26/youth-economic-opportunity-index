@@ -41,11 +41,13 @@ ALL_CITIES = [city for group in CITIES.values() for city in group]
 
 # UEOI 权重（housing_burden_score 已反向标准化，分数越高表示住房压力越低）
 UEOI_WEIGHTS = {
-    "income_score": 0.35,
-    "gdp_score": 0.25,
-    "population_growth_score": 0.15,
-    "innovation_score": 0.15,
-    "housing_burden_score": 0.10,
+    "income_score": 0.25,
+    "gdp_score": 0.20,
+    "talent_capital_score": 0.15,
+    "population_growth_score": 0.12,
+    "innovation_score": 0.12,
+    "industry_structure_score": 0.10,
+    "housing_burden_score": 0.06,
 }
 
 # source-backed 宽表基础字段；允许值缺失，但不允许估算或 proxy 补值。
@@ -57,7 +59,8 @@ RAW_COLUMNS = [
     "house_price",
     "housing_burden",
     "population_growth",
-    "university_resource",
+    "university_quality",
+    "tertiary_ratio",
     "innovation_index",
 ]
 
@@ -82,8 +85,10 @@ SCORE_COLUMNS = [
     "year",
     "income_score",
     "gdp_score",
+    "talent_capital_score",
     "population_growth_score",
     "innovation_score",
+    "industry_structure_score",
     "housing_burden_score",
     "ueoi_score",
     "rank",
