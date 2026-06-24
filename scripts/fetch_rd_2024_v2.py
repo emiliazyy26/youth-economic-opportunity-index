@@ -1,9 +1,9 @@
-"""Robust per-city scraper for 2024 全市决算 PDFs.
+"""Robust per-city scraper for 2024 city-level final accounts PDFs.
 
 Differs from fetch_rd_2024_playwright.py:
 1. Persistent browser context (cookies survive across visits).
-2. Longer initial settle to clear 加速乐 challenge fully.
-3. Hefei: navigate via specific 财政决算 / 决算公开 columns rather than YSZX monthly.
+2. Longer initial settle to clear WAF challenge fully.
+3. Hefei: navigate via specific final-accounts / public-accounts columns rather than monthly budget execution.
 4. Chengdu: jump straight to subdomain article search after entry.
 5. Saves all article HTMLs and PDF index lists for inspection.
 """
@@ -43,12 +43,12 @@ def log(msg: str) -> None:
 
 
 # ---------- target seeds ----------
-# Use known 财政决算 / 决算公开 URLs from public Hefei finance pages.
+# Use known final-accounts / public-accounts URLs from public Hefei finance pages.
 HEFEI_KNOWN_SEEDS = [
-    # 决算公开 catalog (cat ID 4382 commonly hosts 决算)
+    # Final accounts catalog (cat ID 4382 commonly hosts final accounts)
     "https://czj.hefei.gov.cn/public/column/4381?type=4&catId=7036479&action=list",
     "https://czj.hefei.gov.cn/public/column/4381?type=4&catId=7036478&action=list",
-    # 政府信息公开 -> 财政信息 -> 决算公开 (Hefei mun gov main site)
+    # Government info disclosure -> Financial info -> Final accounts (Hefei municipal gov main site)
     "https://www.hefei.gov.cn/zwgk/zfxxgkzl/cz/czjs/",
     # Try the bureau homepage to seed cookies for the WAF
     "https://czj.hefei.gov.cn/",
@@ -57,7 +57,7 @@ HEFEI_KNOWN_SEEDS = [
 CHENGDU_KNOWN_SEEDS = [
     # Article portal from previous successful entry
     "https://www.chengdu.gov.cn/gkml/czyjs/column-index-1.shtml",
-    # Direct municipal gov 财政信息 path
+    # Direct municipal gov financial info path
     "https://www.chengdu.gov.cn/zwgk/c126010/whcz_index.shtml",
     "https://www.chengdu.gov.cn/zwgk/c126010/index.shtml",
     # cdcz subdomain (may 403 but worth retry after profile cookies)
@@ -97,7 +97,7 @@ def score_anchor(a: dict) -> int:
     if not text.strip():
         return -10
     s = 0
-    # boost decisional context
+    # boost final accounts context
     if "决算" in blob:
         s += 5
     if "全市" in blob:
@@ -112,7 +112,7 @@ def score_anchor(a: dict) -> int:
         s += 4
     if "报告" in blob:
         s += 1
-    # downweight irrelevant
+    # downweight irrelevant items
     if "部门" in blob and "决算" not in blob:
         s -= 3
     monthly_patterns = [
@@ -151,7 +151,7 @@ def extract_science_tech(pdf_bytes: bytes) -> list[dict]:
         return [{"error": str(exc)}]
     text = "\n".join((p.extract_text() or "") for p in reader.pages)
     hits = []
-    # Find "科学技术" with adjacent number sequences
+    # Find "science & technology" with adjacent number sequences
     for m in re.finditer(r"(.{0,180}科学技术(?:支出)?.{0,200})", text):
         ctx = m.group(0).replace("\n", " | ")[:600]
         nums = re.findall(r"([\d]{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+|\d{4,})", ctx)
@@ -281,7 +281,7 @@ def crawl(city: str, seeds: list[str], max_articles: int = 12, max_pdfs_per_art:
                        "hits": hits, "strong": strong}
                 result["pdfs"].append(row)
                 if strong:
-                    log(f"    ★ strong 全市 hit; first ctx: {strong[0]['context'][:200]}")
+                    log(f"    ★ strong city-wide hit; first ctx: {strong[0]['context'][:200]}")
 
             # if no strong yet, queue interesting child links from this article
             if depth < 2 and not any(r["strong"] for r in result["pdfs"]):
@@ -301,16 +301,16 @@ def crawl(city: str, seeds: list[str], max_articles: int = 12, max_pdfs_per_art:
     for row in result["pdfs"]:
         if not row["strong"]:
             continue
-        # take first strong hit, find decisional column number heuristically
-        # The 决算数 column is usually the third numeric column
-        # (mid-range of [预算, 调整, 决算]).
+        # take first strong hit, find final accounts column number heuristically
+        # The final accounts column is usually the third numeric column
+        # (mid-range of [budget, adjusted, final]).
         for h in row["strong"]:
             nums = h.get("numbers", [])
             # Drop year fragments like 2024
             cleaned = [n for n in nums if not re.fullmatch(r"20\d{2}", n)]
             cleaned = [n.replace(",", "") for n in cleaned]
             candidates = [float(n) for n in cleaned if re.match(r"^\d+(\.\d+)?$", n)]
-            big = [c for c in candidates if c >= 10000]  # 万元 scale
+            big = [c for c in candidates if c >= 10000]  # 10k yuan scale
             if not big:
                 continue
             # Heuristic: pick the median of the largest credible numeric values.
@@ -356,12 +356,12 @@ def main() -> None:
     )
     for city, r in results.items():
         if r["final"]:
-            log(f"  ✓ {city} 全市科学技术支出 决算 = {r['final']['yiyuan']} 亿元")
+            log(f"  ✓ {city} city-wide science & technology expenditure final = {r['final']['yiyuan']} 100M yuan")
             log(f"    pdf: {r['final']['pdf_file']}")
         else:
             n_pdfs = len(r['pdfs'])
             n_articles = len(r['articles'])
-            log(f"  ✗ {city} no strong hit; {n_pdfs} PDFs tried, {n_articles} articles")
+            log(f"  ✗ {city} no strong city-wide hit; {n_pdfs} PDFs tried, {n_articles} articles")
 
 
 if __name__ == "__main__":

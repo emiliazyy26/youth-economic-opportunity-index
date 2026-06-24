@@ -1,4 +1,4 @@
-"""visualize 模块测试。"""
+"""Tests for the visualize module."""
 
 import pandas as pd
 

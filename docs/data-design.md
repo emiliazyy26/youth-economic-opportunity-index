@@ -1,88 +1,88 @@
-# 数据设计
+# Data Design
 
-## 目标数据表
+## Target Data Table
 
-最终面板数据保存为 `data/processed/city_economic_opportunity.csv`。
+The final panel data is saved as `data/processed/city_economic_opportunity.csv`.
 
-### 字段定义
+### Field Definitions
 
-| 字段 | 类型 | 说明 | 数据等级 |
-|------|------|------|----------|
-| `city` | string | 城市英文名 | — |
-| `year` | int | 年份 | — |
-| `gdp_per_capita` | float | 人均 GDP（元） | A |
-| `disposable_income` | float | 居民人均可支配收入（元） | A |
-| `house_price` | float | 住房价格水平 | A/C |
-| `housing_burden` | float | 住房负担 `house_price / disposable_income` | 派生 |
-| `population_growth` | float | 人口同比增长率 | 派生 |
-| `university_quality` | float | 大学质量加权得分 | A |
-| `innovation_index` | float | R&D 经费支出 | A |
-| `listed_company_count` | float | A 股上市公司注册地数量 | B |
-| `job_posting_count` | float | 招聘岗位数量（平台样本） | C |
-| `entry_salary` | float | 应届生/初级岗位起薪 | C |
-| `rent_monthly` | float | 一居室市中心月租（元） | C |
-| `rent_burden` | float | 租金负担 `rent_monthly × 12 / disposable_income` | 派生 |
-| `tertiary_ratio` | float | 三产占比（**补充字段**，不进主指数） | A |
+| Field | Type | Description | Data Tier |
+|-------|------|-------------|-----------|
+| `city` | string | City name in English | — |
+| `year` | int | Year | — |
+| `gdp_per_capita` | float | GDP per capita (RMB) | A |
+| `disposable_income` | float | Per capita disposable income (RMB) | A |
+| `house_price` | float | Housing price level | A/C |
+| `housing_burden` | float | Housing burden `house_price / disposable_income` | derived |
+| `population_growth` | float | YoY population growth rate | derived |
+| `university_quality` | float | Quality-weighted university score | A |
+| `innovation_index` | float | R&D expenditure | A |
+| `listed_company_count` | float | A-share listed company count by domicile | B |
+| `job_posting_count` | float | Job posting count (platform sample) | C |
+| `entry_salary` | float | Entry-level / graduate starting salary | C |
+| `rent_monthly` | float | 1BR city-center monthly rent (RMB) | C |
+| `rent_burden` | float | Rent burden `rent_monthly x 12 / disposable_income` | derived |
+| `tertiary_ratio` | float | Tertiary sector share of GDP (%) — **supplementary**, not in main index | A |
 
-### 指数输出表
+### Index Output Table
 
-`data/processed/yeoi_scores.csv` 在原始字段基础上追加 YEOI 六维得分、`yeoi_score`、`rank` 及维度来源标签。
+`data/processed/yeoi_scores.csv` appends YEOI six-dimension scores, `yeoi_score`, `rank`, and dimension source labels on top of the raw fields.
 
-## 数据分层
-
-```text
-data/raw/        # source-backed 原始观测
-data/interim/    # 房价指数、人口增长等派生表
-data/processed/  # 清洗面板 + YEOI 分数 + 敏感性报告
-```
-
-外部青年/企业指标：
+## Data Layers
 
 ```text
-data/raw/external/listed_companies_by_city.csv   # B 级
-data/raw/external/youth_platform_indicators.csv  # C 级（租金、岗位、起薪）
+data/raw/        # source-backed raw observations
+data/interim/    # derived tables (housing index, population growth, etc.)
+data/processed/  # cleaned panel + YEOI scores + sensitivity report
 ```
 
-缺失报告 `data/raw/missing_data_report.csv` 含 `data_tier`（A/B/C/D）与 `category`（core/supplementary）。
+External youth / enterprise indicators:
 
-## 主指数数据质量门槛
+```text
+data/raw/external/listed_companies_by_city.csv   # Tier B
+data/raw/external/youth_platform_indicators.csv  # Tier C (rent, job postings, entry salary)
+```
 
-- 城市覆盖率 ≥ 80%（`CORE_METRIC_COVERAGE_THRESHOLD`）方可作为主指标
-- 平台数据需记录采集日期、关键词、样本规则与来源 URL
-- 未达标指标自动 fallback，并在 `*_source` 字段标注
+Missing data report `data/raw/missing_data_report.csv` includes `data_tier` (A/B/C/D) and `category` (core/supplementary).
 
-## 数据来源
+## Main Index Data Quality Threshold
 
-### A 级：官方统计
+- City coverage >= 80% (`CORE_METRIC_COVERAGE_THRESHOLD`) to qualify as a primary indicator
+- Platform data must record collection date, keywords, sampling rules, and source URL
+- Indicators failing the threshold automatically fall back, with `*_source` field annotation
 
-- 国家统计局、城市统计年鉴、统计公报
-- 用途：收入、GDP、人口、R&D、房价指数
+## Data Sources
 
-### B 级：机构公开数据
+### Tier A: Official Statistics
 
-- 上市公司注册地统计（`listed_companies_by_city.csv`）
-- 用途：大企业机会维度
+- NBS, city statistical yearbooks, statistical communiques
+- Usage: income, GDP, population, R&D, housing price index
 
-### C 级：平台样本
+### Tier B: Institutional Public Data
 
-- Numbeo 租金（`youth_platform_indicators.csv`）
-- 招聘平台岗位数/起薪（待采集；当前 fallback 至创新+人口增长、可支配收入）
+- A-share listed company domicile statistics (`listed_companies_by_city.csv`)
+- Usage: big company opportunity dimension
 
-### D 级：排除
+### Tier C: Platform Samples
 
-- 不可复现媒体截图、口径不透明榜单
+- Numbeo rent (`youth_platform_indicators.csv`)
+- Recruitment platform job postings / entry salary (collected; currently fallback to innovation + population growth, disposable income)
 
-## 数据收集优先级
+### Tier D: Excluded
 
-1. **必须（主指数 fallback 可用）：** 可支配收入、住房负担、人口增长、创新、大学质量
-2. **重要（青年维度）：** 租金、上市公司数量
-3. **扩展（C 级）：** 岗位数、起薪
-4. **补充：** `tertiary_ratio`（不进主公式）
+- Unverifiable media screenshots, opaque caliber rankings
 
-## 数据质量检查清单
+## Data Collection Priority
 
-- [ ] 20 城 × 2021–2025 面板完整
-- [ ] `listed_company_count`、`rent_monthly` 已写入 source observations
-- [ ] 主指数字段缺失在 missing report 中按 core/supplementary 分类
-- [ ] 平台数据有 source_url 与采集说明
-- [ ] `uv run yeoi-build` 可生成 `yeoi_scores.csv`
+1. **Required (main index fallback available):** disposable income, housing burden, population growth, innovation, university quality
+2. **Important (youth dimension):** rent, listed company count
+3. **Extension (Tier C):** job postings, entry salary
+4. **Supplementary:** `tertiary_ratio` (not in main formula)
+
+## Data Quality Checklist
+
+- [x] 20 cities x 2021-2025 panel complete
+- [x] `listed_company_count`, `rent_monthly` written to source observations
+- [x] Core field gaps classified by core/supplementary in missing report
+- [x] Platform data has source_url and collection notes
+- [x] `uv run yeoi-build` generates `yeoi_scores.csv`

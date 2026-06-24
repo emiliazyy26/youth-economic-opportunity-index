@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""数据质量校验脚本：时间序列平滑性 + 跨城市可比性 + 口径一致性。
+"""Data quality validation script: time-series smoothness + cross-city comparability + caliber consistency.
 
 Usage:
     uv run python scripts/validate_observations.py
@@ -25,7 +25,7 @@ OBS_FILE = RAW_DIR / "source_observations.csv"
 YEOI_FILE = PROCESSED_DIR / "yeoi_scores.csv"
 DEFAULT_REPORT_FILE = RAW_DIR / "data_quality_report.csv"
 
-# 城市层级（用于跨城市可比性检验）
+# City tiers (for cross-city comparability checks)
 CITY_TIERS: dict[str, int] = {
     "Beijing": 1, "Shanghai": 1, "Shenzhen": 1, "Guangzhou": 1,
     "Hangzhou": 2, "Nanjing": 2, "Suzhou": 2, "Chengdu": 2,
@@ -56,7 +56,7 @@ PANEL_METRIC_TO_OBS: dict[str, str] = {
     "gdp_total": "gdp_total",
 }
 
-# 各指标合理范围
+# Reasonable ranges for each metric
 REASONABLE_RANGES: dict[str, tuple[float, float]] = {
     "gdp_per_capita": (30000, 300000),
     "disposable_income": (20000, 120000),
@@ -84,7 +84,7 @@ SEVERITY_TO_STATUS = {
     "INFO": "INFO",
 }
 
-# P0/P1 人工核查指引（嵌入 recommended_action）
+# P0/P1 manual review guidance (embedded in recommended_action)
 MANUAL_ACTIONS: dict[tuple[str, int, str], str] = {
     ("Kunming", 2024, "disposable_income"): (
         "verified: 2024 all-resident disposable income corrected to 47301 yuan "
@@ -151,19 +151,19 @@ def recommended_action(city: str, year: int, metric: str, rule_type: str) -> str
         return MANUAL_ACTIONS[key]
 
     defaults = {
-        "source": "verify_official: 核对 source_url 是否为统计局/政府官方来源",
-        "range": "verify_official: 数值超出合理范围，核对原始公报",
-        "spike": "check_caliber: 核实是否存在统计口径切换或OCR提取错误",
-        "gdp_consistency": "verify_official: 核对 gdp_total 单位(亿元)与 population 口径",
-        "income_gdp_ratio": "check_caliber: 核实收入为全体居民还是城镇居民口径",
-        "census_baseline": "check_caliber: 七普基期与后续年报人口口径可能不一致",
-        "yeoi_incomplete": "leave_as_missing: 补录官方 rd_expenditure 后重建指数",
-        "missing": "leave_as_missing: 在 manual_source_observations.csv 补录官方值",
-        "tier": "review: 城市层级倒挂可能反映真实经济格局，非必为数据错误",
-        "rd_low": "verify_official: 确认 R&D 为全市一般公共预算科学技术支出",
-        "rd_high": "review: 偏高值可能属宽口径，核对公报定义",
+        "source": "verify_official: check if source_url is from statistics bureau / government official source",
+        "range": "verify_official: value outside reasonable range, verify against original communique",
+        "spike": "check_caliber: verify if there is a statistical caliber switch or OCR extraction error",
+        "gdp_consistency": "verify_official: check gdp_total unit (100M yuan) and population caliber",
+        "income_gdp_ratio": "check_caliber: verify if income is all-resident or urban-resident caliber",
+        "census_baseline": "check_caliber: 7th census baseline and subsequent yearbook population caliber may differ",
+        "yeoi_incomplete": "leave_as_missing: supplement official rd_expenditure then rebuild index",
+        "missing": "leave_as_missing: add official values in manual_source_observations.csv",
+        "tier": "review: city tier inversion may reflect real economic pattern, not necessarily a data error",
+        "rd_low": "verify_official: confirm R&D is city-wide general public budget science & technology expenditure",
+        "rd_high": "review: high value may be broad caliber, verify communique definition",
     }
-    return defaults.get(rule_type, "review: 人工复核该观测")
+    return defaults.get(rule_type, "review: manually verify this observation")
 
 
 def make_report_row(
@@ -228,7 +228,7 @@ def check_range_validity(panel: pd.DataFrame) -> list[dict]:
                 "metric": metric,
                 "value": float(row[metric]),
                 "bound": f"[{lo}, {hi}]",
-                "detail": f"{metric}={row[metric]:.4g} 超出合理范围 {lo}-{hi}",
+                "detail": f"{metric}={row[metric]:.4g} outside reasonable range {lo}-{hi}",
             })
     return warnings
 
@@ -252,7 +252,7 @@ def check_time_series_spikes(panel: pd.DataFrame) -> list[dict]:
                     continue
                 rate = abs(curr / prev - 1)
                 if rate > threshold:
-                    direction = "↑" if curr > prev else "↓"
+                    direction = "up" if curr > prev else "down"
                     severity = "HIGH" if rate > threshold * 1.5 else "MEDIUM"
                     if (city, curr_year, metric) in MANUAL_ACTIONS:
                         severity = "HIGH"
@@ -267,8 +267,8 @@ def check_time_series_spikes(panel: pd.DataFrame) -> list[dict]:
                         "prev_year": prev_year,
                         "rate": float(rate),
                         "detail": (
-                            f"{city} {metric}: {prev_year}={prev:.1f}→{curr_year}={curr:.1f} "
-                            f"({direction}{rate * 100:.1f}%, 阈值 {threshold * 100:.0f}%)"
+                            f"{city} {metric}: {prev_year}={prev:.1f}->{curr_year}={curr:.1f} "
+                            f"({direction} {rate * 100:.1f}%, threshold {threshold * 100:.0f}%)"
                         ),
                     })
     return warnings
@@ -338,7 +338,7 @@ def check_gdp_consistency(panel: pd.DataFrame) -> list[dict]:
                 "deviation": float(deviation),
                 "detail": (
                     f"{city} {year}: gdp_per_capita={reported:.0f}, "
-                    f"gdp_total/pop×10^8={derived:.0f}, 偏差 {deviation * 100:.1f}%"
+                    f"gdp_total/pop×10^8={derived:.0f}, deviation {deviation * 100:.1f}%"
                 ),
             })
             metrics_for_cell = {
@@ -358,7 +358,7 @@ def check_gdp_consistency(panel: pd.DataFrame) -> list[dict]:
                         "metric": "gdp_total",
                         "value": gdp_total_val,
                         "detail": (
-                            f"{city} {year}: gdp_total={gdp_total_val:.1f}亿 与人口/人均GDP不自洽"
+                            f"{city} {year}: gdp_total={gdp_total_val:.1f} 100M yuan inconsistent with population/gdp_per_capita"
                         ),
                     })
     return warnings
@@ -390,8 +390,8 @@ def check_income_consistency(panel: pd.DataFrame) -> list[dict]:
                     "metric": "disposable_income",
                     "value": float(income.iloc[i]["disposable_income"]),
                     "detail": (
-                        f"{city} disposable_income: 邻年增{g1 * 100:.1f}%→{g2 * 100:.1f}%，"
-                        "可能存在口径切换"
+                        f"{city} disposable_income: adjacent YoY {g1 * 100:.1f}%->{g2 * 100:.1f}%, "
+                        "possible caliber switch"
                     ),
                 })
     return warnings
@@ -421,8 +421,8 @@ def check_population_vs_income_rank(panel: pd.DataFrame) -> list[dict]:
                     "metric": "disposable_income",
                     "value": float(row["disposable_income"]),
                     "detail": (
-                        f"{row['city']} {year}: 人口负增长{row['population_growth'] * 100:.2f}%"
-                        f"但收入增{income_growth * 100:.1f}%"
+                        f"{row['city']} {year}: population negative growth {row['population_growth'] * 100:.2f}%"
+                        f" but income growth {income_growth * 100:.1f}%"
                     ),
                 })
     return warnings
@@ -443,7 +443,7 @@ def check_rd_outliers(panel: pd.DataFrame) -> list[dict]:
                 "year": year,
                 "metric": "innovation_index",
                 "value": float(val),
-                "detail": f"{city} {year}: rd_expenditure={val:.2f}亿元 异常低（<1亿）",
+                "detail": f"{city} {year}: rd_expenditure={val:.2f} 100M yuan abnormally low (<1)",
             })
         if val > 600:
             warnings.append({
@@ -453,13 +453,13 @@ def check_rd_outliers(panel: pd.DataFrame) -> list[dict]:
                 "year": year,
                 "metric": "innovation_index",
                 "value": float(val),
-                "detail": f"{city} {year}: rd_expenditure={val:.1f}亿元，偏高但可能属宽口径",
+                "detail": f"{city} {year}: rd_expenditure={val:.1f} 100M yuan, high but may be broad caliber",
             })
     return warnings
 
 
 def check_source_provenance(panel: pd.DataFrame, obs: pd.DataFrame) -> list[dict]:
-    """来源可信度审计：非官方来源、镜像站、OCR 提取。"""
+    """Source credibility audit: non-official sources, mirror sites, OCR extraction."""
     warnings = []
     suspicious_url_parts = ("hongheiku", "gotohui", "tjcn.org", "people.com.cn")
     suspicious_methods = ("regex_or_ocr",)
@@ -478,11 +478,11 @@ def check_source_provenance(panel: pd.DataFrame, obs: pd.DataFrame) -> list[dict
 
             issues = []
             if is_official is False or is_official == "False":
-                issues.append("非官方来源")
+                issues.append("non-official source")
             if any(part in url for part in suspicious_url_parts):
-                issues.append(f"第三方镜像/转载 ({url[:60]})")
+                issues.append(f"third-party mirror/reprint ({url[:60]})")
             if method in suspicious_methods:
-                issues.append(f"提取方式={method}")
+                issues.append(f"extraction_method={method}")
 
             if not issues:
                 continue
@@ -504,7 +504,7 @@ def check_source_provenance(panel: pd.DataFrame, obs: pd.DataFrame) -> list[dict
 
 
 def check_income_gdp_ratio(panel: pd.DataFrame) -> list[dict]:
-    """收入/GDP 比率应在 0.35–0.55 区间。"""
+    """Income/GDP ratio should fall within 0.35-0.55 range."""
     warnings = []
     lo, hi = INCOME_GDP_RATIO_RANGE
     mask = panel["disposable_income"].notna() & panel["gdp_per_capita"].notna()
@@ -524,14 +524,14 @@ def check_income_gdp_ratio(panel: pd.DataFrame) -> list[dict]:
             "value": float(row["disposable_income"]),
             "detail": (
                 f"{city} {year}: income/gdp_per_capita={ratio:.3f} "
-                f"(合理区间 {lo}-{hi})"
+                f"(reasonable range {lo}-{hi})"
             ),
         })
     return warnings
 
 
 def check_population_census_baseline(panel: pd.DataFrame, obs: pd.DataFrame) -> list[dict]:
-    """七普年(2020)与后续年份人口跳变检测。"""
+    """Detect population jumps between 7th census year (2020) and subsequent years."""
     warnings = []
     census = obs[(obs["year"] == 2020) & (obs["metric"] == "population")]
     if census.empty:
@@ -558,15 +558,15 @@ def check_population_census_baseline(panel: pd.DataFrame, obs: pd.DataFrame) -> 
                     "metric": "population",
                     "value": float(row["population"]),
                     "detail": (
-                        f"{city} {year}: 人口={row['population']:.0f} vs "
-                        f"2020七普={baseline:.0f} (偏差 {rate * 100:.1f}%)"
+                        f"{city} {year}: population={row['population']:.0f} vs "
+                        f"2020 census={baseline:.0f} (deviation {rate * 100:.1f}%)"
                     ),
                 })
     return warnings
 
 
 def check_yeoi_completeness(panel: pd.DataFrame, scores: pd.DataFrame) -> list[dict]:
-    """YEOI 缺失：核心维度缺失导致 yeoi_score 为 NaN。"""
+    """YEOI missing: core dimension missing causes yeoi_score to be NaN."""
     warnings = []
     if scores.empty:
         return warnings
@@ -602,15 +602,15 @@ def check_yeoi_completeness(panel: pd.DataFrame, scores: pd.DataFrame) -> list[d
                 "metric": metric,
                 "value": "",
                 "detail": (
-                    f"{city} {year}: {metric} 缺失导致 yeoi_score 无法计算 "
-                    f"(缺失分项: {', '.join(missing_metrics)})"
+                    f"{city} {year}: {metric} missing causes yeoi_score to be NaN "
+                    f"(missing dimensions: {', '.join(missing_metrics)})"
                 ),
             })
     return warnings
 
 
 def check_missing_cells(panel: pd.DataFrame) -> list[dict]:
-    """核心维度缺失值。"""
+    """Missing values in core dimensions."""
     warnings = []
     for _, row in panel.iterrows():
         city = row["city"]
@@ -626,7 +626,7 @@ def check_missing_cells(panel: pd.DataFrame) -> list[dict]:
                     "year": year,
                     "metric": metric,
                     "value": "",
-                    "detail": f"{city} {year}: {metric} 缺失",
+                    "detail": f"{city} {year}: {metric} missing",
                 })
     return warnings
 
@@ -676,7 +676,7 @@ def build_cell_status(
     all_warnings: list[dict],
     panel: pd.DataFrame,
 ) -> dict[tuple[str, int, str], str]:
-    """每个 city-year-metric 的最终状态（取最严重）。"""
+    """Final status for each city-year-metric (takes most severe)."""
     status: dict[tuple[str, int, str], str] = {}
 
     for _, row in panel.iterrows():
@@ -705,7 +705,7 @@ def build_cell_status(
 
 
 def print_matrix(cell_status: dict[tuple[str, int, str], str], cities: list[str]) -> None:
-    """20 城 × 6 维：跨年份取最严重状态。"""
+    """20 cities x 6 dimensions: take most severe status across years."""
     symbols = {
         "OK": ".",
         "INFO": "i",
@@ -738,12 +738,12 @@ def print_matrix(cell_status: dict[tuple[str, int, str], str], cities: list[str]
             for m in CORE_MATRIX_METRICS
         )
         print(f"{city:<12}{cells}")
-    print("\n图例: .=OK  ?=SUSPICIOUS  !=CRITICAL  -=MISSING  i=INFO")
+    print("\nLegend: .=OK  ?=SUSPICIOUS  !=CRITICAL  -=MISSING  i=INFO")
 
 
 def print_report(warnings: list[dict], title: str) -> None:
     if not warnings:
-        print(f"\n✅ {title}: 全部通过")
+        print(f"\n✅ {title}: all passed")
         return
 
     high = [w for w in warnings if w["severity"] == "HIGH"]
@@ -751,7 +751,7 @@ def print_report(warnings: list[dict], title: str) -> None:
     low = [w for w in warnings if w["severity"] == "LOW"]
 
     print(
-        f"\n⚠️  {title}: {len(warnings)} 条警告 "
+        f"\n⚠️  {title}: {len(warnings)} warnings "
         f"(🔴 HIGH={len(high)}, 🟡 MEDIUM={len(medium)}, 🔵 LOW={len(low)})"
     )
 
@@ -768,7 +768,7 @@ def print_report(warnings: list[dict], title: str) -> None:
 
 def generate_fix_suggestions(warnings: list[dict]) -> None:
     print("\n" + "=" * 70)
-    print("🔧 修复建议")
+    print("🔧 Fix Suggestions")
     print("=" * 70)
 
     by_type: dict[str, list[dict]] = {}
@@ -776,19 +776,19 @@ def generate_fix_suggestions(warnings: list[dict]) -> None:
         by_type.setdefault(w["type"], []).append(w)
 
     if "range" in by_type:
-        print("\n【范围异常】以下值超出合理区间，需人工核实来源：")
+        print("\n[Range anomalies] Values outside reasonable range, manual source verification needed:")
         for w in by_type["range"]:
             print(f"  - {w['city']} {w['year']} {w['metric']}={w['value']}")
-            print("    → 检查 source_observations.csv 该条的 source_url 是否可信")
+            print("    -> Check source_observations.csv for this row's source_url credibility")
 
     if "spike" in by_type:
-        print("\n【时间序列突变】以下突变可能由口径切换、数据错误或真实政策变化导致：")
+        print("\n[Time-series spikes] Spikes may be caused by caliber switch, data error, or real policy change:")
         for w in sorted(by_type["spike"], key=lambda item: item.get("rate", 0), reverse=True):
             if w["severity"] == "HIGH":
                 print(f"  - {w['detail']}")
 
     if "gdp_consistency" in by_type:
-        print("\n【GDP一致性】以下城市的 gdp_per_capita 与 gdp_total/population 推算值不匹配：")
+        print("\n[GDP consistency] gdp_per_capita does not match gdp_total/population for these cities:")
         for w in sorted(
             by_type["gdp_consistency"],
             key=lambda item: item.get("deviation", 0),
@@ -797,51 +797,51 @@ def generate_fix_suggestions(warnings: list[dict]) -> None:
             print(f"  - {w['detail']}")
 
     if "source" in by_type:
-        print("\n【来源可信度】非官方/镜像/OCR 来源：")
+        print("\n[Source credibility] Non-official / mirror / OCR sources:")
         high_src = [w for w in by_type["source"] if w["severity"] == "HIGH"]
         for w in high_src[:15]:
             print(f"  - {w['detail']}")
         if len(high_src) > 15:
-            print(f"  ... 另有 {len(high_src) - 15} 条 HIGH 来源警告")
+            print(f"  ... {len(high_src) - 15} more HIGH source warnings")
 
     if "income_gdp_ratio" in by_type:
-        print("\n【收入/GDP比率】超出 0.35-0.55 合理区间：")
+        print("\n[Income/GDP ratio] Outside 0.35-0.55 reasonable range:")
         for w in by_type["income_gdp_ratio"]:
             print(f"  - {w['detail']}")
 
     if "census_baseline" in by_type:
-        print("\n【人口基期】与2020七普偏差 >5%：")
+        print("\n[Population baseline] Deviation >5% from 2020 7th census:")
         for w in by_type["census_baseline"]:
             print(f"  - {w['detail']}")
 
     if "yeoi_incomplete" in by_type:
-        print("\n【YEOI完整性】缺失导致无法计算总分：")
+        print("\n[YEOI completeness] Missing dimensions prevent score calculation:")
         for w in by_type["yeoi_incomplete"]:
             print(f"  - {w['detail']}")
 
     if "missing" in by_type:
         rd_missing = [w for w in by_type["missing"] if w["metric"] == "innovation_index"]
         if rd_missing:
-            print("\n【R&D缺失】")
+            print("\n[R&D missing]")
             for w in rd_missing:
                 print(f"  - {w['detail']}")
 
-    print(f"\n总计 {len(warnings)} 条警告，建议优先处理 🔴 HIGH 级别。")
-    print("修复方式：编辑 data/raw/manual_source_observations.csv 对应行后重新运行")
+    print(f"\nTotal {len(warnings)} warnings, prioritize 🔴 HIGH severity first.")
+    print("Fix: edit data/raw/manual_source_observations.csv then rerun:")
     print("    uv run yeoi-download && uv run yeoi-build")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="YEOI 数据质量校验")
-    parser.add_argument("--fix", action="store_true", help="输出修复建议")
+    parser = argparse.ArgumentParser(description="YEOI data quality validation")
+    parser.add_argument("--fix", action="store_true", help="Output fix suggestions")
     parser.add_argument(
         "--report-csv",
         nargs="?",
         const=str(DEFAULT_REPORT_FILE),
         default=None,
-        help="写出结构化 CSV 报告（默认 data/raw/data_quality_report.csv）",
+        help="Write structured CSV report (default: data/raw/data_quality_report.csv)",
     )
-    parser.add_argument("--matrix", action="store_true", help="输出 20城×6维 状态矩阵")
+    parser.add_argument("--matrix", action="store_true", help="Output 20-city x 6-dimension status matrix")
     return parser.parse_args()
 
 
@@ -849,7 +849,7 @@ def main() -> None:
     args = parse_args()
 
     print("=" * 70)
-    print("Youth Economic Opportunity Index — 数据质量校验")
+    print("Youth Economic Opportunity Index — Data Quality Validation")
     print("=" * 70)
     print(f"Panel: {PANEL_FILE}")
     print(f"Observations: {OBS_FILE}")
@@ -857,21 +857,21 @@ def main() -> None:
     panel, obs = load_data()
     scores = load_yeoi_scores()
     cities = sorted(panel["city"].unique())
-    print(f"面板: {len(panel)} 行, 观测: {len(obs)} 条")
+    print(f"Panel: {len(panel)} rows, Observations: {len(obs)} records")
 
     check_sections = [
-        ("1. 数值范围检验", check_range_validity(panel)),
-        ("2. 时间序列平滑性", check_time_series_spikes(panel)),
-        ("3. 跨城市层级一致性", check_cross_city_tiers(panel)),
-        ("4. GDP 口径一致性", check_gdp_consistency(panel)),
-        ("5. 可支配收入口径", check_income_consistency(panel)),
-        ("6. 人口 vs 收入", check_population_vs_income_rank(panel)),
-        ("7. 科技支出异常值", check_rd_outliers(panel)),
-        ("8. 来源可信度", check_source_provenance(panel, obs)),
-        ("9. 收入/GDP比率", check_income_gdp_ratio(panel)),
-        ("10. 人口基期一致性", check_population_census_baseline(panel, obs)),
-        ("11. YEOI完整性", check_yeoi_completeness(panel, scores)),
-        ("12. 核心维度缺失", check_missing_cells(panel)),
+        ("1. Range validity check", check_range_validity(panel)),
+        ("2. Time-series smoothness", check_time_series_spikes(panel)),
+        ("3. Cross-city tier consistency", check_cross_city_tiers(panel)),
+        ("4. GDP caliber consistency", check_gdp_consistency(panel)),
+        ("5. Disposable income caliber", check_income_consistency(panel)),
+        ("6. Population vs income", check_population_vs_income_rank(panel)),
+        ("7. R&D expenditure outliers", check_rd_outliers(panel)),
+        ("8. Source credibility", check_source_provenance(panel, obs)),
+        ("9. Income/GDP ratio", check_income_gdp_ratio(panel)),
+        ("10. Population baseline consistency", check_population_census_baseline(panel, obs)),
+        ("11. YEOI completeness", check_yeoi_completeness(panel, scores)),
+        ("12. Core dimension missing", check_missing_cells(panel)),
     ]
 
     all_warnings: list[dict] = []
@@ -885,7 +885,7 @@ def main() -> None:
         summary[w["severity"]] = summary.get(w["severity"], 0) + 1
     print(f"\n{'=' * 70}")
     print(
-        f"总计: {len(all_warnings)} 条警告 "
+        f"Total: {len(all_warnings)} warnings "
         f"(🔴 HIGH={summary.get('HIGH', 0)}, "
         f"🟡 MEDIUM={summary.get('MEDIUM', 0)}, "
         f"🔵 LOW={summary.get('LOW', 0)})"
@@ -894,7 +894,7 @@ def main() -> None:
     cell_status = build_cell_status(all_warnings, panel)
     if args.matrix:
         print(f"\n{'=' * 70}")
-        print("城市 × 维度 状态矩阵（跨年份取最严重状态）")
+        print("City x Dimension status matrix (most severe across years)")
         print_matrix(cell_status, cities)
 
     if args.report_csv is not None:
@@ -903,7 +903,7 @@ def main() -> None:
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_df.to_csv(report_path, index=False)
         critical = report_df[report_df["status"] == "CRITICAL"]
-        print(f"\n📄 报告已写入: {report_path} ({len(report_df)} 行, CRITICAL={len(critical)})")
+        print(f"\n📄 Report written: {report_path} ({len(report_df)} rows, CRITICAL={len(critical)})")
 
     if args.fix and all_warnings:
         generate_fix_suggestions(all_warnings)

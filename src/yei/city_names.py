@@ -1,4 +1,4 @@
-"""城市英文名与统计局常用中文名映射。"""
+"""Mapping between English city names and Chinese names commonly used by the NBS."""
 
 CITY_NAME_ZH: dict[str, str] = {
     "Beijing": "北京",
@@ -25,7 +25,7 @@ CITY_NAME_ZH: dict[str, str] = {
 
 CITY_NAME_EN = {zh: en for en, zh in CITY_NAME_ZH.items()}
 
-# 国家统计局城市年度数据库 regcode
+# NBS city annual database regcode
 CITY_REGCODE: dict[str, str] = {
     "Beijing": "110000",
     "Shanghai": "310000",

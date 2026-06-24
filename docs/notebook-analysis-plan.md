@@ -1,276 +1,279 @@
-# Notebooks 分析规划
+# Notebooks Analysis Plan
 
-本文档说明 `notebooks/` 目录下各 notebook 的定位、分析顺序与产出目标，与 [project-design.md](project-design.md) 中的研究问题和方法论保持一致。
+This document describes the purpose, analysis order, and output goals of each notebook in the `notebooks/` directory, consistent with the research questions and methodology in [project-design.md](project-design.md).
 
-## 1. 总体原则
+## 1. General Principles
 
-`notebooks/` 承担**研究叙事线**，不是生产流水线。可复现的计算逻辑放在 `src/yei/`；notebook 负责展示：
+`notebooks/` serves as the **research narrative line**, not the production pipeline. Reproducible computation logic lives in `src/yei/`; notebooks are responsible for presenting:
 
-- 数据从哪来、是否可信
-- 城市之间有什么模式
-- 指数如何解释
-- 结论是否稳健
+- Where data comes from and whether it is credible
+- What patterns exist across cities
+- How the index should be interpreted
+- Whether conclusions are robust
 
-推荐分析主线：
+Recommended analysis thread:
 
 ```text
-数据可信度 → 指标分布 → 收入与住房压力的权衡 → YEOI 排名 → 分组解释与稳健性 → 结论
+Data credibility -> Indicator distribution -> Income vs housing pressure trade-off -> YEOI ranking -> Group interpretation and robustness -> Conclusion
 ```
 
-Notebook 顺序：
+Notebook order:
 
 ```text
 01_data_sources.ipynb
-→ 02_data_cleaning.ipynb
-→ 03_exploratory_analysis.ipynb
-→ 04_index_calculation.ipynb
-→ 05_explanatory_model.ipynb
+ 02_data_cleaning.ipynb
+ 03_exploratory_analysis.ipynb
+ 04_index_calculation.ipynb
+ 05_explanatory_model.ipynb
 ```
 
-运行前需先完成数据准备：
+Before running, complete data preparation:
 
 ```bash
 uv run yeoi-download
 uv run yeoi-build
 ```
 
-Notebook 主要读取：
+Notebooks primarily read:
 
-| 文件 | 用途 |
-|------|------|
-| `data/raw/city_panel.csv` | 原始宽表面板 |
-| `data/raw/source_observations.csv` | 逐条观测与来源 |
-| `data/raw/data_sources.csv` | 来源汇总 |
-| `data/raw/missing_data_report.csv` | 缺口报告 |
-| `data/processed/city_economic_opportunity.csv` | 清洗后面板 |
-| `data/processed/yeoi_scores.csv` | 分项得分与排名 |
-
----
-
-## 2. 各 Notebook 规划
-
-### 01 Data Sources — 数据能不能信
-
-**目标**：建立样本与来源的可信度说明。
-
-**建议内容**：
-
-- 20 城 × 2021–2025 样本设计
-- 城市分组：超大城市、强二线、转型成长、对照组（见 `src/yei/config.py` 中 `CITIES`）
-- 汇总 `source_observations.csv`、`data_sources.csv` 的来源类型
-- 统计官方来源、第三方镜像、手工补录的比例
-- 展示 `missing_data_report.csv`，说明当前主要缺口为 `rd_expenditure`
-- 明确 `innovation_index = rd_expenditure` 的口径与局限
-
-**核心输出**：
-
-- 城市分组表
-- 各指标覆盖率表
-- 来源类型占比
-- 缺失数据清单
-
-**篇幅**：保持简洁，服务于「数据可信、流程可复现」。
+| File | Purpose |
+|------|---------|
+| `data/raw/city_panel.csv` | Raw wide panel |
+| `data/raw/source_observations.csv` | Per-observation source records |
+| `data/raw/data_sources.csv` | Source summary |
+| `data/raw/missing_data_report.csv` | Gap report |
+| `data/processed/city_economic_opportunity.csv` | Cleaned panel |
+| `data/processed/yeoi_scores.csv` | Sub-scores and rankings |
 
 ---
 
-### 02 Data Cleaning — 数据如何变成可分析面板
+## 2. Notebook Plans
 
-**目标**：说明从原始观测到分析面板的转换过程。
+### 01 Data Sources — Can the data be trusted?
 
-**建议内容**：
+**Goal:** Establish sample and source credibility documentation.
 
-- 读取 `data/raw/city_panel.csv`，验证行数为 100（20 城 × 5 年）
-- 核心字段缺失检查
-- 展示衍生字段：
-  - `population_growth`（由人口序列计算）
-  - `housing_burden`（房价指数 / 可支配收入）
-  - `innovation_index`（当前等于 `rd_expenditure`）
-- 说明项目原则：不做 proxy、不随意估算，只保留 source-backed 数据
-- 对缺失值做**解释**，而非强行填补
+**Suggested content:**
 
-**实现说明**：权威清洗逻辑在 `src/yei/clean_data.py` 与 `src/yei/download_data.py`；本 notebook 以解释与验证为主，不必重复实现大量清洗代码。
+- 20 cities x 2021-2025 sample design
+- City groups: megacities, strong second-tier, transition/growth, control group (see `CITIES` in `src/yei/config.py`)
+- Summarize source types from `source_observations.csv`, `data_sources.csv`
+- Proportion of official sources, third-party mirrors, manual supplements
+- Display `missing_data_report.csv`, explain current main gaps
+- Clarify caliber and limitations of `innovation_index = rd_expenditure`
 
-**核心输出**：
+**Core outputs:**
 
-- 缺失值表或热力图
-- 字段单位与口径说明
-- 2021–2025 各年覆盖率
+- City group table
+- Indicator coverage table
+- Source type proportions
+- Missing data list
 
----
-
-### 03 Exploratory Analysis — 探索性分析（优先完善）
-
-**目标**：回答 [project-design.md](project-design.md) 中的三个经济学问题：
-
-1. 高收入城市是否仍然值得承受更高住房成本？
-2. 住房压力是否会抵消城市提供的经济机会？
-3. 哪些城市具有更好的长期吸引力和增长潜力？
-
-**建议分析**：
-
-- 最新年份收入排名（`disposable_income`）
-- 最新年份住房压力排名（`housing_burden`，越高压力越大）
-- 人均 GDP 与可支配收入对比
-- 收入 vs 住房负担散点图（可按城市组着色）
-- 人口增长时间趋势（`population_growth`）
-- 创新指标时间趋势（`innovation_index`）
-- 城市分组箱线图
-
-**核心图表（对应 project-design 第 8 节）**：
-
-| 序号 | 图表 | 变量 |
-|------|------|------|
-| 1 | 收入排名 | `disposable_income` |
-| 2 | 住房负担排名 | `housing_burden` |
-| 3 | 人均 GDP 对比 | `gdp_per_capita` |
-| 4 | 人口增长变化 | `population_growth` |
-| 5 | （可选）收入 vs 住房负担散点 | 两变量 + 城市组 |
-
-**经济解释方向**：
-
-- 一线城市：收入高，住房压力也高
-- 部分强二线：收入与住房压力之间可能更平衡
-- 人口增长：区分「高收入但吸引力下降」与「收入中等但增长强」的城市
-
-**优先级**：本 notebook 最能产出图表与故事线，应**优先完善**。
+**Length:** Keep concise, serving the "data is credible, process is reproducible" narrative.
 
 ---
 
-### 04 Index Calculation — YEOI 如何计算、排名是否合理
+### 02 Data Cleaning — How raw data becomes an analyzable panel
 
-**目标**：透明展示指数构建与排名结果。
+**Goal:** Explain the transformation from raw observations to analysis panel.
 
-**建议内容**：
+**Suggested content:**
 
-- 同一年份截面 Min-Max 标准化（见 [methodology.md](methodology.md)）
-- 五个分项得分：
-  - `income_score`
-  - `gdp_score`
-  - `population_growth_score`
-  - `innovation_score`
-  - `housing_burden_score`（**越高表示住房可负担性越好**）
-- 权重与综合得分
-- 最新年份 YEOI 排名
-- 2021–2025 排名变化
-- Top 城市分项对比（雷达图或 stacked bar）
+- Read `data/raw/city_panel.csv`, verify row count is 100 (20 cities x 5 years)
+- Core field missing value check
+- Show derived fields:
+  - `population_growth` (computed from population series)
+  - `housing_burden` (housing price index / disposable income)
+  - `innovation_index` (currently equals `rd_expenditure`)
+- Explain project principle: no proxy, no arbitrary estimation, only source-backed data
+- **Explain** missing values rather than forcing imputation
 
-**指数公式（与代码一致）**：
+**Implementation note:** Authoritative cleaning logic is in `src/yei/clean_data.py` and `src/yei/download_data.py`; this notebook focuses on explanation and verification, not duplicating cleaning code.
 
-代码中 `housing_burden_score` 已反向标准化，分数越高表示住房压力越低，因此：
+**Core outputs:**
+
+- Missing value table or heatmap
+- Field unit and caliber documentation
+- Per-year coverage rates for 2021-2025
+
+---
+
+### 03 Exploratory Analysis — Exploratory analysis (prioritize completion)
+
+**Goal:** Answer the three economic questions from [project-design.md](project-design.md):
+
+1. Are high-income cities still worth the higher housing cost?
+2. Does housing pressure offset the economic opportunities a city offers?
+3. Which cities have better long-term attractiveness and growth potential?
+
+**Suggested analysis:**
+
+- Latest year income ranking (`disposable_income`)
+- Latest year housing pressure ranking (`housing_burden`, higher = more pressure)
+- GDP per capita vs disposable income comparison
+- Income vs housing burden scatter plot (colored by city group)
+- Population growth time trend (`population_growth`)
+- Innovation indicator time trend (`innovation_index`)
+- City group box plots
+
+**Core charts (corresponding to project-design section 8):**
+
+| # | Chart | Variables |
+|---|-------|-----------|
+| 1 | Income ranking | `disposable_income` |
+| 2 | Housing burden ranking | `housing_burden` |
+| 3 | GDP per capita comparison | `gdp_per_capita` |
+| 4 | Population growth trend | `population_growth` |
+| 5 | (Optional) Income vs housing burden scatter | Two variables + city group |
+
+**Economic interpretation directions:**
+
+- Tier-1 cities: high income, high housing pressure
+- Some strong second-tier: may be more balanced between income and housing pressure
+- Population growth: distinguish "high income but declining attractiveness" vs "moderate income but strong growth"
+
+**Priority:** This notebook produces the most charts and narrative; **prioritize completion**.
+
+---
+
+### 04 Index Calculation — How YEOI is computed, whether rankings are reasonable
+
+**Goal:** Transparently present index construction and ranking results.
+
+**Suggested content:**
+
+- Same-year cross-section Min-Max normalization (see [methodology.md](methodology.md))
+- Six sub-scores:
+  - `job_opportunity_score`
+  - `starting_income_score`
+  - `living_cost_score`
+  - `big_company_score`
+  - `growth_potential_score`
+  - `city_base_score`
+- Weights and composite score
+- Latest year YEOI ranking
+- 2021-2025 ranking changes
+- Top city sub-score comparison (radar chart or stacked bar)
+
+**Index formula (consistent with code):**
+
+The code inverse-normalizes `living_cost_score`, so higher scores indicate lower housing pressure:
 
 ```text
-YEOI = 0.25 × IncomeScore + 0.20 × GDPScore + 0.15 × TalentCapitalScore
-     + 0.12 × PopulationGrowthScore + 0.12 × InnovationScore
-     + 0.10 × IndustryStructureScore + 0.06 × HousingBurdenScore
+YEOI = 0.25 x JobOpportunityScore + 0.20 x StartingIncomeScore
+     + 0.20 x LivingCostScore + 0.15 x BigCompanyScore
+     + 0.10 x GrowthPotentialScore + 0.10 x CityBaseScore
 ```
 
-> 权重定义以 `src/yei/config.py` 中的 `YEOI_WEIGHTS` 为准。
+> Weights are defined by `YEOI_WEIGHTS` in `src/yei/config.py`.
 
-**核心图表**：
+**Core charts:**
 
-- 最新年份 Top 10 YEOI 排名
-- 排名随时间变化折线图
-- 城市分组平均 YEOI
-- Top 城市分项得分对比
+- Latest year Top 10 YEOI ranking
+- Ranking change over time line chart
+- City group average YEOI
+- Top city sub-score comparison
 
-**优先级**：在 03 之后完善。
+**Priority:** Complete after 03.
 
 ---
 
-### 05 Explanatory Model — 解释与稳健性（非因果）
+### 05 Explanatory Model — Explanation and robustness (not causal)
 
-**目标**：讨论哪些因素与 YEOI 排名关联，并检验权重敏感性。**不做**复杂机器学习或因果推断。
+**Goal:** Discuss which factors are associated with YEOI rankings and test weight sensitivity. **No** complex machine learning or causal inference.
 
-**建议内容**：
+**Suggested content:**
 
-- 各分项得分与 `yeoi_score` 的相关性
-- 城市分组平均分对比
-- Top / Bottom 城市的指标差异
-- **权重敏感性分析**：
-  - 基准权重
-  - 提高住房权重
-  - 提高人口增长权重
-  - 降低创新权重
-- 比较不同权重下排名是否稳定
+- Correlation of each sub-score with `yeoi_score`
+- City group average score comparison
+- Top / Bottom city indicator differences
+- **Weight sensitivity analysis:**
+  - Baseline weights
+  - Increase housing weight
+  - Increase population growth weight
+  - Decrease innovation weight
+- Compare ranking stability under different weights
 
-**核心输出**：
+**Core outputs:**
 
-- 分项与 YEOI 相关性条形图
-- Top / Bottom 城市分项差异表
-- 敏感性排名变化表
-- 稳定排名城市 vs 敏感排名城市
+- Sub-score vs YEOI correlation bar chart
+- Top / Bottom city sub-score difference table
+- Sensitivity ranking change table
+- Stable ranking cities vs sensitive ranking cities
 
-**表述原则**：
+**Expression principle:**
 
 ```text
 This is an explanatory index analysis, not a causal model.
 ```
 
-应写「在当前指数设定下，收入与 GDP 分项对排名贡献较大」，而非「收入导致城市机会更高」。
+Write "under the current index specification, income and GDP sub-scores contribute more to rankings," not "income causes higher city opportunity."
 
-**优先级**：最后完善，用于补充稳健性与 limitation。
-
----
-
-## 3. 贯穿全系列的核心问题
-
-| # | 问题 |
-|---|------|
-| 1 | 哪些城市收入机会最高？ |
-| 2 | 哪些城市住房压力最低？ |
-| 3 | 哪些城市在人口增长上仍有吸引力？ |
-| 4 | 高收入是否一定意味着高经济机会？ |
-| 5 | 哪些城市在「收入高 + 住房压力可接受」之间更平衡？ |
-| 6 | YEOI 排名前列城市主要靠哪类优势？ |
-| 7 | 若提高住房压力权重，排名是否会明显变化？ |
-| 8 | 哪些结论受 `rd_expenditure` 缺失影响最大？ |
+**Priority:** Complete last, supplementing robustness and limitations.
 
 ---
 
-## 4. 当前数据状态对分析的影响
+## 3. Cross-cutting Core Questions
 
-截至项目当前状态（详见 `data/raw/missing_data_summary.md`，本地未入库）：
-
-| 指标 | 面板覆盖 | 对分析的影响 |
-|------|----------|--------------|
-| `disposable_income` | 100/100 | 可完整做收入排名与散点图 |
-| `house_price` / `housing_burden` | 100/100 | 可完整做住房压力分析 |
-| `population_growth` | 100/100 | 可完整做增长趋势 |
-| `gdp_per_capita` | 100/100 | 可完整做 GDP 对比 |
-| `innovation_index` | 91/100 | 成都/合肥 2024 及 7 城 2025 缺失；创新分项与 YEOI 在该年为空 |
-
-在 04、05 中应标注：涉及缺失年份的城市，创新分项与综合排名需审慎解读。
-
----
-
-## 5. 实施优先级
-
-| 顺序 | Notebook | 理由 |
-|------|----------|------|
-| 1 | `03_exploratory_analysis.ipynb` | 产出核心图表与经济叙事 |
-| 2 | `04_index_calculation.ipynb` | 排名、分项、权重解释 |
-| 3 | `05_explanatory_model.ipynb` | 稳健性与 sensitivity |
-| 4 | `01_data_sources.ipynb` | 保持简洁，支撑可信度 |
-| 5 | `02_data_cleaning.ipynb` | 保持简洁，指向 `src/yei/` |
+| # | Question |
+|---|----------|
+| 1 | Which cities have the highest income opportunity? |
+| 2 | Which cities have the lowest housing pressure? |
+| 3 | Which cities remain attractive in population growth? |
+| 4 | Does high income necessarily mean high economic opportunity? |
+| 5 | Which cities are more balanced between "high income + acceptable housing pressure"? |
+| 6 | What type of advantage do top-ranked YEOI cities primarily rely on? |
+| 7 | If housing pressure weight is increased, do rankings change significantly? |
+| 8 | Which conclusions are most affected by `rd_expenditure` gaps? |
 
 ---
 
-## 6. 与报告、Dashboard 的衔接
+## 4. Impact of Current Data Status on Analysis
 
-| 产出 | 去向 |
-|------|------|
-| 03 中 5 张核心图 | `reports/` 静态图或报告插图 |
-| 04 排名表 | 报告 Results 节 |
-| 05 敏感性结论 | 报告 Limitations / Discussion |
-| 04 交互需求 | `app/streamlit_app.py` 已实现年份、城市、分项查询 |
+As of the current project state (see `data/raw/missing_data_summary.md`):
 
-Notebook 结论应服务于 [project-design.md](project-design.md) 第 10 节报告结构：Introduction → Data → Methodology → Results → Discussion → Limitations → Conclusion。
+| Indicator | Panel Coverage | Impact on Analysis |
+|-----------|---------------|---------------------|
+| `disposable_income` | 100/100 | Can fully do income ranking and scatter plots |
+| `house_price` / `housing_burden` | 100/100 | Can fully do housing pressure analysis |
+| `population_growth` | 100/100 | Can fully do growth trends |
+| `gdp_per_capita` | 100/100 | Can fully do GDP comparison |
+| `innovation_index` | 100/100 | Can fully do innovation analysis (including rd_expenditure) |
+| `job_posting_count` | 100/100 | Year-specific data 2021-2025 |
+| `entry_salary` | 100/100 | Year-specific data 2021-2025 |
+
+In 04, 05: mark that cities with missing years require cautious interpretation of innovation sub-scores and composite rankings.
 
 ---
 
-## 7. 相关文档
+## 5. Implementation Priority
 
-- [项目设计](project-design.md)
-- [方法论](methodology.md)
-- [数据设计](data-design.md)
-- [架构与命令](architecture.md)
+| Order | Notebook | Rationale |
+|-------|----------|----------|
+| 1 | `03_exploratory_analysis.ipynb` | Produces core charts and economic narrative |
+| 2 | `04_index_calculation.ipynb` | Rankings, sub-scores, weight explanation |
+| 3 | `05_explanatory_model.ipynb` | Robustness and sensitivity |
+| 4 | `01_data_sources.ipynb` | Keep concise, support credibility |
+| 5 | `02_data_cleaning.ipynb` | Keep concise, point to `src/yei/` |
+
+---
+
+## 6. Connection to Report and Dashboard
+
+| Output | Destination |
+|--------|-------------|
+| 5 core charts from 03 | `reports/` static charts or report figures |
+| Ranking tables from 04 | Report Results section |
+| Sensitivity conclusions from 05 | Report Limitations / Discussion |
+| Interactive needs from 04 | `app/streamlit_app.py` already implements year, city, sub-score queries |
+
+Notebook conclusions should serve [project-design.md](project-design.md) section 10 report structure: Introduction -> Data -> Methodology -> Results -> Discussion -> Limitations -> Conclusion.
+
+---
+
+## 7. Related Documents
+
+- [Project Design](project-design.md)
+- [Methodology](methodology.md)
+- [Data Design](data-design.md)
+- [Architecture and Commands](architecture.md)

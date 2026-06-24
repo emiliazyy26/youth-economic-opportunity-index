@@ -1,231 +1,231 @@
-# 数据下载链接汇总
+# Data Download Links Summary
 
-## 一、南昌市（Nanchang）
+## 1. Nanchang
 
-### 主要数据源：江西省科技经费投入统计公报
+### Primary Data Source: Jiangxi Provincial S&T Expenditure Statistical Bulletin
 
-**✅ 全部年份已获取（江西省统计局官方公报附表2，南昌市一般公共预算科学技术支出）**
+**All years obtained (Jiangxi Provincial Bureau of Statistics official bulletin Appendix Table 2, Nanchang general public budget S&T expenditure)**
 
-| 年份 | 数值（亿元） | 增长% | 占比% | 链接 | 状态 |
-|------|------|------|------|------|------|
-| 2024 | **39.13** | 5.21 | 4.16 | https://tjj.jiangxi.gov.cn/jxstjj/col/col38773/content/content_1980084826070781952.html | ✅ 已提取 |
-| 2023 | **37.20** | -5.85 | 4.02 | https://tjj.jiangxi.gov.cn/jxstjj/col/col38773/content/content_1869739885606395904.html | ✅ 已提取+存档 |
-| 2022 | **39.50** | -13.8 | 4.2 | https://tjj.jiangxi.gov.cn/jxstjj/col/col38773/content/content_1869739946880983040.html | ✅ 已提取+存档 |
-| 2021 | **45.85** | — | — | http://218.64.59.101/info/1134/2522.htm | ✅ 镜像（docx附件） |
+| Year | Value (100M RMB) | Growth % | Share % | Link | Status |
+|------|-------------------|----------|---------|------|--------|
+| 2024 | **39.13** | 5.21 | 4.16 | https://tjj.jiangxi.gov.cn/jxstjj/col/col38773/content/content_1980084826070781952.html | Extracted |
+| 2023 | **37.20** | -5.85 | 4.02 | https://tjj.jiangxi.gov.cn/jxstjj/col/col38773/content/content_1869739885606395904.html | Extracted + archived |
+| 2022 | **39.50** | -13.8 | 4.2 | https://tjj.jiangxi.gov.cn/jxstjj/col/col38773/content/content_1869739946880983040.html | Extracted + archived |
+| 2021 | **45.85** | — | — | http://218.64.59.101/info/1134/2522.htm | Mirror (docx attachment) |
 
-> **关键突破**：tjj.jiangxi.gov.cn 改版后新URL为 `jxstjj/col/col38773/content/content_XXXXX.html`。各年科技经费公报的 content ID 列表（从2019公报页的相关链接提取）：
-> - 2024 → content_1980084826070781952
-> - 2023 → content_1869739885606395904
-> - 2022 → content_1869739946880983040
-> - 2021 → content_1888868586897055744
-> - 2020 → content_1888867228944998400
-> - 2019 → content_1888865337234202624 / content_1869739885606395904
+> **Key breakthrough**: After tjj.jiangxi.gov.cn redesign, new URL pattern is `jxstjj/col/col38773/content/content_XXXXX.html`. Content IDs for each year's S&T bulletin (extracted from the 2019 bulletin page's related links):
+> - 2024 -> content_1980084826070781952
+> - 2023 -> content_1869739885606395904
+> - 2022 -> content_1869739946880983040
+> - 2021 -> content_1888868586897055744
+> - 2020 -> content_1888867228944998400
+> - 2019 -> content_1888865337234202624 / content_1869739885606395904
 >
-> 新站页面表格为 HTML 文本，可直接提取（无需 docx/图片 OCR）。
-> 已存档：`jiangxi_2022_keji_gongbao.html`、`jiangxi_2023_keji_gongbao.html`
+> New site pages have HTML text tables, directly extractable (no docx/image OCR needed).
+> Archived: `jiangxi_2022_keji_gongbao.html`, `jiangxi_2023_keji_gongbao.html`
 
-> **数据自洽性验证**：2024(39.13,+5.21%) → 2023=39.13/1.0521=37.19≈**37.20** ✅；2023(37.20,-5.85%) → 2022=37.20/0.9415=39.51≈**39.50** ✅。官方增长率与绝对值完全吻合。
+> **Data consistency verification**: 2024(39.13,+5.21%) -> 2023=39.13/1.0521=37.19 ~ **37.20** OK; 2023(37.20,-5.85%) -> 2022=37.20/0.9415=39.51 ~ **39.50** OK. Official growth rates and absolute values fully consistent.
 
-> **附表1（R&D经费，备查）**：南昌市 2022=139.71亿、2023=144.33亿、2024=158.14亿。
-
----
-
-## 二、哈尔滨市（Harbin）
-
-### 决算报告列表页（已突破 JS 加载）
-
-- 列表页 https://www.harbin.gov.cn/haerbin/c104524/navlist.shtml 的链接其实是**服务端静态渲染**的（curl 可直接拿到），此前误判为 JS 动态加载。
-- 历史全量列表通过接口翻页获取：`https://www.harbin.gov.cn/common/search/{channelId}?_isAgg=false&_isJson=true&_pageSize=60&page=1`，其中 channelId=`4e84be2305794e02ad2681ba233b1552`（共 106 条，覆盖 2017—2026）。
-- PDF 附件路径规律：`c104524/{yyyymm}/{articleId}/files/{中文文件名}.pdf`
-
-### 决算草案报告（含全市表3，文字版可提取）
-
-| 年份 | 文章页 | PDF | 状态 |
-|------|--------|-----|------|
-| 2024 | c01_1076387 | …/202509/1076387/files/关于2024年市本级决算草案和2025年上半年预算执行情况的报告.pdf (909KB) | ✅ 全市科技 190,792万 |
-| 2023 | c01_1011120 | …/202409/1011120/files/关于2023年市本级决算草案和2024年上半年预算执行情况的报告.pdf (1.2MB) | ✅ 已下载+提取 |
-| 2022 | c01_935172 | …/202310/935172/files/关于2022年市本级决算草案和2023年上半年预算执行情况的报告.pdf (53MB，扫描件) | ⚠️ 表格为扫描图，文字层未含科技数字 |
-| 2021 | c01_80157 | …/202209/80157/files/3e3f9662936347e29f234c665a32bedd.pdf (1.4MB) | ✅ 已下载+提取 |
-
-已存档：`harbin_2021_juesuan_report.pdf`、`harbin_2023_juesuan_report.pdf`
-
-### ✅ 已确认数据（全市口径，表3「哈尔滨市一般公共预算支出决算表」）
-
-| 年份 | 全市科学技术支出（万元） | 全市（亿元） | 增长% | 来源 |
-|------|----------|--------|------|------|
-| 2024 | 190,792 | **19.08** | +64.6 | 2024决算报告表3，直接提取 |
-| 2023 | 115,925 | **11.59** | +11.5 | 2023决算报告表3，直接提取 |
-| 2022 | ~103,969 | **~10.40** | — | 由2023增长11.5%反推（2022报告为扫描件） |
-| 2021 | 97,527 | **9.75** | -23.2 | 2021决算报告表3，直接提取 |
-
-> **交叉验证**：2024全市190,792万、增长64.6% → 2023=190792/1.646=115,907万≈**115,925** ✅ 与2023报告表3完全吻合。
-> 市本级口径（备查）：2024=109,568万(10.96亿)、2021=15,333万(1.53亿)。各年市本级与全市差异大，城市间对比统一用**全市**口径。
-> **2022精确值**：仅 2022 决算报告为扫描 PDF（表格无文字层），全市值由官方增长率链反推（10.40亿）；如需精确值可对 c01_935168「2022年哈尔滨市和哈尔滨市本级财政决算」(246MB完整扫描决算表) 做 OCR。
-
+> **Appendix Table 1 (R&D expenditure, for reference)**: Nanchang 2022=139.71, 2023=144.33, 2024=158.14 (100M RMB).
 
 ---
 
-## 三、成都市（Chengdu）
+## 2. Harbin
 
-### WAF 突破进展（加速乐 JS challenge）
+### Budget Report Listing Page (JS loading resolved)
 
-成都财政局全站（cdcz.chengdu.gov.cn 及 www.chengdu.gov.cn）使用**加速乐**反爬：curl/wget 返回 412 + 混淆 JS challenge（`$_ts` 变量），任何 UA/cookie 组合的纯 HTTP 请求都无法通过。
+- The listing page https://www.harbin.gov.cn/haerbin/c104524/navlist.shtml links are **server-side static rendered** (curl can fetch directly); previously misidentified as JS dynamic loading.
+- Full historical list obtained via API pagination: `https://www.harbin.gov.cn/common/search/{channelId}?_isAgg=false&_isJson=true&_pageSize=60&page=1`, where channelId=`4e84be2305794e02ad2681ba233b1552` (106 entries, covering 2017-2026).
+- PDF attachment path pattern: `c104524/{yyyymm}/{articleId}/files/{filename}.pdf`
 
-- ✅ **可用方法**：playwright 驱动本地真实 Chrome（`/Applications/Google Chrome.app`）+ `newContext(UA)` 访问，等待 8s 执行 challenge JS 后即可拿到真实页面。首次成功取得入口：
-  - 财政预决算公开汇总目录：https://www.chengdu.gov.cn/gkml/czyjs/column-index-1.shtml
-  - 成都市财政预算决算栏目：https://cdcz.chengdu.gov.cn/cdsczj/c116719/
-- ⚠️ **限制**：加速乐对高频访问限频，连续多次后持续返回 challenge（title 空），需间隔后重试；导出的 cookie 绑定 UA/指纹，无法转给 curl 复用。决算具体 PDF 需在限频解除后用 playwright 逐层深入获取。
+### Budget Draft Reports (includes city-wide Table 3, text version extractable)
 
-### 第三方/参考数据
+| Year | Article Page | PDF | Status |
+|------|-------------|-----|--------|
+| 2024 | c01_1076387 | .../202509/1076387/files/report.pdf (909KB) | City-wide S&T 190,792 (10K RMB) |
+| 2023 | c01_1011120 | .../202409/1011120/files/report.pdf (1.2MB) | Downloaded + extracted |
+| 2022 | c01_935172 | .../202310/935172/files/report.pdf (53MB, scanned) | Table is scanned image, text layer does not contain S&T figures |
+| 2021 | c01_80157 | .../202209/80157/files/3e3f9662936347e29f234c665a32bedd.pdf (1.4MB) | Downloaded + extracted |
 
-| 来源 | 数据 | 口径 |
-|------|------|------|
-| 聚汇数据 gotohui.com/finance/show-119834 | 成都市辖区科技支出 2014=12.71亿、2015=26.17亿（2016+ 为JS渲染未取到） | 市辖区（非全市） |
-| 新浪财经 | 2023年市级财政科技投入61.7亿元 | 市级 |
-| 四川省2024决算 | 全省财政科技支出278.1亿元，成都R&D经费920.9亿（占全省61.4%） | 省级 |
+Archived: `harbin_2021_juesuan_report.pdf`, `harbin_2023_juesuan_report.pdf`
 
-> **后续路径**：限频解除后用 playwright 访问 cdsczj 栏目，定位"成都市XXXX年全市一般公共预算支出决算表"，方法同武汉（文字版PDF可pypdf提取）。
+### Confirmed Data (city-wide caliber, Table 3 "Harbin General Public Budget Expenditure Settlement")
 
----
+| Year | City-wide S&T Expenditure (10K RMB) | City-wide (100M RMB) | Growth % | Source |
+|------|-------------------------------------|----------------------|----------|--------|
+| 2024 | 190,792 | **19.08** | +64.6 | 2024 budget report Table 3, direct extraction |
+| 2023 | 115,925 | **11.59** | +11.5 | 2023 budget report Table 3, direct extraction |
+| 2022 | ~103,969 | **~10.40** | — | Back-calculated from 2023 growth 11.5% (2022 report is scanned) |
+| 2021 | 97,527 | **9.75** | -23.2 | 2021 budget report Table 3, direct extraction |
 
-## 四、合肥市（Hefei）
+> **Cross-validation**: 2024 city-wide 190,792 (10K), growth 64.6% -> 2023=190792/1.646=115,907 ~ **115,925** OK, consistent with 2023 report Table 3.
+> City-level caliber (for reference): 2024=109,568 (10.96), 2021=15,333 (1.53). City-level vs city-wide differ significantly; cross-city comparison uses **city-wide** caliber uniformly.
+> **2022 precise value**: Only the 2022 budget report is a scanned PDF (table has no text layer); city-wide value back-calculated from official growth rate chain (10.40); for precise value, OCR on c01_935168 "2022 Harbin City and City-level Fiscal Settlement" (246MB full scanned settlement table) could be done.
 
-| 来源 | 链接 | 状态 |
-|------|------|------|
-| 财政局首页 | https://czj.hefei.gov.cn/ | ❌ Tavily爬虫无法访问（API报错），需浏览器直接访问 |
-| 2024年统计公报 | http://finance.anhuinews.com/ahyw/202503/t20250331_8362464.html | ✅ 可访问，但只含一般公共预算支出总额(1581.06亿元)，**未单列**科学技术支出 |
-
-> **用户线索**：https://czj.hefei.gov.cn/ → 找「决算报告」
-> **新线索**：尝试 https://czj.hefei.gov.cn/ 的「政府信息公开」→「财政资金」→「财政预决算」栏目
-
----
-
-## 五、武汉市（Wuhan）
-
-### ✅ 全市口径（表2 全市一般公共预算支出决算/执行表，文字版PDF，pypdf直接提取）
-
-| 年份 | 全市科技支出（万元） | 全市（亿元） | 增长% | PDF |
-|------|------|------|------|------|
-| 2025(执行) | 2,077,429 | **207.74** | — | …/202601/P020260126637828068174.pdf |
-| 2024 | 2,003,842 | **200.38** | 10.5 | …/202509/P020250915369946144212.pdf |
-| 2023 | 1,813,716 | **181.37** | 2.0 | …/202409/P020240912359285485449.pdf |
-| 2022 | 1,777,569 | **177.76** | -6.6 | …/202309/P020230927586099820024.pdf |
-
-已存档：`wuhan_2022/2023/2024_quanshi_zhichu_juesuan.pdf`、`wuhan_2025_quanshi_zhichu_zhixing.pdf`
-
-> **关键突破（列表JS分页）**：武汉 CZYJS 栏目列表用 `createPageHTML` JS 分页，curl 只能拿首页。用 playwright 驱动真实 Chrome 访问列表页、循环点击"下一页"按钮翻页，定位到各年"表2：武汉市XXXX年全市一般公共预算支出决算表"文章页；文章页 html 内 `var pdf='...P0xxx.pdf'` 即附件地址，PDF 为文字版可 pypdf 直接提取。
-> 2024 全市决算表页：…/202509/t20250915_2647497.html；2023：…/202409/t20240912_2453697.html；2022：…/202309/t20230927_2272491.html
-
-### 市本级口径（决算报告，备查）
-
-| 年份 | 市本级科技支出（亿元） | PDF |
-|------|------|------|
-| 2024 | 138.94 | …/202509/P020250915377637094477.pdf |
-| 2023 | 132.11 | …/202409/P020240912370202141023.pdf |
-| 2022 | 123.46 | …/202309/P020230927588797709848.pdf |
-| 2025(预算) | 157.68 | 2025预算草案 |
-
-> 全市口径（177-208亿）远大于市本级（123-139亿），各区科技支出占比高。**城市间对比统一用全市口径**。
 
 ---
 
-## 六、杭州市（Hangzhou）
+## 3. Chengdu
 
-### 决算报告
+### WAF Breakthrough Progress (JiaSuLe JS challenge)
 
-| 年份 | 链接 | 状态 |
-|------|------|------|
-| 2024 | https://zjjcmspublic.oss-cn-hangzhou-zwynet-d01-a.internet.cloud.zj.gov.cn/jcms_files/jcms1/web149/site/attach/0/22d597e448ef42f3912db9c80b730f3c.pdf | ✅ 已提取，全市科学技术支出 **267.8亿元**（同口径增长15.5%） |
-| 2023 | https://z.hangzhou.com.cn/2020/hzrmzfgb/content/content_8696702.html | ✅ 可访问（html），2023预算执行情况报告 |
+Chengdu Finance Bureau entire site (cdcz.chengdu.gov.cn and www.chengdu.gov.cn) uses **JiaSuLe** anti-scraping: curl/wget returns 412 + obfuscated JS challenge (`$_ts` variable); any UA/cookie combination pure HTTP request cannot pass.
 
-### 已确认数据
+- **Working method**: Playwright driving local real Chrome (`/Applications/Google Chrome.app`) + `newContext(UA)` access, wait 8s for challenge JS execution then get real page. First successful entry:
+  - Fiscal budget disclosure directory: https://www.chengdu.gov.cn/gkml/czyjs/column-index-1.shtml
+  - Chengdu Finance Bureau budget/settlement column: https://cdcz.chengdu.gov.cn/cdsczj/c116719/
+- **Limitation**: JiaSuLe rate-limits high-frequency access; after consecutive attempts, returns challenge (empty title) persistently; needs interval before retry; exported cookies are bound to UA/fingerprint, cannot be transferred to curl. Specific settlement PDFs need Playwright to drill down after rate limit clears.
 
-| 年份 | 全市科学技术支出（亿元） | 来源 |
-|------|--------------------------|------|
-| 2024 | 267.8 | 2024年预算执行情况和2025年预算草案报告PDF，及2024统计公报确认(268亿) |
-| 2025 预算 | 308.0 | 2025年预算草案（增长15%） |
+### Third-party / Reference Data
 
-> **注意**：杭州科技支出规模远超其他城市（267.8亿 vs 武汉市本级139亿、南昌39亿），可能因为杭州口径包含区县全市数据、数字经济研发补贴等。需确认与其他城市的可比口径。
+| Source | Data | Caliber |
+|--------|------|---------|
+| JuHui Data gotohui.com/finance/show-119834 | Chengdu district S&T expenditure 2014=12.71, 2015=26.17 (100M RMB) (2016+ JS rendered, not obtained) | City districts (not city-wide) |
+| Sina Finance | 2023 city-level fiscal S&T investment 61.7 (100M RMB) | City-level |
+| Sichuan Province 2024 Settlement | Provincial fiscal S&T expenditure 278.1 (100M RMB), Chengdu R&D 920.9 (100M, 61.4% of province) | Provincial |
 
----
-
-## 七、昆明市（Kunming）
-
-### 主要数据源：云南省科技统计公报
-
-| 年份 | 链接 | 状态 |
-|------|------|------|
-| 2024 | https://kjt.yn.gov.cn/html/2025/kejitongji_1110/3011837.html | ✅ 已提取，昆明市财政科学技术支出 5.00亿元 |
-| 2023 | https://kjt.yn.gov.cn/uploadfile/s49/2024/1114/20241114050259893.pdf | ✅ 已有数据，昆明市 8.84亿元 |
-| 2022 | https://kjt.yn.gov.cn/html/2023/kejitongji_1025/8091.html | ✅ 已提取，表3 昆明市财政科学技术支出 148,816万元 = 14.88亿元 |
-| 2021 | https://kjt.yn.gov.cn/uploadfile/s49/2022/1014/20221014035519506.pdf | ✅ 已下载+OCR，表3 昆明市财政科学技术支出 106,211万元 = 10.62亿元 |
-| 2025 | 预计 https://kjt.yn.gov.cn/ 2026年10月发布 | ⏳ 尚未发布 |
+> **Next steps**: After rate limit clears, use Playwright to access cdsczj column, locate "Chengdu XXXX City-wide General Public Budget Expenditure Settlement Table", same method as Wuhan (text PDF extractable via pypdf).
 
 ---
 
-## 八、2022年江西省公报（Nanchang 2022）✅ 已解决
+## 4. Hefei
 
-**已通过 tjj.jiangxi.gov.cn 新版 content 页直接获取**（见第一节南昌部分）：
-- 2022 公报：content_1869739946880983040 → 南昌市 **39.50亿元**
-- 2023 公报：content_1869739885606395904 → 南昌市 **37.20亿元**
+| Source | Link | Status |
+|--------|------|--------|
+| Finance Bureau homepage | https://czj.hefei.gov.cn/ | Tavily crawler cannot access (API error), needs direct browser access |
+| 2024 statistical bulletin | http://finance.anhuinews.com/ahyw/202503/t20250331_8362464.html | Accessible, but only contains total general public budget expenditure (1581.06 100M RMB), S&T expenditure **not separately listed** |
 
-> 此前判断"旧URL 404 / 无法获取"是错误的——新站 content ID 可从 2019 公报页的"相关链接"列表完整提取，无需 docx/图片/OCR。
+> **User lead**: https://czj.hefei.gov.cn/ -> find "Budget Settlement Report"
+> **New lead**: Try https://czj.hefei.gov.cn/ "Government Information Disclosure" -> "Fiscal Funds" -> "Fiscal Budget Settlement" column
 
 ---
 
-## 九、数据口径说明
+## 5. Wuhan
 
-所有数据统一使用「一般公共预算科学技术支出 / 财政科学技术支出」口径（单位：亿元）。
+### City-wide Caliber (Table 2 City-wide General Public Budget Expenditure Settlement/Execution, text PDF, pypdf direct extraction)
 
-| 城市 | 数据来源类型 | 备注 |
-|------|-------------|------|
-| Kunming | 云南省科技统计公报 表3 | 省级公报直接列出各州市数据 |
-| Nanchang | 江西省科技经费投入统计公报 附表2 | ✅ 新站 content 页 HTML 表格，2021-2024 全 |
-| Harbin | 哈尔滨市决算草案报告 PDF 表3 | ✅ 全市口径，2021/2023/2024 直接提取 |
-| Chengdu | 成都市决算报告 | 🔧 加速乐WAF，playwright可突破但限频 |
-| Hefei | 合肥市决算报告 | ❌ 财政局站未取得，需手动获取 |
-| Wuhan | 武汉市表2全市支出决算表 | ✅ 全市2022-2024决算+2025执行 |
-| Hangzhou | 杭州市预算执行报告 | ✅ 全市 2024 |
+| Year | City-wide S&T Expenditure (10K RMB) | City-wide (100M RMB) | Growth % | PDF |
+|------|-------------------------------------|----------------------|----------|-----|
+| 2025 (execution) | 2,077,429 | **207.74** | — | .../202601/P020260126637828068174.pdf |
+| 2024 | 2,003,842 | **200.38** | 10.5 | .../202509/P020250915369946144212.pdf |
+| 2023 | 1,813,716 | **181.37** | 2.0 | .../202409/P020240912359285485449.pdf |
+| 2022 | 1,777,569 | **177.76** | -6.6 | .../202309/P020230927586099820024.pdf |
 
-## 十、数据采集进度汇总（单位：亿元）
+Archived: `wuhan_2022/2023/2024_quanshi_zhichu_juesuan.pdf`, `wuhan_2025_quanshi_zhichu_zhixing.pdf`
 
-| 城市 | 口径 | 2021 | 2022 | 2023 | 2024 | 2025 |
-|------|------|------|------|------|------|------|
-| **Kunming** | 全市 | 10.62 | 14.88 | 8.84 | 5.00 | ⏳ 2026.10发布 |
-| **Nanchang** | 全市 | 45.85 | **39.50** | **37.20** | 39.13 | — |
-| **Harbin** | 全市 | **9.75** | ~10.40▲ | **11.59** | 19.08 | — |
-| **Wuhan** | 全市 | ❌ | **177.76** | **181.37** | **200.38** | 207.74(执行) |
-| **Hangzhou** | 全市 | ❌ | ❌ | ❌ | 267.8 | 308(预算) |
-| **Chengdu** | — | ❌ | ❌ | ❌ | ❌ | — |
-| **Hefei** | — | ❌ | ❌ | ❌ | ❌ | — |
+> **Key breakthrough (listing JS pagination)**: Wuhan CZYJS column listing uses `createPageHTML` JS pagination; curl only gets first page. Used Playwright driving real Chrome to access listing page, loop-click "Next Page" button to paginate, locate each year's "Table 2: Wuhan XXXX City-wide General Public Budget Expenditure Settlement Table" article page; article page HTML contains `var pdf='...P0xxx.pdf'` as attachment address; PDF is text version, pypdf direct extraction.
+> 2024 city-wide settlement table page: .../202509/t20250915_2647497.html; 2023: .../202409/t20240912_2453697.html; 2022: .../202309/t20240927_2272491.html
 
-▲ 哈尔滨2022为官方增长率反推值（其余均为官方公报/决算报告直接提取）。
-武汉市本级口径备查：2022=123.46/2023=132.11/2024=138.94亿。
+### City-level Caliber (budget report, for reference)
 
-> **口径说明（重要）**：
-> - Kunming / Nanchang / Harbin / Wuhan / Hangzhou = **全市**口径，可直接横向比较。
-> - Wuhan 全市2022-2024为决算确数，2025为执行数。
-> - Chengdu（加速乐WAF，playwright可突破但限频）、Hefei（财政局站点未取得决算）仍是两个缺口，详见对应章节的后续路径。
+| Year | City-level S&T Expenditure (100M RMB) | PDF |
+|------|--------------------------------------|-----|
+| 2024 | 138.94 | .../202509/P020250915377637094477.pdf |
+| 2023 | 132.11 | .../202409/P020240912370202141023.pdf |
+| 2022 | 123.46 | .../202309/P020230927588797709848.pdf |
+| 2025 (budget) | 157.68 | 2025 budget draft |
 
-### 本轮新增/修正
+> City-wide caliber (177-208 100M) is much larger than city-level (123-139 100M); district S&T expenditure share is high. **Cross-city comparison uses city-wide caliber uniformly**.
 
-- ✅ 武汉**全市**口径 2022-2025 全部获取（177.76/181.37/200.38/207.74亿）：playwright 翻列表定位各年"表2全市支出决算表"，PDF文字版 pypdf 直接提取，替代此前仅有的市本级序列。
-- ✅ 南昌 2022(39.50)、2023(37.20)：江西省统计局新站 content 页直接提取。
-- ✅ 哈尔滨 2021(9.75)、2023(11.59)、2024(19.08)：决算报告 PDF 直接提取+交叉验证；2022(~10.40) 反推。
-- 🔧 成都 WAF：验证 playwright+真实Chrome 可突破加速乐（取得入口），但限频不稳定；决算PDF待限频解除后深入。
-- 🛠️ 已建立 OCR 能力（tesseract + chi_sim 语言包），用于扫描件兜底。
-- 📁 新存档：`wuhan_2022/2023/2024_quanshi_zhichu_juesuan.pdf`、`wuhan_2025_quanshi_zhichu_zhixing.pdf`、`harbin_2021/2023_juesuan_report.pdf`、`jiangxi_2022/2023_keji_gongbao.html`、`hangzhou_2024_bgtzx.pdf`
+---
 
-### 数据落库修复（本轮）
+## 6. Hangzhou
 
-此前已确认的 6 个值仅记录在本文档/归档文件中，未写入 `manual_source_observations.csv`，导致 `source_observations.csv` / 面板缺失。本轮补录使数据可从 manual 文件完整复现：
+### Budget Settlement Reports
 
-- ✅ Nanchang 2021(45.85)、2022(39.50)、Harbin 2021(9.75)、2022(10.40)、Kunming 2021(10.62)、2022(14.88) 全部写入 `manual_source_observations.csv` 并重建管线。
-- ✅ rd_expenditure 覆盖：20 城 2021-2024 基本齐全（仅 Chengdu 2024、Hefei 2024 缺）。
-- 📋 `missing_data_report.csv` 重整：仅余 **Chengdu 2024 / Hefei 2024**（站点受阻，`not_found`）+ 7 城 **2025**（`genuinely_not_published`，2026 发布）。
+| Year | Link | Status |
+|------|------|--------|
+| 2024 | https://zjjcmspublic.oss-cn-hangzhou-zwynet-d01-a.internet.cloud.zj.gov.cn/jcms_files/jcms1/web149/site/attach/0/22d597e448ef42f3912db9c80b730f3c.pdf | Extracted, city-wide S&T expenditure **267.8 (100M RMB)** (same-caliber growth 15.5%) |
+| 2023 | https://z.hangzhou.com.cn/2020/hzrmzfgb/content/content_8696702.html | Accessible (html), 2023 budget execution report |
 
-### 待办（剩余真实缺口）
+### Confirmed Data
 
-- ⛔ **Chengdu 2024**：Playwright+真实 Chrome 首轮可进 `chengdu.gov.cn/gkml/czyjs/column-index-1.shtml`（73KB，含「市政府→cdcz…/jgsz_list.shtml」入口）；但 `cdcz.chengdu.gov.cn` 子域 403/39B，连续抓取后门户亦被限频。**本轮未提取到科学技术支出数值**。
-- ⛔ **Hefei 2024**：Playwright 首轮可进 `czj.hefei.gov.cn/`（84KB）及 `bmyjs/index.html`（部门决算列表）；子页/二次访问触发加速乐 challenge（~45KB JS，非真实内容）。`hefei.gov.cn/public/…/财政资金` 亦 521。部门决算仅有「合肥市财政局2024年度部门决算」，非全市口径。**本轮未提取到全市科学技术支出数值**。
-- 🔧 抓取脚本：`scripts/fetch_rd_budget_playwright.py`；调试 HTML/JSON 在 `data/raw/_playwright_budget/`。建议 IP 冷却数小时后再单 URL 慢速重试，或本地浏览器手动过 WAF 后导出 PDF。
+| Year | City-wide S&T Expenditure (100M RMB) | Source |
+|------|--------------------------------------|--------|
+| 2024 | 267.8 | 2024 budget execution and 2025 budget draft report PDF, confirmed by 2024 statistical bulletin (268) |
+| 2025 budget | 308.0 | 2025 budget draft (growth 15%) |
+
+> **Note**: Hangzhou S&T expenditure scale far exceeds other cities (267.8 vs Wuhan city-level 139, Nanchang 39), possibly because Hangzhou caliber includes district city-wide data, digital economy R&D subsidies, etc. Need to confirm comparable caliber with other cities.
+
+---
+
+## 7. Kunming
+
+### Primary Data Source: Yunnan Provincial S&T Statistical Bulletin
+
+| Year | Link | Status |
+|------|------|--------|
+| 2024 | https://kjt.yn.gov.cn/html/2025/kejitongji_1110/3011837.html | Extracted, Kunming fiscal S&T expenditure 5.00 (100M RMB) |
+| 2023 | https://kjt.yn.gov.cn/uploadfile/s49/2024/1114/20241114050259893.pdf | Data available, Kunming 8.84 (100M RMB) |
+| 2022 | https://kjt.yn.gov.cn/html/2023/kejitongji_1025/8091.html | Extracted, Table 3 Kunming fiscal S&T expenditure 148,816 (10K) = 14.88 (100M RMB) |
+| 2021 | https://kjt.yn.gov.cn/uploadfile/s49/2022/1014/20221014035519506.pdf | Downloaded + OCR, Table 3 Kunming fiscal S&T expenditure 106,211 (10K) = 10.62 (100M RMB) |
+| 2025 | Expected https://kjt.yn.gov.cn/ publication in Oct 2026 | Not yet published |
+
+---
+
+## 8. Jiangxi Province 2022 Bulletin (Nanchang 2022) - Resolved
+
+**Obtained directly via tjj.jiangxi.gov.cn new content page** (see Section 1 Nanchang):
+- 2022 bulletin: content_1869739946880983040 -> Nanchang **39.50 (100M RMB)**
+- 2023 bulletin: content_1869739885606395904 -> Nanchang **37.20 (100M RMB)**
+
+> Previous assessment that "old URL 404 / cannot obtain" was incorrect -- new site content IDs can be fully extracted from the 2019 bulletin page's "related links" list, no docx/image/OCR needed.
+
+---
+
+## 9. Data Caliber Notes
+
+All data uniformly uses "general public budget S&T expenditure / fiscal S&T expenditure" caliber (unit: 100M RMB).
+
+| City | Data Source Type | Notes |
+|------|-----------------|-------|
+| Kunming | Yunnan Provincial S&T Statistical Bulletin Table 3 | Provincial bulletin directly lists prefecture-level data |
+| Nanchang | Jiangxi Provincial S&T Expenditure Statistical Bulletin Appendix Table 2 | New site content page HTML table, 2021-2024 complete |
+| Harbin | Harbin Budget Draft Report PDF Table 3 | City-wide caliber, 2021/2023/2024 direct extraction |
+| Chengdu | Chengdu Budget Report | JiaSuLe WAF, Playwright can break through but rate-limited |
+| Hefei | Hefei Budget Report | Finance Bureau site not obtained, needs manual access |
+| Wuhan | Wuhan Table 2 City-wide Expenditure Settlement Table | City-wide 2022-2024 settlement + 2025 execution |
+| Hangzhou | Hangzhou Budget Execution Report | City-wide 2024 |
+
+## 10. Data Collection Progress Summary (unit: 100M RMB)
+
+| City | Caliber | 2021 | 2022 | 2023 | 2024 | 2025 |
+|------|---------|------|------|------|------|------|
+| **Kunming** | City-wide | 10.62 | 14.88 | 8.84 | 5.00 | Pending 2026.10 |
+| **Nanchang** | City-wide | 45.85 | **39.50** | **37.20** | 39.13 | — |
+| **Harbin** | City-wide | **9.75** | ~10.40 | **11.59** | 19.08 | — |
+| **Wuhan** | City-wide | N/A | **177.76** | **181.37** | **200.38** | 207.74 (execution) |
+| **Hangzhou** | City-wide | N/A | N/A | N/A | 267.8 | 308 (budget) |
+| **Chengdu** | — | N/A | N/A | N/A | N/A | — |
+| **Hefei** | — | N/A | N/A | N/A | N/A | — |
+
+Harbin 2022 is back-calculated from official growth rate (all others are direct extraction from official bulletins/budget reports).
+Wuhan city-level caliber for reference: 2022=123.46 / 2023=132.11 / 2024=138.94 (100M RMB).
+
+> **Caliber Notes (important)**:
+> - Kunming / Nanchang / Harbin / Wuhan / Hangzhou = **city-wide** caliber, directly comparable.
+> - Wuhan city-wide 2022-2024 are settlement final numbers; 2025 is execution number.
+> - Chengdu (JiaSuLe WAF, Playwright can break through but rate-limited), Hefei (Finance Bureau site not obtained settlement) remain two gaps; see corresponding sections for next steps.
+
+### New/Corrected This Round
+
+- Wuhan **city-wide** caliber 2022-2025 all obtained (177.76/181.37/200.38/207.74): Playwright paginated listing to locate each year's "Table 2 city-wide expenditure settlement table", text PDF pypdf direct extraction, replacing previous city-level-only series.
+- Nanchang 2022 (39.50), 2023 (37.20): Jiangxi Provincial Bureau of Statistics new site content page direct extraction.
+- Harbin 2021 (9.75), 2023 (11.59), 2024 (19.08): Budget report PDF direct extraction + cross-validation; 2022 (~10.40) back-calculated.
+- Chengdu WAF: Verified Playwright + real Chrome can break through JiaSuLe (obtained entry), but rate limiting unstable; settlement PDF pending after rate limit clears.
+- OCR capability established (tesseract + chi_sim language pack), for scanned document fallback.
+- New archives: `wuhan_2022/2023/2024_quanshi_zhichu_juesuan.pdf`, `wuhan_2025_quanshi_zhichu_zhixing.pdf`, `harbin_2021/2023_juesuan_report.pdf`, `jiangxi_2022/2023_keji_gongbao.html`, `hangzhou_2024_bgtzx.pdf`
+
+### Data Database Repair (This Round)
+
+Previously confirmed 6 values were only recorded in this document/archive files, not written to `manual_source_observations.csv`, causing `source_observations.csv` / panel gaps. This round entered all values, making data fully reproducible from manual file:
+
+- Nanchang 2021 (45.85), 2022 (39.50), Harbin 2021 (9.75), 2022 (10.40), Kunming 2021 (10.62), 2022 (14.88) all written to `manual_source_observations.csv` and pipeline rebuilt.
+- rd_expenditure coverage: 20 cities 2021-2024 basically complete (only Chengdu 2024, Hefei 2024 missing).
+- `missing_data_report.csv` reorganized: only **Chengdu 2024 / Hefei 2024** (site blocked, `not_found`) + 7 cities **2025** (`genuinely_not_published`, 2026 publication) remain.
+
+### TODO (Remaining Real Gaps)
+
+- **Chengdu 2024**: Playwright + real Chrome first round can enter `chengdu.gov.cn/gkml/czyjs/column-index-1.shtml` (73KB, contains entry); but `cdcz.chengdu.gov.cn` subdomain 403/39B, after consecutive scraping the portal is also rate-limited. **S&T expenditure value not extracted this round**.
+- **Hefei 2024**: Playwright first round can enter `czj.hefei.gov.cn/` (84KB) and `bmyjs/index.html` (department settlement list); sub-page/second access triggers JiaSuLe challenge (~45KB JS, not real content). `hefei.gov.cn/public/.../fiscal funds` also 521. Department settlement only has "Hefei Finance Bureau 2024 Department Settlement", not city-wide caliber. **City-wide S&T expenditure value not extracted this round**.
+- Scraping scripts: `scripts/fetch_rd_budget_playwright.py`; debug HTML/JSON in `data/raw/_playwright_budget/`. Recommend IP cooldown for several hours before single-URL slow retry, or local browser manual WAF bypass then export PDF.

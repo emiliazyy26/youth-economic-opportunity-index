@@ -8,10 +8,10 @@
 
 | Category | Count | Status |
 |----------|-------|--------|
-| Real data errors (fixed) | 6 | ✅ Fixed this round |
-| Real data errors (needs manual fix) | 6 | ⚠️ Needs investigation |
-| Expected / false positives | 41 | 🔵 Documented |
-| Remaining `rd_expenditure` gaps | 4 | ⏳ Official data not yet published |
+| Real data errors (fixed) | 6 | Fixed this round |
+| Real data errors (needs manual fix) | 6 | Needs investigation |
+| Expected / false positives | 41 | Documented |
+| Remaining `rd_expenditure` gaps | 4 | Official data not yet published |
 | **Total warnings** | **60 → effectively ~10 real issues** | |
 
 ---
@@ -22,7 +22,7 @@
 |-------|------|-----|
 | Xi'an 2023 population = 4,458,800 (wrong) | communique_fetch picked wrong webpage | Manual override: 12,960,000 |
 | Xi'an 2023 disposable_income = 27,047 (wrong) | communique_fetch picked wrong webpage | Manual override: 42,818 |
-| Harbin 2023 GDP total = 15,760.34 亿 (wrong) | communique_fetch picked wrong webpage | Manual override: 5,576.3 亿 |
+| Harbin 2023 GDP total = 15,760.34 (100M RMB, wrong) | communique_fetch picked wrong webpage | Manual override: 5,576.3 (100M RMB) |
 | Harbin 2023 population = 10,371,500 (wrong) | communique_fetch picked wrong webpage | Manual override: 9,395,000 |
 
 ---
@@ -55,7 +55,7 @@
 
 ### 2.5 Chengdu 2021-2023 rd_expenditure wide-caliber issue
 - 2021=237.5, 2022=250.2, 2023=268.6 → 2024=129.2 (−51.9%)
-- **Root cause**: 2021-2023 use wide-caliber (R&D经费) vs 2024 narrow-caliber (科学技术支出)
+- **Root cause**: 2021-2023 use wide-caliber (R&D expenditure) vs 2024 narrow-caliber (science & technology expenditure)
 - **Impact**: `innovation_score` over-estimated for Chengdu 2021-2023
 - **Fix**: Replace with Chengdu budget report narrow-caliber values when available
 
@@ -70,7 +70,7 @@
 ## 3. Expected / False Positives
 
 ### 3.1 Suzhou housing_burden ≠ NBS index
-- Suzhou uses `yuan/sqm` (from 商品房销售额/销售面积) while other 19 cities use NBS 70-city index (~100)
+- Suzhou uses `yuan/sqm` (from commercial housing sales revenue / sales area) while other 19 cities use NBS 70-city index (~100)
 - This is **by design** — Suzhou is NOT in the NBS 70-city list
 - `housing_burden_score` uses min-max normalization within each year, so Suzhou's absolute scale doesn't affect rankings
 - **Action**: None needed. Consider lowering `REASONABLE_RANGES['housing_burden']` upper bound to include Suzhou
@@ -80,9 +80,9 @@
 - Harbin/Kunming/Nanchang/Shenyang (Tier 3) exceed lower Tier 2 in income — **plausible**: these are provincial capitals with decent income
 - **Action**: None needed. Tier classification is approximate; cross-tier overlap is expected
 
-### 3.3 Shanghai/Shenzhen rd_expenditure > 600 亿
+### 3.3 Shanghai/Shenzhen rd_expenditure > 600 (100M RMB)
 - Shanghai 2024=635.5, 2025=702.3; Shenzhen 2025=613.0 — **correct values**
-- These are全市 narrow-caliber 科学技术支出, which are genuinely high for mega-cities
+- These are city-wide narrow-caliber S&T expenditure, which are genuinely high for mega-cities
 - **Action**: None needed. Raise `REASONABLE_RANGES['innovation_index']` upper bound to 800
 
 ### 3.4 Wuhan population_growth ~10%

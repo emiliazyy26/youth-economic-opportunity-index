@@ -1,4 +1,4 @@
-"""YEOI 权重敏感性分析。"""
+"""YEOI weight sensitivity analysis."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from yei.config import YEOI_WEIGHTS
 
 
 def _rank_by_weights(df: pd.DataFrame, weights: dict[str, float]) -> pd.DataFrame:
-    """按给定权重重新计算 yeoi_score 与 rank（复用 build_scores 的分项）。"""
+    """Recompute yeoi_score and rank with given weights (reusing build_scores dimension scores)."""
     base_scores = build_scores(df)
     merged = df.merge(
         base_scores[
@@ -42,7 +42,7 @@ def sensitivity_shift(
     *,
     shift: float = 0.05,
 ) -> pd.DataFrame:
-    """测试各维度权重 ±shift 对最新年份 Top-5 城市排名的影响。"""
+    """Test the impact of +/-shift on each dimension weight for the latest year Top-5 city ranking."""
     panel = df if df is not None else clean_city_panel(load_raw_data())
     baseline = build_scores(panel)
     latest_year = int(baseline["year"].max())

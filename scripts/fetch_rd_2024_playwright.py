@@ -1,8 +1,8 @@
-"""Targeted Playwright scraper for Chengdu/Hefei 2024 全市决算 PDF.
+"""Targeted Playwright scraper for Chengdu/Hefei 2024 city-level final accounts PDF.
 
 Strategy: open a real Chrome via Playwright, slowly navigate municipal finance bureau
-sites to find the 全市 final-accounts (决算) report PDF containing 「科学技术支出」row,
-download the PDF, extract the number with pypdf, and write a JSON report.
+sites to find the city-wide final-accounts report PDF containing the science & technology
+expenditure row, download the PDF, extract the number with pypdf, and write a JSON report.
 
 We DO NOT batch-crawl. Each city has a single seed URL list, a single browser session
 with long delays (per WAF cooldown observations), and human-readable progress.
@@ -41,23 +41,23 @@ def log(msg: str) -> None:
 # ---------- city seeds ----------
 
 CHENGDU_SEEDS = [
-    # 公开目录入口 (works per previous attempts)
+    # Public catalog entry (works per previous attempts)
     "https://www.chengdu.gov.cn/gkml/czyjs/column-index-1.shtml",
-    # 市财政局 jgsz_list（previous attempt got 403, retry with new session/cookie）
+    # Municipal finance bureau jgsz_list (previous attempt got 403, retry with new session/cookie)
     "http://cdcz.chengdu.gov.cn/cdsczj/c116714/jgsz_list.shtml",
 ]
 
 HEFEI_SEEDS = [
-    # 市财政局 -> 预算执行栏目 (depth-first start)
+    # Municipal finance bureau -> budget execution column (depth-first start)
     "https://czj.hefei.gov.cn/czsw/czzt/ysgl/yszx/index.html",
-    # 市财政局 -> 通知公告 (often contains 决算报告)
+    # Municipal finance bureau -> notices (often contains final accounts reports)
     "https://czj.hefei.gov.cn/czsw/czzt/ysgl/index.html",
-    # 市财政局首页 (already works)
+    # Municipal finance bureau homepage (already works)
     "https://czj.hefei.gov.cn/",
 ]
 
 KEYWORDS_INTEREST = ("2024", "决算", "预算执行", "全市", "财政", "科学技术", "草案")
-# require these to bias toward 全市决算（avoid 部门决算 / 月度收支）
+# require these to bias toward city-wide final accounts (avoid departmental / monthly reports)
 KEYWORDS_TARGET = ("决算", "草案", "执行情况报告")
 KEYWORDS_REJECT = ("部门", "月", "代编", "招标", "采购", "中标", "成交")
 
@@ -73,13 +73,13 @@ UA = (
 
 
 def extract_science_tech_value(pdf_bytes: bytes) -> list[dict]:
-    """Find «科学技术支出» rows with adjacent number; return all hits with context."""
+    """Find science & technology expenditure rows with adjacent number; return all hits with context."""
     from pypdf import PdfReader
 
     reader = PdfReader(io.BytesIO(pdf_bytes))
     text = "\n".join(p.extract_text() or "" for p in reader.pages)
     hits: list[dict] = []
-    # primary pattern: "...科学技术支出 N1 N2 N3 ..." (decisional table column)
+    # primary pattern: "...science & technology expenditure N1 N2 N3..." (final accounts table column)
     pattern = re.compile(
         r"科学技术支出\s*([\d,]+(?:\.\d+)?)(?:\s+([\d,]+(?:\.\d+)?))?"
         r"(?:\s+([\d,]+(?:\.\d+)?))?(?:\s+([\d,]+(?:\.\d+)?))?"
@@ -240,9 +240,9 @@ def crawl_city(city: str, seeds: list[str], *, max_articles: int = 6,
                 time.sleep(10)
                 continue
 
-            # try pdf urls on this page
+            # try PDF urls on this page
             pdfs = harvest_pdf_urls(html, art_url)
-            # prefer PDF urls whose path suggests it's a 决算 doc
+            # prefer PDF urls whose path suggests it's a final accounts doc
             pdfs_sorted = sorted(pdfs, key=lambda u: -sum(k in u for k in PDF_NAME_HINTS))
             for pdf_url in pdfs_sorted[:pdf_cap]:
                 if not pdf_url.lower().endswith(".pdf"):
@@ -261,12 +261,12 @@ def crawl_city(city: str, seeds: list[str], *, max_articles: int = 6,
                        "pdf_file": str(dest), "hits": hits, "strong_hits": strong}
                 result["pdf_results"].append(row)
                 if strong:
-                    log(f"    ★ strong 全市 hit found in {dest.name}")
+                    log(f"    ★ strong city-wide hit found in {dest.name}")
                     log(f"      context: {strong[0]['context']}")
                 if hits and not strong:
-                    log(f"    weak hits (no 全市): {len(hits)} candidates")
+                    log(f"    weak hits (no city-wide): {len(hits)} candidates")
 
-            # if no PDF was useful but page mentions 决算, try collecting sub-links for depth+1
+            # if no PDF was useful but page mentions final accounts, try collecting sub-links for depth+1
             if depth < max_depth and not result["pdf_results"]:
                 sublinks = collect_links(page)
                 for lk in sorted(sublinks, key=score_link, reverse=True)[:15]:
@@ -275,16 +275,16 @@ def crawl_city(city: str, seeds: list[str], *, max_articles: int = 6,
                     if lk["href"].startswith("http") and lk["href"] not in visited_articles:
                         article_queue.append((depth + 1, lk["href"]))
 
-            time.sleep(4)  # WAF politeness
+            time.sleep(4)  # WAF politeness delay
 
         browser.close()
 
-    # collapse to single value if any strong hit
+    # collapse to single value if any city-wide hit
     for row in result["pdf_results"]:
         if row["strong_hits"]:
-            # decisional table format: 预算数 调整预算 决算数 [完成%] [比上年%]
+            # final accounts table format: budget adjusted-budget final [completion%] [YoY%]
             grp = row["strong_hits"][0]["raw_groups"]
-            # heuristically the 3rd or 2nd column is 决算数
+            # heuristically the 3rd or 2nd column is the final accounts value
             candidates = [g for g in grp if g and re.match(r"^\d+(\.\d+)?$", g)]
             if len(candidates) >= 3:
                 jusuan = float(candidates[2])  # 决算数
@@ -328,9 +328,9 @@ def main() -> None:
     for city, r in all_results.items():
         fv = r.get("final_value")
         if fv:
-            log(f"  ✓ {city} 全市科学技术支出 = {fv['yiyuan']} 亿元 (PDF: {fv['pdf_file']})")
+            log(f"  ✓ {city} city-wide science & technology expenditure = {fv['yiyuan']} 100M yuan (PDF: {fv['pdf_file']})")
         else:
-            log(f"  ✗ {city}: no strong 全市 hit; "
+            log(f"  ✗ {city}: no strong city-wide hit; "
                 f"{len(r['pdf_results'])} PDFs tried, {len(r['candidate_articles'])} articles")
 
 

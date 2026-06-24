@@ -1,4 +1,4 @@
-"""source/raw 数据治理检查。"""
+"""Data governance checks for source/raw data."""
 
 import pandas as pd
 

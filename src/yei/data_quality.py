@@ -1,4 +1,4 @@
-"""主指数数据质量门槛与维度指标选择。"""
+"""Main index data quality thresholds and dimension metric selection."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ def metric_tier(metric: str) -> str:
 
 
 def coverage_ratio(series: pd.Series) -> float:
-    """样本城市在该截面内的非缺失比例。"""
+    """Non-missing ratio of sample cities within the cross-section."""
     if series.empty:
         return 0.0
     return float(series.notna().sum()) / len(series)
@@ -43,7 +43,7 @@ def select_dimension_metric(
     group: pd.DataFrame,
     dimension: str,
 ) -> tuple[str, pd.Series, str]:
-    """为某年截面选择维度输入列，返回 (列名, 序列, 来源标签)。"""
+    """Select dimension input column for a year cross-section, return (column_name, series, source_label)."""
     spec = DIMENSION_SPEC[dimension]
     primary = spec["primary"]
     if primary in group.columns and passes_core_threshold(group[primary]):
@@ -69,7 +69,7 @@ def select_dimension_metric(
 
 
 def classify_missing_metric(metric: str) -> str:
-    """缺失报告分类：core / supplementary / excluded."""
+    """Missing report classification: core / supplementary / excluded."""
     if metric in DATA_TIER_D:
         return "excluded"
     if metric in SUPPLEMENTARY_TARGET_METRICS:

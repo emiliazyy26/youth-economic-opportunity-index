@@ -1,54 +1,54 @@
-# Urban Economic Opportunity Index (YEOI / YEOI)
+# Youth Economic Opportunity Index (YEOI)
 
-中国青年城市机会指数：就业、起薪与生活成本的数据分析研究。
+A transparent, data-driven analysis of urban economic opportunity for young professionals in China — covering jobs, starting income, living cost and city attractiveness.
 
-**English:** Urban Economic Opportunity Index for Young Professionals in China — jobs, starting income, living cost and city attractiveness.
-
-## 研究问题
+## Research Question
 
 > For young people, which Chinese cities provide the best balance between job opportunity, starting income and living cost?
 
-本项目构建面向**年轻人与职场早期人群**的透明、可解释城市机会指数（YEOI），而非房价预测或机器学习黑箱模型。
+The project builds a transparent and interpretable Urban Economic Opportunity Index (YEOI) for young professionals and early-career workers — not a housing price forecast or black-box machine learning model.
 
-## 快速开始
+## Quick Start
 
 ```bash
 uv sync
-uv run yeoi-download   # 可选：刷新原始数据
-uv run yeoi-build      # 构建 YEOI
+uv run yeoi-download   # Optional: refresh raw data
+uv run yeoi-build      # Build YEOI
 uv run streamlit run app/streamlit_app.py
 ```
 
-## 指数公式
+## Index Formula
 
 ```text
-YEOI = 0.25 × JobOpportunity + 0.20 × StartingIncome
-     + 0.20 × LivingCost + 0.15 × BigCompany
-     + 0.10 × GrowthPotential + 0.10 × CityBase
+YEOI = 0.25 x JobOpportunity + 0.20 x StartingIncome
+     + 0.20 x LivingCost + 0.15 x BigCompany
+     + 0.10 x GrowthPotential + 0.10 x CityBase
 ```
 
-招聘、租金等第三方数据通过可信度门槛后可进入主排名；详见 [docs/methodology.md](docs/methodology.md)。
+Third-party data (job postings, rent) enters the main ranking only after passing a credibility threshold; see [docs/methodology.md](docs/methodology.md).
 
-## 核心输出
+## Key Outputs
 
-| 文件 | 说明 |
-|------|------|
-| `data/processed/city_economic_opportunity.csv` | 城市 × 年份面板 |
-| `data/processed/yeoi_scores.csv` | YEOI 分项与排名 |
-| `data/processed/sensitivity_report.csv` | 权重敏感性分析 |
-| `app/streamlit_app.py` | 交互式 Dashboard |
+| File | Description |
+|------|-------------|
+| `data/processed/city_economic_opportunity.csv` | City x year panel |
+| `data/processed/yeoi_scores.csv` | YEOI sub-scores and rankings |
+| `data/processed/sensitivity_report.csv` | Weight sensitivity analysis |
+| `app/streamlit_app.py` | Interactive dashboard |
 
-## 文档
+## Documentation
 
-- [项目设计](docs/project-design.md)
-- [数据设计](docs/data-design.md)
-- [方法论](docs/methodology.md)
-- [数据字典](data/data_dictionary.md)
+- [Project Design](docs/project-design.md)
+- [Data Design](docs/data-design.md)
+- [Methodology](docs/methodology.md)
+- [Data Dictionary](data/data_dictionary.md)
+- [Architecture](docs/architecture.md)
+- [Data Improvement Log](docs/data_improvement_log.md)
 
-## 技术栈
+## Tech Stack
 
 Python 3.12+ · uv · pandas · streamlit · pytest · ruff
 
-## 许可证
+## License
 
 MIT

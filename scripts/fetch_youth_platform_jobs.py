@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""采集招聘平台应届生岗位数与起薪，写入 youth_platform_indicators.csv。
+"""Collect recruitment platform graduate job counts and entry salaries, write to youth_platform_indicators.csv.
 
-数据来源：
-- job_posting_count：智联招聘 keyword=应届生 搜索结果 positionCount（大城市场景可能触顶 100）
-- entry_salary：前程无忧《2024 应届生调研报告》起薪中位值（元/月）× 12
+Data sources:
+- job_posting_count: Zhaopin keyword=fresh-grad search result positionCount (large cities may cap at 100)
+- entry_salary: 51job 2024 Graduate Salary Survey median monthly salary (yuan/month) x 12
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ CITY_SLUGS = {
     "Nanchang": "669",
 }
 
-# 前程无忧 2024 届应届生起薪中位值（元/月）
+# 51job 2024 graduate entry salary median (yuan/month)
 ENTRY_SALARY_MONTHLY = {
     "Shanghai": 7497,
     "Beijing": 7436,
@@ -65,7 +65,7 @@ ENTRY_SALARY_MONTHLY = {
     "Nanchang": 4598,
 }
 
-# 猎聘 2024 Q1 新发校招职位城市占比（用于触顶 100 时的大城市相对排序）
+# Liepin 2024 Q1 new campus recruitment job share by city (used when positionCount caps at 100 for large cities)
 LIEPIN_SHARE = {
     "Shanghai": 0.17,
     "Beijing": 0.142,

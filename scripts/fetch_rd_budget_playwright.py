@@ -1,4 +1,4 @@
-"""Fetch city-level 一般公共预算科学技术支出 from official budget pages via Playwright."""
+"""Fetch city-level general public budget science & technology expenditure from official budget pages via Playwright."""
 
 from __future__ import annotations
 

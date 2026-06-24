@@ -1,4 +1,4 @@
-"""各城市统计公报列表页配置。"""
+"""Configuration for city statistical communique list pages."""
 
 from dataclasses import dataclass
 

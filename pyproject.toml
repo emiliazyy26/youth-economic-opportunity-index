@@ -1,7 +1,7 @@
 [project]
 name = "youth-economic-opportunity-index"
 version = "0.1.0"
-description = "Youth Economic Opportunity Index (YEOI) — 中国青年城市机会指数"
+description = "Youth Economic Opportunity Index (YEOI) — a data-driven analysis of urban economic opportunity for young professionals in China"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

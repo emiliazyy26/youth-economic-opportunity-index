@@ -38,7 +38,7 @@ Two disposable-income observations were corrected after cross-checking official 
 
 ## 3. Validation Script Calibration
 
-The drop in CRITICAL warnings is not only due to the two data fixes. Several validation rules were recalibrated to reflect the structure of the dataset and to avoid treating known口径 differences as data errors.
+The drop in CRITICAL warnings is not only due to the two data fixes. Several validation rules were recalibrated to reflect the structure of the dataset and to avoid treating known caliber differences as data errors.
 
 ### 3.1 Path and Column Name Updates
 

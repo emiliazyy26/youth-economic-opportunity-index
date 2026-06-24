@@ -1,4 +1,4 @@
-"""YEOI 测试。"""
+"""Tests for YEOI index building."""
 
 import pandas as pd
 

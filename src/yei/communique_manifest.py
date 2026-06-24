@@ -1,4 +1,4 @@
-"""统计公报直链清单（列表页无法发现或 SSL 异常时使用）。"""
+"""Direct URL manifest for statistical communiques (used when list page discovery fails or SSL errors occur)."""
 
 COMMUNIQUE_MANIFEST: dict[tuple[str, int], str] = {
     ("Shenzhen", 2020): "http://tjj.sz.gov.cn/gkmlpt/content/8/8717/post_8717370.html",

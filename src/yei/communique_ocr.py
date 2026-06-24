@@ -1,4 +1,4 @@
-"""用 PaddleOCR 解析统计公报图片页。"""
+"""Parse statistical communique image pages using PaddleOCR."""
 
 from __future__ import annotations
 

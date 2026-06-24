@@ -1,4 +1,4 @@
-"""从各城市统计局官网抓取统计公报数据。"""
+"""Fetch statistical communique data from city statistical bureau websites."""
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ _NC_REFERER = "http://www.nc.gov.cn/"
 
 _FOOTNOTE_MARKER = r"(?:\s*(?:\[\d+\]|［\d+］))*"
 
-# 主 URL 无法覆盖全部指标时，按顺序补充抓取并合并。
+# When the primary URL cannot cover all metrics, supplement with additional fetches in order.
 SUPPLEMENTARY_COMMUNIQUE_URLS: dict[tuple[str, int], tuple[str, ...]] = {
     (
         "Nanchang",
@@ -315,7 +315,7 @@ def parse_communique_metrics(text: str, year: int | None = None) -> dict[str, fl
                 metrics["gdp_total"] = float(gdp_total_match.group(1))
                 break
 
-    # 第三产业：优先提取结构占比，备选提取绝对值
+    # Tertiary sector: prefer structural ratio, fallback to absolute value
     tertiary_ratio_match = re.search(
         r"三次产业(?:增加值)?结构(?:为)?\s*[\d.]+\s*[：:]\s*[\d.]+\s*[：:]\s*([\d.]+)",
         text,
@@ -345,7 +345,7 @@ def _finalize_derived_metrics(
     text: str,
     year: int | None,
 ) -> dict[str, float]:
-    """保留可直接核验的总量，不在 source 层派生人均值。"""
+    """Retain directly verifiable totals; do not derive per-capita values at the source layer."""
     if "gdp_total" in metrics:
         return metrics
 

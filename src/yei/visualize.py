@@ -1,4 +1,4 @@
-"""图表生成。"""
+"""Chart generation."""
 
 from pathlib import Path
 
@@ -9,7 +9,7 @@ from yei.config import PROCESSED_DATA_DIR, YEOI_SCORES_FILE
 
 
 def plot_yeoi_ranking(scores: pd.DataFrame, year: int, output_dir: Path) -> Path:
-    """绘制指定年份的 YEOI 排名条形图。"""
+    """Plot a YEOI ranking bar chart for the specified year."""
     subset = scores[scores["year"] == year].sort_values("yeoi_score", ascending=True)
 
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -26,7 +26,7 @@ def plot_yeoi_ranking(scores: pd.DataFrame, year: int, output_dir: Path) -> Path
 
 
 def plot_latest_ranking(output_dir: Path | None = None) -> Path:
-    """读取最新年份指数并出图。"""
+    """Load the latest year index and generate chart."""
     scores = pd.read_csv(YEOI_SCORES_FILE)
     latest_year = int(scores["year"].max())
     target_dir = output_dir or PROCESSED_DATA_DIR / "figures"

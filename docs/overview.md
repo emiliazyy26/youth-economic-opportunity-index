@@ -1,44 +1,43 @@
-# 项目概述
+# Project Overview
 
-## 项目名称
+## Project Name
 
-**Youth Economic Opportunity Index (YEOI)**  
-中国青年城市机会指数（项目简称仍可用 YEOI）
+**Youth Economic Opportunity Index (YEOI)**
 
-## 英文标题
+## English Title
 
-Urban Economic Opportunity Index for Young Professionals in China
+Youth Economic Opportunity Index for Young Professionals in China
 
-## 核心研究问题
+## Core Research Question
 
 > For young people, which Chinese cities provide the best balance between job opportunity, starting income and living cost?
 
-## 项目定位
+## Project Positioning
 
-| 要做 | 不要做 |
-|------|--------|
-| 构建面向年轻人的透明城市机会指数 | 全国房价排名 |
-| 比较就业、起薪、生活成本、大企业机会 | 房地产投资建议 |
-| 官方 + 可信第三方数据（通过质量门槛） | 不可复现的媒体截图数据 |
-| Python 数据分析 + Streamlit 展示 | 机器学习黑箱预测 |
+| In Scope | Out of Scope |
+|----------|-------------|
+| Build a transparent urban opportunity index for young people | National housing price ranking |
+| Compare jobs, starting income, living cost, big-company opportunities | Real estate investment advice |
+| Official + credible third-party data (passing quality thresholds) | Unverifiable media screenshot data |
+| Python data analysis + Streamlit visualization | Black-box machine learning prediction |
 
-## 样本范围
+## Sample Scope
 
-- **城市数量：** 20
-- **时间跨度：** 2021–2025
-- **数据规模：** 100 行面板数据
+- **Number of cities:** 20
+- **Time span:** 2021-2025
+- **Data scale:** 100-row panel
 
-## 交付物
+## Deliverables
 
-| 阶段 | 输出 |
-|------|------|
-| 数据 | `data/processed/city_economic_opportunity.csv` |
-| 指数 | `data/processed/yeoi_scores.csv` |
-| 分析 | 青年视角排名与敏感性报告 |
-| 产品 | Streamlit Dashboard |
+| Stage | Output |
+|-------|--------|
+| Data | `data/processed/city_economic_opportunity.csv` |
+| Index | `data/processed/yeoi_scores.csv` |
+| Analysis | Youth-perspective rankings and sensitivity report |
+| Product | Streamlit dashboard |
 
-## 相关文档
+## Related Documents
 
-- [数据设计](data-design.md)
-- [方法论](methodology.md)
-- [架构与开发指南](architecture.md)
+- [Data Design](data-design.md)
+- [Methodology](methodology.md)
+- [Architecture and Development Guide](architecture.md)

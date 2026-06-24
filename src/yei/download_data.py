@@ -1,4 +1,4 @@
-"""下载并整合项目原始数据。"""
+"""Download and integrate project raw data."""
 
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ HOUSING_ALT_URL = (
     "main/merged_housing_data_eng.csv"
 )
 
-# 常见指标在《中国城市统计年鉴》Excel 中的关键词
+# Common metric keywords in China City Statistical Yearbook Excel files
 YEARBOOK_KEYWORDS = {
     "gdp_per_capita": ["人均地区生产总值", "人均GDP", "人均生产总值"],
     "disposable_income": ["居民人均可支配收入", "全体居民人均可支配收入"],
@@ -98,7 +98,7 @@ def download_external_files() -> dict[str, Path]:
 
 
 def build_annual_housing_index(primary_csv: Path, fallback_csv: Path) -> pd.DataFrame:
-    """从 70 城月度指数汇总为年度住房价格指数。"""
+    """Aggregate 70-city monthly housing price index into annual values."""
     alt = pd.read_csv(fallback_csv)
     alt = alt[alt["city"].isin(ALL_CITIES) & alt["year"].isin(YEARS + [2020])]
     annual = (
@@ -149,7 +149,7 @@ def build_annual_housing_index(primary_csv: Path, fallback_csv: Path) -> pd.Data
 
 
 def ensure_house_price_yuan_sqm() -> pd.DataFrame:
-    """加载或抓取元/㎡新房均价（20 城统一口径）。"""
+    """Load or fetch yuan/sqm new home average prices (unified caliber for 20 cities)."""
     housing = load_house_price_yuan_sqm()
     expected_rows = len(ALL_CITIES) * len(YEARS)
     if len(housing) >= expected_rows:
@@ -188,7 +188,7 @@ def _extract_city_metric(table: pd.DataFrame, city_col: str, city_zh: str) -> fl
 
 
 def parse_yearbook_excel(path: Path, data_year: int) -> pd.DataFrame:
-    """解析单本年鉴 Excel，提取样本城市指标。"""
+    """Parse a single yearbook Excel file and extract sample city metrics."""
     records: dict[tuple[str, int], dict] = {}
     xls = pd.ExcelFile(path)
 
@@ -277,11 +277,11 @@ def load_yearbook_panel() -> pd.DataFrame:
 
 
 def fetch_nbs_city_series(zbcode: str, city_en: str, years: list[int]) -> pd.DataFrame:
-    """尝试从国家统计局 easyquery 获取城市年度序列。"""
+    """Attempt to fetch city annual series from NBS easyquery API."""
     try:
         from cnstats.stats import stats
     except ImportError as exc:
-        raise RuntimeError("cn-stats 未安装") from exc
+        raise RuntimeError("cn-stats not installed") from exc
 
     regcode = CITY_REGCODE[city_en]
     rows = []
@@ -299,7 +299,7 @@ def fetch_nbs_city_series(zbcode: str, city_en: str, years: list[int]) -> pd.Dat
 
 
 def try_fetch_nbs_panel() -> pd.DataFrame:
-    """在国家统计局接口可用时补充官方数据。"""
+    """Supplement with official data from NBS API when available."""
     metric_codes = {
         "gdp_per_capita": "A020102",
         "disposable_income": "A0A0101",
@@ -330,7 +330,7 @@ def try_fetch_nbs_panel() -> pd.DataFrame:
 
 
 def load_listed_company_counts() -> pd.DataFrame:
-    """读取 A 股上市公司注册地数量（B 级机构数据，年内视为稳定）。"""
+    """Load A-share listed company domicile counts (Tier B institutional data, treated as stable within a year)."""
     if not LISTED_COMPANIES_FILE.exists():
         return pd.DataFrame(columns=["city", "year", "listed_company_count"])
 
@@ -347,25 +347,37 @@ def load_listed_company_counts() -> pd.DataFrame:
 
 
 def load_youth_platform_observations() -> pd.DataFrame:
-    """读取招聘/起薪/租金等平台样本（C 级），转为 source observations。"""
+    """Load platform samples for recruitment/entry salary/rent (Tier C), convert to source observations.
+
+    If the CSV contains a 'year' column with year-specific rows, use them directly
+    for job_posting_count and entry_salary. For rent_monthly (which lacks year
+    variation), apply the snapshot across all years.
+    """
     if not YOUTH_PLATFORM_FILE.exists():
         return pd.DataFrame(columns=SOURCE_OBSERVATION_COLUMNS)
 
     raw = pd.read_csv(YOUTH_PLATFORM_FILE)
     records = []
-    platform_metrics = ["job_posting_count", "entry_salary", "rent_monthly"]
+    year_specific_metrics = {"job_posting_count", "entry_salary"}
+    snapshot_metrics = {"rent_monthly"}
+
+    has_year_col = "year" in raw.columns
+
     for _, row in raw.iterrows():
         city = row["city"]
-        snapshot_year = int(row.get("year", YEARS[-1]))
-        for year in YEARS:
-            for metric in platform_metrics:
-                value = row.get(metric)
-                if pd.isna(value) or value == "":
-                    continue
+        row_year = int(row["year"]) if has_year_col and not pd.isna(row.get("year")) else None
+
+        for metric in year_specific_metrics | snapshot_metrics:
+            value = row.get(metric)
+            if pd.isna(value) or value == "":
+                continue
+
+            if metric in year_specific_metrics and has_year_col and row_year is not None:
+                # Use year-specific value directly
                 records.append(
                     {
                         "city": city,
-                        "year": year,
+                        "year": row_year,
                         "metric": metric,
                         "value": float(value),
                         "unit": METRIC_UNITS.get(metric, ""),
@@ -375,16 +387,35 @@ def load_youth_platform_observations() -> pd.DataFrame:
                         "source_file": str(YOUTH_PLATFORM_FILE),
                         "extraction_method": "manual_csv",
                         "is_official_source": False,
-                        "notes": (
-                            f"{row.get('notes', '')}; snapshot_year={snapshot_year}"
-                        ).strip("; "),
+                        "notes": row.get("notes", ""),
                     }
                 )
+            elif metric in snapshot_metrics:
+                # Apply snapshot across all years
+                for year in YEARS:
+                    records.append(
+                        {
+                            "city": city,
+                            "year": year,
+                            "metric": metric,
+                            "value": float(value),
+                            "unit": METRIC_UNITS.get(metric, ""),
+                            "source_type": "platform_sample",
+                            "source_name": row.get("source_name", "platform_sample"),
+                            "source_url": row.get("source_url", ""),
+                            "source_file": str(YOUTH_PLATFORM_FILE),
+                            "extraction_method": "manual_csv",
+                            "is_official_source": False,
+                            "notes": (
+                                f"{row.get('notes', '')}; snapshot_year={row_year or 'unknown'}"
+                            ).strip("; "),
+                        }
+                    )
     return pd.DataFrame(records, columns=SOURCE_OBSERVATION_COLUMNS)
 
 
 def load_listed_company_observations() -> pd.DataFrame:
-    """将上市公司数量转为 source observations。"""
+    """Convert listed company counts to source observations."""
     if not LISTED_COMPANIES_FILE.exists():
         return pd.DataFrame(columns=SOURCE_OBSERVATION_COLUMNS)
 
@@ -415,19 +446,19 @@ def load_listed_company_observations() -> pd.DataFrame:
 
 
 def load_university_counts() -> pd.DataFrame:
-    """返回各城市大学质量加权得分（985×5 + 211×2.5 + 其他普通高校×0.3）。
+    """Return quality-weighted university scores for each city (985x5 + 211x2.5 + other standard universities x0.3).
 
-    985/211 名单基于教育部历史名单，普通高校数来自教育部2025年高校名单。
+    The 985/211 lists are based on historical MOE designations; standard university counts come from the 2025 MOE university list.
     """
-    # (985数量, 211非985数量, 其他普通高校数)
+    # (985 count, 211 non-985 count, other standard university count)
     _uni_data: dict[str, tuple[int, int, int]] = {
         "Beijing":      (8, 18, 66),   # 92 total - 8 985 - 18 211 = 66 other
         "Shanghai":     (4,  6, 54),   # 64 total
         "Nanjing":      (2,  6, 45),   # 53 total
         "Wuhan":        (2,  5, 82),   # 89 total
-        "Xi'an":        (2,  5, 56),   # 63 total (西北农林在杨凌不计入)
+        "Xi'an":        (2,  5, 56),   # 63 total (NW A&F in Yangling not counted)
         "Guangzhou":    (2,  2, 79),   # 83 total
-        "Changsha":     (3,  1, 53),   # 57 total (含国防科大)
+        "Changsha":     (3,  1, 53),   # 57 total (incl. NUDT)
         "Chengdu":      (2,  2, 54),   # 58 total
         "Hangzhou":     (1,  0, 46),   # 47 total
         "Harbin":       (1,  3, 47),   # 51 total
@@ -504,7 +535,7 @@ def _frame_to_observations(
 
 
 def load_manual_source_observations() -> pd.DataFrame:
-    """读取人工核验后的来源观测长表。"""
+    """Load manually verified source observations (long format)."""
     if not MANUAL_SOURCE_OBSERVATIONS_FILE.exists():
         return pd.DataFrame(columns=SOURCE_OBSERVATION_COLUMNS)
     observations = pd.read_csv(MANUAL_SOURCE_OBSERVATIONS_FILE)
@@ -733,6 +764,7 @@ def build_wide_panel(observations: pd.DataFrame) -> pd.DataFrame:
         "population_growth",
         "university_quality",
         "tertiary_ratio",
+        "rd_expenditure",
         "innovation_index",
         "listed_company_count",
         "job_posting_count",

@@ -1,4 +1,4 @@
-"""YEOI 青年城市机会指数构建。"""
+"""YEOI Youth Economic Opportunity Index construction."""
 
 import pandas as pd
 
@@ -15,7 +15,7 @@ from yei.data_quality import select_dimension_metric
 
 
 def min_max_score(series: pd.Series, *, invert: bool = False) -> pd.Series:
-    """按年份截面做 Min-Max 归一化到 0–100。"""
+    """Min-Max normalize to 0-100 within each year cross-section."""
     valid = series.dropna()
     if valid.empty:
         return pd.Series(float("nan"), index=series.index)
@@ -34,7 +34,7 @@ def min_max_score(series: pd.Series, *, invert: bool = False) -> pd.Series:
 
 
 def _score_from_metrics(group: pd.DataFrame, metrics: list[str]) -> pd.Series:
-    """对多个正向指标分别标准化后取均值。"""
+    """Normalize multiple positive metrics independently and take the mean."""
     parts = [min_max_score(group[m]) for m in metrics if m in group.columns]
     if not parts:
         return pd.Series(float("nan"), index=group.index)
@@ -42,7 +42,7 @@ def _score_from_metrics(group: pd.DataFrame, metrics: list[str]) -> pd.Series:
 
 
 def build_scores(df: pd.DataFrame) -> pd.DataFrame:
-    """为每个年份截面计算 YEOI 分项得分与综合排名。"""
+    """Compute YEOI dimension scores and overall ranking for each year cross-section."""
     frames: list[pd.DataFrame] = []
 
     for _year, group in df.groupby("year"):
@@ -82,7 +82,7 @@ def build_scores(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def run_pipeline() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """清洗原始数据并输出 YEOI 指数结果。"""
+    """Clean raw data and output YEOI index results."""
     raw = load_raw_data()
     cleaned = clean_city_panel(raw)
     save_processed(cleaned)

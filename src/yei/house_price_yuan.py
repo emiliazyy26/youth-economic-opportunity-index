@@ -1,4 +1,4 @@
-"""将各城市 house_price 统一为元/㎡（中指百城 / 聚汇数据新房均价）。"""
+"""Standardize city house_price to yuan/sqm (China Index Academy 100-city / gotohui new home average price)."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from yei.config import ALL_CITIES, RAW_DATA_DIR, YEARS
 HOUSE_PRICE_YUAN_FILE = RAW_DATA_DIR / "external" / "house_price_yuan_sqm.csv"
 GOTOHUI_BASE = "https://fangjia.gotohui.com/years"
 
-# 聚汇数据 city id（新房元/㎡，与 Suzhou 既有口径一致）
+# gotohui city IDs (new home yuan/sqm, consistent with Suzhou's existing caliber)
 GOTOHUI_CITY_IDS: dict[str, int] = {
     "Beijing": 1,
     "Shanghai": 3,
@@ -43,7 +43,7 @@ SOURCE_URL = "https://fangjia.gotohui.com/"
 
 
 def _parse_year_page(html: str) -> list[float]:
-    """从年度页解析各月新房均价（元/㎡）。"""
+    """Parse monthly new home average prices (yuan/sqm) from the annual page."""
     rows = re.findall(r"<tr><td>(\d+月)</td>(.*?)</tr>", html, flags=re.DOTALL)
     values: list[float] = []
     for _, cells in rows:
@@ -80,7 +80,7 @@ def build_house_price_yuan_sqm(
     *,
     sleep_seconds: float = 0.3,
 ) -> pd.DataFrame:
-    """抓取各城各年新房均价（元/㎡）。"""
+    """Fetch annual new home average prices (yuan/sqm) for each city and year."""
     target_years = years or YEARS
     session = requests.Session()
     records: list[dict] = []

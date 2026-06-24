@@ -1,4 +1,4 @@
-"""Streamlit Dashboard 入口。"""
+"""Streamlit Dashboard entry point."""
 
 from pathlib import Path
 
@@ -60,23 +60,23 @@ def main() -> None:
     st.set_page_config(page_title="YEOI Dashboard", layout="wide")
     st.title("Youth Economic Opportunity Index (YEOI)")
     st.caption(
-        "中国青年城市机会指数 — 就业、起薪、生活成本与城市吸引力的数据分析"
+        "Youth Economic Opportunity Index — data analysis on jobs, entry salary, living costs and city attractiveness"
     )
 
     scores = load_scores()
     if scores.empty:
         st.warning(
-            "尚未生成指数结果。请先准备 `data/raw/city_panel.csv`，然后运行：\n\n"
+            "Index results not yet generated. Please prepare `data/raw/city_panel.csv`, then run:\n\n"
             "`uv run yeoi-build`"
         )
         return
 
     years = sorted(scores["year"].unique())
-    selected_year = st.selectbox("年份", years, index=len(years) - 1)
+    selected_year = st.selectbox("Year", years, index=len(years) - 1)
 
     year_scores = scores[scores["year"] == selected_year].copy()
     cities = sorted(year_scores["city"].unique())
-    selected_city = st.selectbox("城市", cities)
+    selected_city = st.selectbox("City", cities)
 
     city_row = year_scores[year_scores["city"] == selected_city].iloc[0]
 
@@ -88,7 +88,7 @@ def main() -> None:
     with col3:
         st.metric("Living Cost Score", f"{city_row['living_cost_score']:.1f}")
 
-    st.subheader("分项得分")
+    st.subheader("Dimension Scores")
     score_cols = [
         "job_opportunity_score",
         "starting_income_score",
@@ -100,7 +100,7 @@ def main() -> None:
     breakdown = city_row[score_cols]
     st.bar_chart(breakdown)
 
-    st.subheader("指标来源（主指数维度）")
+    st.subheader("Metric Sources (Main Index Dimensions)")
     source_cols = [
         "job_opportunity_source",
         "starting_income_source",
@@ -114,18 +114,18 @@ def main() -> None:
     panel = load_panel()
     year_merged = year_scores.merge(panel, on=["city", "year"], how="left", suffixes=("", "_raw"))
 
-    st.subheader("城市对比：机会 vs 生活成本")
+    st.subheader("City Comparison: Opportunity vs Living Cost")
     chart_col1, chart_col2 = st.columns(2)
     with chart_col1:
         _scatter(
-            "就业机会 vs 生活成本可负担性",
+            "Job Opportunity vs Living Cost Affordability",
             year_merged,
             "living_cost_score",
             "job_opportunity_score",
         )
     with chart_col2:
         _scatter(
-            "起薪/收入 vs 生活成本可负担性",
+            "Starting Income vs Living Cost Affordability",
             year_merged,
             "living_cost_score",
             "starting_income_score",
@@ -134,7 +134,7 @@ def main() -> None:
     chart_col3, chart_col4 = st.columns(2)
     with chart_col3:
         _scatter(
-            "大企业机会 vs 生活成本可负担性",
+            "Big Company Opportunity vs Living Cost Affordability",
             year_merged,
             "living_cost_score",
             "big_company_score",
@@ -149,22 +149,22 @@ def main() -> None:
             raw = year_merged.dropna(subset=["rent_burden", income_col])
             if not raw.empty:
                 _scatter(
-                    "租金压力 vs 收入（原始指标）",
+                    "Rent Burden vs Income (Raw Metrics)",
                     raw,
                     "rent_burden",
                     income_col,
                 )
             else:
-                st.info("起薪/租金原始指标暂不可用。")
+                st.info("Entry salary / rent raw metrics currently unavailable.")
         else:
-            st.info("租金负担数据暂不可用。")
+            st.info("Rent burden data currently unavailable.")
 
     if not panel.empty:
         city_panel = panel[
             (panel["year"] == selected_year) & (panel["city"] == selected_city)
         ]
         if not city_panel.empty:
-            st.subheader("原始指标快照")
+            st.subheader("Raw Metric Snapshot")
             raw_cols = [
                 c
                 for c in [
@@ -183,19 +183,19 @@ def main() -> None:
             ]
             st.dataframe(city_panel[["city", "year", *raw_cols]], hide_index=True)
 
-    st.subheader(f"{selected_year} 年城市排名")
+    st.subheader(f"{selected_year} City Ranking")
     ranking = year_scores.sort_values("rank")
     display_cols = ["city", "rank", "yeoi_score", *score_cols]
     st.dataframe(ranking[display_cols], use_container_width=True, hide_index=True)
 
     missing = load_missing()
     if not missing.empty:
-        st.subheader("数据缺口与补充信号")
+        st.subheader("Data Gaps and Supplementary Signals")
         core_missing = missing[
             (missing["category"] == "core") & (missing["year"] == selected_year)
         ]
         if not core_missing.empty:
-            st.caption("以下核心青年指标尚未采集，当前排名使用 fallback 指标。")
+            st.caption("The following core youth metrics have not yet been collected; current rankings use fallback metrics.")
             st.dataframe(
                 core_missing.groupby("metric").size().reset_index(name="missing_cities"),
                 hide_index=True,
@@ -204,11 +204,11 @@ def main() -> None:
             (missing["category"] == "supplementary") & (missing["year"] == selected_year)
         ]
         if not supp.empty:
-            st.caption("`tertiary_ratio` 等为补充字段，不进入 YEOI 主公式。")
+            st.caption("`tertiary_ratio` and similar fields are supplementary and not included in the YEOI main formula.")
 
     sensitivity = load_sensitivity()
     if not sensitivity.empty:
-        st.subheader("权重敏感性（Top-5 排名变动）")
+        st.subheader("Weight Sensitivity (Top-5 Rank Changes)")
         st.dataframe(sensitivity, hide_index=True, use_container_width=True)
 
 

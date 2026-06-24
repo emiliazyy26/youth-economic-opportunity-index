@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""批量搜索缺失数据缺口，使用 Tavily Search API 多源交叉验证。
+"""Batch search for missing data gaps using Tavily Search API with multi-source cross-validation.
 
 Usage:
-    uv run python scripts/batch_search_gaps.py --year 2025        # 只搜2025年
-    uv run python scripts/batch_search_gaps.py --all              # 搜全部缺口
-    uv run python scripts/batch_search_gaps.py --dry-run          # 只生成缺口清单，不搜索
-    uv run python scripts/batch_search_gaps.py --merge            # 合并已批准项到 manual
+    uv run python scripts/batch_search_gaps.py --year 2025        # Search 2025 only
+    uv run python scripts/batch_search_gaps.py --all              # Search all gaps
+    uv run python scripts/batch_search_gaps.py --dry-run          # Generate gap list only, no search
+    uv run python scripts/batch_search_gaps.py --merge            # Merge approved candidates to manual
 """
 
 from __future__ import annotations
@@ -85,7 +85,7 @@ SEARCH_TEMPLATES: dict[str, list[str]] = {
     ],
 }
 
-# 从搜索结果文本中提取数字的模式
+# Patterns for extracting numbers from search result text
 EXTRACTION_PATTERNS: dict[str, list[tuple[str, float]]] = {
     "gdp_per_capita": [
         (r"人均(?:地区)?生产总值[^0-9]{0,20}?(\d+(?:\.\d+)?)\s*万元", 10000),
@@ -121,7 +121,7 @@ EXTRACTION_PATTERNS: dict[str, list[tuple[str, float]]] = {
     ],
 }
 
-# 高置信度领域：这些来源的数据通常直接引用官方公报
+# High-confidence domains: these sources typically cite official communiques directly
 HIGH_CONFIDENCE_DOMAINS = [
     "gov.cn",
     "stats.gov.cn",
@@ -134,7 +134,7 @@ HIGH_CONFIDENCE_DOMAINS = [
     "chinamoney.com.cn",
     "wikipedia.org",
     "zh.wikipedia.org",
-    "baidu.com/item",  # 百度百科
+    "baidu.com/item",  # Baidu Baike
     "wiki",
     "tjj.",
     "czj.",
@@ -145,12 +145,12 @@ HIGH_CONFIDENCE_DOMAINS = [
 
 
 def get_tavily_client():
-    """获取 Tavily client。通过 MCP 工具调用，这里返回标记。"""
+    """Get Tavily client. Uses MCP tool call; returns a marker here."""
     return "tavily_mcp"
 
 
 def search_tavily(query: str, max_results: int = 5) -> list[dict]:
-    """通过 Tavily MCP 搜索，返回结果列表。"""
+    """Search via Tavily MCP, return list of results."""
 
     try:
         from tavily import TavilyClient
@@ -159,12 +159,12 @@ def search_tavily(query: str, max_results: int = 5) -> list[dict]:
         response = client.search(query=query, max_results=max_results, search_depth="basic")
         return response.get("results", [])
     except ImportError:
-        print(f"  [TAVILY-IMPORT-ERR] 请安装 tavily-python 或通过 MCP 调用: {query}")
+        print(f"  [TAVILY-IMPORT-ERR] Please install tavily-python or use MCP: {query}")
         return []
 
 
 def generate_gap_list(year_filter: int | None = None) -> list[dict]:
-    """从 missing_data_report.csv 生成完整缺口列表。"""
+    """Generate complete gap list from missing_data_report.csv."""
     missing = pd.read_csv(MISSING_REPORT)
     if year_filter:
         missing = missing[missing["year"] == year_filter]
@@ -190,7 +190,7 @@ def generate_gap_list(year_filter: int | None = None) -> list[dict]:
 def extract_candidates_from_results(
     results: list[dict], metric: str, city_zh: str, year: int
 ) -> list[dict]:
-    """从搜索结果中提取候选数值。"""
+    """Extract candidate values from search results."""
     candidates = []
 
     for result in results:
@@ -201,7 +201,7 @@ def extract_candidates_from_results(
         if not content:
             continue
 
-        # 检查是否提及目标城市和年份
+        # Check if target city and year are mentioned
         if city_zh not in content and city_zh not in title:
             continue
 
@@ -211,7 +211,7 @@ def extract_candidates_from_results(
                 value = raw_value * multiplier
 
                 if metric == "gdp_per_capita" and value < 1000:
-                    continue  # 不合理值
+                    continue  # Unreasonable value
                 if metric == "disposable_income" and value < 1000:
                     continue
                 if metric == "population" and value < 100000:
@@ -219,14 +219,14 @@ def extract_candidates_from_results(
                 if metric == "rd_expenditure" and value < 0.01:
                     continue
 
-                # 判断置信度
+                # Determine confidence level
                 confidence = "medium"
                 for domain in HIGH_CONFIDENCE_DOMAINS:
                     if domain in url:
                         confidence = "high"
                         break
 
-                # 检查是否有年份确认
+                # Check for year confirmation
                 if str(year) in match.group(0) or str(year) in content[:200]:
                     confidence = "high" if confidence == "high" else "high"
 
@@ -246,7 +246,7 @@ def extract_candidates_from_results(
 def generate_candidate_review(
     gaps: list[dict], *, dry_run: bool = False
 ) -> pd.DataFrame:
-    """对每个缺口执行搜索并生成候选值表。"""
+    """Execute search for each gap and generate candidate value table."""
 
     rows = []
 
@@ -283,7 +283,7 @@ def generate_candidate_review(
             if results:
                 candidates = extract_candidates_from_results(results, metric, city_zh, year)
                 all_candidates.extend(candidates)
-            time.sleep(0.5)  # 避免限流
+            time.sleep(0.5)  # Rate limit politeness
 
         if not all_candidates:
             rows.append(
@@ -304,18 +304,18 @@ def generate_candidate_review(
             )
             continue
 
-        # 按置信度排序，取 top 3
+        # Sort by confidence, take top 3
         all_candidates.sort(
             key=lambda c: (0 if c["confidence"] == "high" else 1, c["value"])
         )
 
-        # 聚合：取所有高置信度候选，按值分组
+        # Aggregate: take all high-confidence candidates, group by value
         by_value: dict[float, list[dict]] = {}
         for c in all_candidates:
             key = round(c["value"], 2)
             by_value.setdefault(key, []).append(c)
 
-        # 多源交叉验证：出现次数越多的值越可信
+        # Multi-source cross-validation: values appearing more often are more trustworthy
         for value_key, candidates in sorted(
             by_value.items(), key=lambda kv: (len(kv[1]), kv[1][0]["confidence"]), reverse=True
         ):
@@ -339,7 +339,7 @@ def generate_candidate_review(
                     "notes": "",
                 }
             )
-            break  # 只取最佳候选值
+            break  # Take only the best candidate value
 
     df = pd.DataFrame(rows)
     df.to_csv(CANDIDATE_FILE, index=False)
@@ -350,7 +350,7 @@ def generate_candidate_review(
 
 
 def merge_approved_candidates() -> int:
-    """将已批准候选值合并到 manual_source_observations.csv。"""
+    """Merge approved candidate values into manual_source_observations.csv."""
     if not CANDIDATE_FILE.exists():
         print("No candidate review file found.")
         return 0

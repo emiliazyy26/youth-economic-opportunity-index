@@ -1,127 +1,127 @@
-# 方法论
+# Methodology
 
-## 设计原则
+## Design Principles
 
-YEOI（Youth Economic Opportunity Index）采用**透明加权线性模型**，按数据**可信度门槛**而非“官方/非官方”身份决定指标是否进入主排名。
+YEOI (Youth Economic Opportunity Index) adopts a **transparent weighted linear model**, using data **credibility thresholds** rather than an "official vs. unofficial" binary to determine whether indicators enter the main ranking.
 
-- 本科经济学申请更看重可解释性
-- 权重具有明确经济含义（面向年轻人城市选择）
-- 招聘、租房、企业名录等第三方数据，只要口径固定、可重复采集，也可进入主指数
-- 结果可被独立复核
+- Undergraduate economics applications value interpretability
+- Weights have clear economic meaning (oriented toward young people's city choices)
+- Third-party data (job postings, rent, enterprise directories) can enter the main index as long as caliber is fixed and collection is reproducible
+- Results can be independently verified
 
-## 指数公式
+## Index Formula
 
 ```text
-YEOI = 0.25 × JobOpportunity
-     + 0.20 × StartingIncome
-     + 0.20 × LivingCostAffordability
-     + 0.15 × BigCompanyOpportunity
-     + 0.10 × GrowthPotential
-     + 0.10 × HumanCapitalCityBase
+YEOI = 0.25 x JobOpportunity
+     + 0.20 x StartingIncome
+     + 0.20 x LivingCostAffordability
+     + 0.15 x BigCompanyOpportunity
+     + 0.10 x GrowthPotential
+     + 0.10 x HumanCapitalCityBase
 ```
 
-其中各项均为 **0–100 的标准化得分**，在同一年份的城市截面内计算；生活成本维度对 `rent_burden` 或 `housing_burden` 反向标准化，分数越高表示压力越低。
+Each component is a **0-100 standardized score** computed within the same year's city cross-section; the living cost dimension is inverse-normalized on `rent_burden` or `housing_burden`, so higher scores indicate lower pressure.
 
-## 权重说明
+## Weight Description
 
-| 维度 | 权重 | 经济含义 |
-|------|------|----------|
-| Job Opportunity | 0.25 | 年轻人能否找到工作（岗位数或就业容量 proxy） |
-| Starting Income | 0.20 | 起薪或可支配收入回报 |
-| Living Cost Affordability | 0.20 | 租金/房价相对收入的生活成本压力 |
-| Big Company Opportunity | 0.15 | 大企业/上市公司带来的职业机会 |
-| Growth Potential | 0.10 | 人口流入与创新活动的长期机会 |
-| Human Capital / City Base | 0.10 | 大学资源与城市经济基础（降权避免宏观排名） |
+| Dimension | Weight | Economic Meaning |
+|-----------|--------|-------------------|
+| Job Opportunity | 0.25 | Whether young people can find jobs (job postings or employment capacity proxy) |
+| Starting Income | 0.20 | Starting salary or disposable income return |
+| Living Cost Affordability | 0.20 | Rent / housing price relative to income as living cost pressure |
+| Big Company Opportunity | 0.15 | Career opportunities from large enterprises / listed companies |
+| Growth Potential | 0.10 | Long-term opportunity from population inflow and innovation activity |
+| Human Capital / City Base | 0.10 | University resources and city economic base (down-weighted to avoid macro ranking dominance) |
 
-## 维度指标与 Fallback
+## Dimension Indicators and Fallback
 
-主指数采用“主指标 + 质量门槛 + fallback”机制（见 `src/yei/data_quality.py`）：
+The main index uses a "primary indicator + quality threshold + fallback" mechanism (see `src/yei/data_quality.py`):
 
-| 维度 | 主指标 | Fallback |
-|------|--------|----------|
-| Job Opportunity | `job_posting_count` | `innovation_index` + `population_growth` 均值 |
+| Dimension | Primary Indicator | Fallback |
+|-----------|-------------------|----------|
+| Job Opportunity | `job_posting_count` | mean of `innovation_index` + `population_growth` |
 | Starting Income | `entry_salary` | `disposable_income` |
 | Living Cost | `rent_burden` | `housing_burden` |
-| Big Company | `listed_company_count` | 无（部分覆盖仍进入排名） |
+| Big Company | `listed_company_count` | none (partial coverage still enters ranking) |
 
-`GrowthPotential` = 标准化(`population_growth`, `innovation_index`) 均值。  
-`HumanCapitalCityBase` = 标准化(`university_quality`, `gdp_per_capita`) 均值。
+`GrowthPotential` = mean of standardized(`population_growth`, `innovation_index`).
+`HumanCapitalCityBase` = mean of standardized(`university_quality`, `gdp_per_capita`).
 
-`tertiary_ratio` 已降为补充字段，不再进入主公式（缺失率高、与青年机会关联间接）。
+`tertiary_ratio` has been demoted to a supplementary field and no longer enters the main formula (high missing rate, indirect link to youth opportunity).
 
-## 数据可信等级
+## Data Credibility Tiers
 
-| 等级 | 示例 | 是否可进主指数 |
-|------|------|----------------|
-| A | 统计年鉴、公报、NBS | 是 |
-| B | 上市公司注册地、企业名录 | 是（需来源记录） |
-| C | 招聘平台、Numbeo 租金 | 是（需 ≥80% 城市覆盖 + 固定采集规则） |
-| D | 媒体截图、不可复现榜单 | 否 |
+| Tier | Example | Eligible for Main Index? |
+|------|---------|--------------------------|
+| A | Statistical yearbooks, communiques, NBS | Yes |
+| B | Listed company domiciles, enterprise directories | Yes (requires source record) |
+| C | Recruitment platforms, Numbeo rent | Yes (requires >=80% city coverage + fixed collection rules) |
+| D | Media screenshots, unverifiable rankings | No |
 
-主指数准入门槛（`CORE_METRIC_COVERAGE_THRESHOLD = 0.80`）：某年截面内样本城市非缺失比例 ≥ 80%，否则该维度启用 fallback。
+Main index admission threshold (`CORE_METRIC_COVERAGE_THRESHOLD = 0.80`): if non-missing ratio of sample cities in a year cross-section is < 80%, the dimension falls back.
 
-## 标准化方法
+## Standardization Method
 
-### Min-Max 归一化
+### Min-Max Normalization
 
-对正向指标：
-
-```text
-Score_i = (x_i - min(x)) / (max(x) - min(x)) × 100
-```
-
-对生活成本负担（越低越好）：
+For positive indicators:
 
 ```text
-Score_i = (max(x) - x_i) / (max(x) - min(x)) × 100
+Score_i = (x_i - min(x)) / (max(x) - min(x)) x 100
 ```
 
-归一化在**每个年份截面**内独立进行。
+For living cost burden (lower is better):
 
-### 边界情况
+```text
+Score_i = (max(x) - x_i) / (max(x) - min(x)) x 100
+```
 
-当某年所有城市某指标取值相同（`max = min`）时，该项得分统一设为 50。
+Normalization is performed **independently within each year cross-section**.
 
-## 派生指标
+### Edge Cases
 
-### 住房负担
+When all cities have the same value for an indicator in a given year (`max = min`), the score is set to 50.
+
+## Derived Indicators
+
+### Housing Burden
 
 ```text
 HousingBurden = HousePrice / DisposableIncome
 ```
 
-### 租金负担
+### Rent Burden
 
 ```text
-RentBurden = RentMonthly × 12 / DisposableIncome
+RentBurden = RentMonthly x 12 / DisposableIncome
 ```
 
-### 人口增长
+### Population Growth
 
 ```text
 PopulationGrowth_t = (Population_t - Population_{t-1}) / Population_{t-1}
 ```
 
-## 排名规则
+## Ranking Rules
 
-- 按 `yeoi_score` 降序排名
-- 同分城市取相同名次（`method='min'`）
-- 排名仅在同一 `{year}` 截面内有效
+- Rank by `yeoi_score` descending
+- Tied cities share the same rank (`method='min'`)
+- Rankings are only valid within the same `{year}` cross-section
 
-## 敏感性分析
+## Sensitivity Analysis
 
-运行：
+Run:
 
 ```bash
 uv run python -c "from yei.sensitivity import run_sensitivity_report; print(run_sensitivity_report('data/processed/sensitivity_report.csv'))"
 ```
 
-测试各维度权重 ±0.05 对 Top-5 排名的影响，确认第三方数据不会单独支配结论。
+Tests the impact of +/- 0.05 weight shifts on Top-5 rankings, confirming that third-party data does not singly dominate conclusions.
 
-## 实现入口
+## Implementation Entry Point
 
 ```bash
 uv run yeoi-build
 ```
 
-配置与权重位于 `src/yei/config.py`；质量门槛位于 `src/yei/data_quality.py`。
+Configuration and weights are in `src/yei/config.py`; quality thresholds are in `src/yei/data_quality.py`.

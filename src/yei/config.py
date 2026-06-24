@@ -16,7 +16,7 @@ HOUSING_ANNUAL_FILE = INTERIM_DATA_DIR / "housing_annual.csv"
 YOUTH_PLATFORM_FILE = EXTERNAL_DATA_DIR / "youth_platform_indicators.csv"
 LISTED_COMPANIES_FILE = EXTERNAL_DATA_DIR / "listed_companies_by_city.csv"
 
-# 分析样本：20 城 × 5 年
+# Analysis sample: 20 cities x 5 years
 YEARS = list(range(2021, 2026))
 
 CITIES: dict[str, list[str]] = {
@@ -42,7 +42,7 @@ CITIES: dict[str, list[str]] = {
 
 ALL_CITIES = [city for group in CITIES.values() for city in group]
 
-# 数据可信等级：A 官方 / B 机构公开 / C 平台样本 / D 不可复核
+# Data credibility tiers: A official / B institutional public / C platform sample / D unverifiable
 DATA_TIER_A = {
     "gdp_per_capita",
     "disposable_income",
@@ -58,7 +58,7 @@ DATA_TIER_B = {"listed_company_count", "average_wage"}
 DATA_TIER_C = {"job_posting_count", "entry_salary", "rent_monthly", "rent_burden"}
 DATA_TIER_D = {"youth_unemployment_proxy"}
 
-# 主指数维度权重（living_cost / rent_burden 在 build_index 中反向标准化）
+# Main index dimension weights (living_cost / rent_burden are inverted in build_index)
 YEOI_WEIGHTS = {
     "job_opportunity_score": 0.25,
     "starting_income_score": 0.20,
@@ -68,10 +68,10 @@ YEOI_WEIGHTS = {
     "city_base_score": 0.10,
 }
 
-# 主指数准入：城市覆盖率阈值
+# Main index admission: city coverage threshold
 CORE_METRIC_COVERAGE_THRESHOLD = 0.80
 
-# 维度主指标与 fallback（fallback 在覆盖率不足时启用）
+# Dimension primary metrics and fallback (fallback enabled when coverage is insufficient)
 DIMENSION_SPEC = {
     "job_opportunity": {
         "primary": "job_posting_count",
@@ -98,7 +98,7 @@ DIMENSION_SPEC = {
 GROWTH_POTENTIAL_METRICS = ["population_growth", "innovation_index"]
 CITY_BASE_METRICS = ["university_quality", "gdp_per_capita"]
 
-# 主指数 raw 字段；tertiary_ratio 降为补充字段
+# Main index raw fields; tertiary_ratio demoted to supplementary field
 RAW_COLUMNS = [
     "city",
     "year",
@@ -150,7 +150,7 @@ SCORE_COLUMNS = [
     "living_cost_source",
 ]
 
-# 下载流水线目标指标（含青年维度）
+# Download pipeline target metrics (including youth dimensions)
 TARGET_METRICS = {
     "gdp_per_capita": YEARS,
     "disposable_income": YEARS,
