@@ -10,21 +10,26 @@ import requests
 
 from uei.city_names import CITY_NAME_EN, CITY_NAME_ZH, CITY_REGCODE
 from uei.communique_fetch import fetch_communique_panel
-from uei.house_price_yuan import (
-    build_house_price_yuan_sqm,
-    load_house_price_yuan_sqm,
-    save_house_price_yuan_sqm,
-)
 from uei.config import (
     ALL_CITIES,
     HOUSING_ANNUAL_FILE,
     INTERIM_DATA_DIR,
+    LISTED_COMPANIES_FILE,
     MISSING_DATA_REPORT_FILE,
     RAW_DATA_DIR,
     SOURCE_DOCUMENTS_FILE,
     SOURCE_OBSERVATION_COLUMNS,
     SOURCE_OBSERVATIONS_FILE,
+    SUPPLEMENTARY_TARGET_METRICS,
+    TARGET_METRICS,
     YEARS,
+    YOUTH_PLATFORM_FILE,
+)
+from uei.data_quality import classify_missing_metric, metric_tier
+from uei.house_price_yuan import (
+    build_house_price_yuan_sqm,
+    load_house_price_yuan_sqm,
+    save_house_price_yuan_sqm,
 )
 
 EXTERNAL_DIR = RAW_DATA_DIR / "external"
@@ -64,16 +69,10 @@ METRIC_UNITS = {
     "housing_sales_value": "100 million yuan",
     "tertiary_value": "100 million yuan",
     "tertiary_ratio": "percent",
-}
-
-TARGET_METRICS = {
-    "gdp_per_capita": YEARS,
-    "disposable_income": YEARS,
-    "population": [2020, *YEARS],
-    "house_price": YEARS,
-    "rd_expenditure": YEARS,
-    "university_quality": YEARS,
-    "tertiary_ratio": YEARS,
+    "listed_company_count": "count",
+    "job_posting_count": "count",
+    "entry_salary": "yuan/person/year",
+    "rent_monthly": "yuan/month",
 }
 
 SOURCE_COLUMNS = {"city", "year", "source", "source_url", "source_file"}
@@ -330,6 +329,91 @@ def try_fetch_nbs_panel() -> pd.DataFrame:
     return panel
 
 
+def load_listed_company_counts() -> pd.DataFrame:
+    """读取 A 股上市公司注册地数量（B 级机构数据，年内视为稳定）。"""
+    if not LISTED_COMPANIES_FILE.exists():
+        return pd.DataFrame(columns=["city", "year", "listed_company_count"])
+
+    raw = pd.read_csv(LISTED_COMPANIES_FILE)
+    rows = []
+    for city in ALL_CITIES:
+        match = raw[raw["city"] == city]
+        if match.empty:
+            continue
+        count = float(match.iloc[0]["listed_company_count"])
+        for year in YEARS:
+            rows.append({"city": city, "year": year, "listed_company_count": count})
+    return pd.DataFrame(rows)
+
+
+def load_youth_platform_observations() -> pd.DataFrame:
+    """读取招聘/起薪/租金等平台样本（C 级），转为 source observations。"""
+    if not YOUTH_PLATFORM_FILE.exists():
+        return pd.DataFrame(columns=SOURCE_OBSERVATION_COLUMNS)
+
+    raw = pd.read_csv(YOUTH_PLATFORM_FILE)
+    records = []
+    platform_metrics = ["job_posting_count", "entry_salary", "rent_monthly"]
+    for _, row in raw.iterrows():
+        city = row["city"]
+        snapshot_year = int(row.get("year", YEARS[-1]))
+        for year in YEARS:
+            for metric in platform_metrics:
+                value = row.get(metric)
+                if pd.isna(value) or value == "":
+                    continue
+                records.append(
+                    {
+                        "city": city,
+                        "year": year,
+                        "metric": metric,
+                        "value": float(value),
+                        "unit": METRIC_UNITS.get(metric, ""),
+                        "source_type": "platform_sample",
+                        "source_name": row.get("source_name", "platform_sample"),
+                        "source_url": row.get("source_url", ""),
+                        "source_file": str(YOUTH_PLATFORM_FILE),
+                        "extraction_method": "manual_csv",
+                        "is_official_source": False,
+                        "notes": (
+                            f"{row.get('notes', '')}; snapshot_year={snapshot_year}"
+                        ).strip("; "),
+                    }
+                )
+    return pd.DataFrame(records, columns=SOURCE_OBSERVATION_COLUMNS)
+
+
+def load_listed_company_observations() -> pd.DataFrame:
+    """将上市公司数量转为 source observations。"""
+    if not LISTED_COMPANIES_FILE.exists():
+        return pd.DataFrame(columns=SOURCE_OBSERVATION_COLUMNS)
+
+    raw = pd.read_csv(LISTED_COMPANIES_FILE)
+    records = []
+    for _, row in raw.iterrows():
+        city = row["city"]
+        if city not in ALL_CITIES:
+            continue
+        for year in YEARS:
+            records.append(
+                {
+                    "city": city,
+                    "year": year,
+                    "metric": "listed_company_count",
+                    "value": float(row["listed_company_count"]),
+                    "unit": METRIC_UNITS["listed_company_count"],
+                    "source_type": "stock_exchange",
+                    "source_name": row.get("source_name", "A-share listing domicile"),
+                    "source_url": row.get("source_url", ""),
+                    "source_file": str(LISTED_COMPANIES_FILE),
+                    "extraction_method": "manual_csv",
+                    "is_official_source": False,
+                    "notes": row.get("notes", ""),
+                }
+            )
+    return pd.DataFrame(records, columns=SOURCE_OBSERVATION_COLUMNS)
+
+
 def load_university_counts() -> pd.DataFrame:
     """返回各城市大学质量加权得分（985×5 + 211×2.5 + 其他普通高校×0.3）。
 
@@ -485,6 +569,14 @@ def build_source_observations(
     if not manual.empty:
         frames.append(manual)
 
+    listed = load_listed_company_observations()
+    if not listed.empty:
+        frames.append(listed)
+
+    youth = load_youth_platform_observations()
+    if not youth.empty:
+        frames.append(youth)
+
     observations = pd.concat(frames, ignore_index=True)
     if observations.empty:
         return observations
@@ -595,6 +687,17 @@ def build_wide_panel(observations: pd.DataFrame) -> pd.DataFrame:
             panel.loc[can_derive, "house_price"] / panel.loc[can_derive, "disposable_income"]
         )
 
+    if "rent_monthly" in panel.columns and "disposable_income" in panel.columns:
+        can_derive_rent = (
+            panel["rent_monthly"].notna()
+            & panel["disposable_income"].notna()
+            & panel["disposable_income"].ne(0)
+        )
+        panel.loc[can_derive_rent, "rent_burden"] = (
+            panel.loc[can_derive_rent, "rent_monthly"] * 12
+            / panel.loc[can_derive_rent, "disposable_income"]
+        )
+
     # Derive tertiary_ratio from tertiary_value / gdp_total for rows missing it
     if "tertiary_value" in panel.columns and "gdp_total" in panel.columns:
         can_derive_tr = (
@@ -631,6 +734,11 @@ def build_wide_panel(observations: pd.DataFrame) -> pd.DataFrame:
         "university_quality",
         "tertiary_ratio",
         "innovation_index",
+        "listed_company_count",
+        "job_posting_count",
+        "entry_salary",
+        "rent_monthly",
+        "rent_burden",
     ]
     for column in expected_columns:
         if column not in panel.columns:
@@ -663,7 +771,8 @@ def build_missing_data_report(observations: pd.DataFrame) -> pd.DataFrame:
         hsv_keys = set(zip(hsv["city"], hsv["year"].astype(int), strict=False))
         derived_house_price = hsa_keys & hsv_keys
     records = []
-    for metric, years in TARGET_METRICS.items():
+    all_targets = {**TARGET_METRICS, **SUPPLEMENTARY_TARGET_METRICS}
+    for metric, years in all_targets.items():
         for city in ALL_CITIES:
             for year in years:
                 if (city, year, metric) in observed:
@@ -672,6 +781,8 @@ def build_missing_data_report(observations: pd.DataFrame) -> pd.DataFrame:
                     continue
                 if metric == "house_price" and (city, year) in derived_house_price:
                     continue
+                tier = metric_tier(metric)
+                category = classify_missing_metric(metric)
                 status = "not_found"
                 explanation = "Official source value not found in current source files"
                 if metric == "house_price":
@@ -679,13 +790,19 @@ def build_missing_data_report(observations: pd.DataFrame) -> pd.DataFrame:
                     explanation = (
                         "Not covered by bundled yuan/sqm house price file or source unavailable"
                     )
+                if metric in {"job_posting_count", "entry_salary"}:
+                    explanation = (
+                        "Platform sample not yet collected; dimension uses fallback metric"
+                    )
                 records.append(
                     {
                         "city": city,
                         "year": year,
                         "metric": metric,
+                        "data_tier": tier,
+                        "category": category,
                         "status": status,
-                        "attempted_sources": "communique/yearbook/nbs_api/external_csv",
+                        "attempted_sources": "communique/yearbook/nbs_api/external_csv/platform",
                         "explanation": explanation,
                     }
                 )
@@ -723,7 +840,10 @@ def print_status(panel: pd.DataFrame, observations: pd.DataFrame, missing: pd.Da
         "population_growth",
         "innovation_index",
         "university_quality",
-        "tertiary_ratio",
+        "listed_company_count",
+        "rent_burden",
+        "job_posting_count",
+        "entry_salary",
     ]
     print(f"Saved: {PANEL_FILE}")
     print(f"Rows: {total}")

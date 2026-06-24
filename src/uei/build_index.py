@@ -1,9 +1,17 @@
-"""UEOI 指数构建。"""
+"""YEOI 青年城市机会指数构建。"""
 
 import pandas as pd
 
 from uei.clean_data import clean_city_panel, load_raw_data, save_processed
-from uei.config import SCORE_COLUMNS, UEOI_SCORES_FILE, UEOI_WEIGHTS
+from uei.config import (
+    CITY_BASE_METRICS,
+    DIMENSION_SPEC,
+    GROWTH_POTENTIAL_METRICS,
+    SCORE_COLUMNS,
+    YEOI_SCORES_FILE,
+    YEOI_WEIGHTS,
+)
+from uei.data_quality import select_dimension_metric
 
 
 def min_max_score(series: pd.Series, *, invert: bool = False) -> pd.Series:
@@ -25,27 +33,45 @@ def min_max_score(series: pd.Series, *, invert: bool = False) -> pd.Series:
     return normalized
 
 
+def _score_from_metrics(group: pd.DataFrame, metrics: list[str]) -> pd.Series:
+    """对多个正向指标分别标准化后取均值。"""
+    parts = [min_max_score(group[m]) for m in metrics if m in group.columns]
+    if not parts:
+        return pd.Series(float("nan"), index=group.index)
+    return pd.concat(parts, axis=1).mean(axis=1)
+
+
 def build_scores(df: pd.DataFrame) -> pd.DataFrame:
-    """为每个年份截面计算分项得分与 UEOI。"""
+    """为每个年份截面计算 YEOI 分项得分与综合排名。"""
     frames: list[pd.DataFrame] = []
 
-    for year, group in df.groupby("year"):
+    for _year, group in df.groupby("year"):
         scored = group.copy()
-        scored["income_score"] = min_max_score(scored["disposable_income"])
-        scored["gdp_score"] = min_max_score(scored["gdp_per_capita"])
-        scored["talent_capital_score"] = min_max_score(scored["university_quality"])
-        scored["population_growth_score"] = min_max_score(scored["population_growth"])
-        scored["innovation_score"] = min_max_score(scored["innovation_index"])
-        scored["industry_structure_score"] = min_max_score(scored["tertiary_ratio"])
-        scored["housing_burden_score"] = min_max_score(scored["housing_burden"], invert=True)
 
-        scored["ueoi_score"] = sum(
-            scored[column] * weight for column, weight in UEOI_WEIGHTS.items()
+        for dimension, score_col in [
+            ("job_opportunity", "job_opportunity_score"),
+            ("starting_income", "starting_income_score"),
+            ("living_cost", "living_cost_score"),
+            ("big_company", "big_company_score"),
+        ]:
+            _metric_name, values, source_label = select_dimension_metric(group, dimension)
+            invert = DIMENSION_SPEC[dimension]["invert"]
+            scored[score_col] = min_max_score(values, invert=invert)
+            source_col = score_col.replace("_score", "_source")
+            scored[source_col] = source_label
+
+        scored["growth_potential_score"] = _score_from_metrics(
+            scored, GROWTH_POTENTIAL_METRICS
+        )
+        scored["city_base_score"] = _score_from_metrics(scored, CITY_BASE_METRICS)
+
+        scored["yeoi_score"] = sum(
+            scored[column] * weight for column, weight in YEOI_WEIGHTS.items()
         )
         scored["rank"] = pd.Series(pd.NA, index=scored.index, dtype="Int64")
-        valid_scores = scored["ueoi_score"].notna()
+        valid_scores = scored["yeoi_score"].notna()
         scored.loc[valid_scores, "rank"] = (
-            scored.loc[valid_scores, "ueoi_score"]
+            scored.loc[valid_scores, "yeoi_score"]
             .rank(ascending=False, method="min")
             .astype("Int64")
         )
@@ -56,21 +82,21 @@ def build_scores(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def run_pipeline() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """清洗原始数据并输出指数结果。"""
+    """清洗原始数据并输出 YEOI 指数结果。"""
     raw = load_raw_data()
     cleaned = clean_city_panel(raw)
     save_processed(cleaned)
 
     scores = build_scores(cleaned)
-    UEOI_SCORES_FILE.parent.mkdir(parents=True, exist_ok=True)
-    scores.to_csv(UEOI_SCORES_FILE, index=False)
+    YEOI_SCORES_FILE.parent.mkdir(parents=True, exist_ok=True)
+    scores.to_csv(YEOI_SCORES_FILE, index=False)
     return cleaned, scores
 
 
 def main() -> None:
     cleaned, scores = run_pipeline()
     print(f"Processed rows: {len(cleaned)}")
-    print(f"UEOI scores saved: {UEOI_SCORES_FILE}")
+    print(f"YEOI scores saved: {YEOI_SCORES_FILE}")
     print(scores.sort_values(["year", "rank"]).head())
 
 

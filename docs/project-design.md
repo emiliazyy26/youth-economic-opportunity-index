@@ -2,22 +2,22 @@
 
 ## 1. 项目定位
 
-**Urban Economic Opportunity Index (UEOI)** 是一个面向中国城市比较的经济数据分析项目。项目关注年轻人在选择城市时面对的核心权衡：收入机会、住房压力、人口流入和长期增长潜力。
+**Urban Economic Opportunity Index (UEOI / YEOI)** 是一个面向中国城市比较、**聚焦年轻人与职场早期人群**的经济数据分析项目。项目关注毕业生和青年职场人在选择城市时的核心权衡：就业机会、起薪回报、生活成本、大企业机会与长期增长潜力。
 
 中文标题：
 
 ```text
-中国城市经济机会指数：收入、住房压力与城市吸引力的数据分析研究
+中国青年城市机会指数：就业、起薪与生活成本的数据分析研究
 ```
 
 英文标题：
 
 ```text
-Measuring Urban Economic Opportunity in China:
-A Data-Driven Analysis of Income, Housing Affordability and Growth Potential
+Urban Economic Opportunity Index for Young Professionals in China:
+A Data-Driven Analysis of Jobs, Starting Income and Living Cost
 ```
 
-项目不做简单的房价排名，也不做房地产投资判断。研究重点是：**哪些中国城市为年轻人提供了更好的经济机会与生活成本平衡**。
+项目不做简单的房价排名，也不做房地产投资判断。研究重点是：**哪些中国城市为年轻人提供了更好的就业机会与生活成本平衡**。
 
 ## 2. 研究问题
 
@@ -42,9 +42,9 @@ between economic opportunity and living cost?
 
 | 方向 | 说明 |
 |------|------|
-| 城市经济机会比较 | 比较收入、GDP、人口增长、创新能力和住房压力 |
-| 透明指数构建 | 使用可解释的线性加权模型 |
-| 官方数据优先 | 使用统计年鉴、国家统计局和教育部等可验证来源 |
+| 城市青年机会比较 | 比较岗位机会、起薪、生活成本、大企业数量、增长潜力 |
+| 透明指数构建 | 使用可解释的线性加权模型（YEOI） |
+| 可信数据优先 | 官方统计 + 可复核机构数据 + 通过质量门槛的平台样本 |
 | Python 数据分析 | 使用 pandas、numpy、plotly、matplotlib 完成分析与可视化 |
 | Streamlit Dashboard | 提供交互式城市查询和排名展示 |
 
@@ -118,8 +118,9 @@ data/raw/city_panel.csv
 | `housing_burden` | float | 住房负担 |
 | `population` | float | 常住人口，用于计算人口增长 |
 | `population_growth` | float | 常住人口增长率 |
-| `university_resource` | int | 高校数量 |
-| `innovation_index` | float | 创新能力指标 |
+| `university_quality` | float | 大学质量加权得分 |
+| `tertiary_ratio` | float | 第三产业占 GDP 比重（%） |
+| `innovation_index` | float | 创新能力指标（R&D 经费） |
 | `source` | string | 数据来源简记 |
 | `source_url` | string | 原始链接 |
 | `notes` | string | 单位、口径或处理说明 |
@@ -134,7 +135,8 @@ disposable_income
 house_price
 housing_burden
 population_growth
-university_resource
+university_quality
+tertiary_ratio
 innovation_index
 ```
 
@@ -151,20 +153,22 @@ data/processed/city_economic_opportunity.csv
 指数得分表：
 
 ```text
-data/processed/ueoi_scores.csv
+data/processed/yeoi_scores.csv
 ```
 
 指数表包含：
 
 | 字段 | 说明 |
 |------|------|
-| `income_score` | 收入标准化得分 |
-| `gdp_score` | 人均 GDP 标准化得分 |
-| `population_growth_score` | 人口增长标准化得分 |
-| `innovation_score` | 创新能力标准化得分 |
-| `housing_burden_score` | 住房负担标准化得分 |
-| `ueoi_score` | 综合城市经济机会指数 |
+| `job_opportunity_score` | 就业机会标准化得分 |
+| `starting_income_score` | 起薪/收入标准化得分 |
+| `living_cost_score` | 生活成本可负担性得分（越高压力越低） |
+| `big_company_score` | 大企业/上市公司机会得分 |
+| `growth_potential_score` | 增长潜力得分 |
+| `city_base_score` | 人才资本与城市基础得分 |
+| `yeoi_score` | 综合青年城市机会指数 |
 | `rank` | 同一年份城市排名 |
+| `*_source` | 各维度实际使用的指标来源标签 |
 
 ## 6. 数据来源方案
 
@@ -238,21 +242,23 @@ HousingBurden = HousePrice / DisposableIncome
 
 ### 大学资源
 
-大学资源作为解释年轻人才流入的辅助变量。
+大学资源作为人才资本维度进入 UEOI 主公式（权重 0.15）。
 
 推荐来源：
 
 ```text
-教育部全国高等学校名单
+教育部全国高等学校名单 + 985/211/双一流官方列表
 ```
 
 指标定义：
 
 ```text
-UniversityResource = 城市内普通高等学校数量
+university_quality = 985数量 × 5.0 + 211(非985)数量 × 2.5 + 其他普通高校 × 0.3
 ```
 
-高校数量在 2021–2025 的短期内变化不大，可以使用 2025 年名单作为近似，并在报告中说明该假设。
+该加权方案区分了大学层级：顶尖研究型大学（985）的权重是普通高校的约 17 倍，准确反映了高端人力资本供给的差异。例如北京（8 所 985）得分远超深圳（0 所 985），而旧方案仅用简单计数无法体现这一差距。
+
+高校数量和层级在 2021–2025 的短期内变化不大，使用 2025 年名单作为近似，并在报告中说明该假设。
 
 ## 7. 指数方法
 
@@ -288,34 +294,26 @@ HousingBurdenScore_i = (max(x) - x_i) / (max(x) - min(x)) × 100
 ### 指数公式
 
 ```text
-UEOI = 0.35 × IncomeScore
-     + 0.25 × GDPScore
-     + 0.15 × PopulationGrowthScore
-     + 0.15 × InnovationScore
-     - 0.10 × HousingBurdenScore
+YEOI = 0.25 × JobOpportunity
+     + 0.20 × StartingIncome
+     + 0.20 × LivingCostAffordability
+     + 0.15 × BigCompanyOpportunity
+     + 0.10 × GrowthPotential
+     + 0.10 × HumanCapitalCityBase
 ```
 
 ### 权重解释
 
-| 指标 | 权重 | 解释 |
+| 维度 | 权重 | 解释 |
 |------|------|------|
-| 收入 | 0.35 | 年轻人城市选择中最直接的经济回报 |
-| 人均 GDP | 0.25 | 城市经济基础、就业容量和产业水平 |
-| 人口增长 | 0.15 | 人口流入反映城市吸引力 |
-| 创新能力 | 0.15 | 长期增长潜力 |
-| 住房负担 | -0.10 | 生活成本约束，但不应完全否定高机会城市 |
+| 就业机会 | 0.25 | 岗位数量或就业容量，直接反映青年能否找到工作 |
+| 起薪/收入 | 0.20 | 起薪优先，不足时用可支配收入 |
+| 生活成本 | 0.20 | 租金负担优先，不足时用住房负担 |
+| 大企业机会 | 0.15 | 上市公司/大企业数量 |
+| 增长潜力 | 0.10 | 人口增长 + 创新活动 |
+| 城市基础 | 0.10 | 大学质量 + 人均 GDP（降权避免宏观排名） |
 
-注意：如果使用的是“住房负担得分”（负担越低分越高），公式中也可以改写为正权重：
-
-```text
-UEOI = 0.35 × IncomeScore
-     + 0.25 × GDPScore
-     + 0.15 × PopulationGrowthScore
-     + 0.15 × InnovationScore
-     + 0.10 × HousingAffordabilityScore
-```
-
-为了避免符号混乱，实际代码中应统一使用一种口径。推荐代码输出使用 `housing_burden_score` 表示“可负担性得分”，即越高越好，并在方法文档中说明。
+第三方数据（招聘、租金）通过可信度门槛后可进入主指数；未达标则自动 fallback。
 
 ## 8. 分析输出
 
@@ -413,8 +411,9 @@ data/processed/city_economic_opportunity.csv
 src/uei/build_index.py
         │
         ▼
-data/processed/ueoi_scores.csv
+data/processed/yeoi_scores.csv
         │
+        ├── data/processed/sensitivity_report.csv
         ├── reports / figures
         └── Streamlit Dashboard
 ```
@@ -438,7 +437,7 @@ uv run streamlit run app/streamlit_app.py
 | Introduction | 研究问题、城市选择背景 |
 | Literature / Context | 城市机会、收入、住房负担、人口流动 |
 | Data | 数据来源、变量定义、样本范围 |
-| Methodology | 标准化、权重、UEOI 公式 |
+| Methodology | 标准化、权重、YEOI 公式与 fallback |
 | Results | 排名、图表、城市分组比较 |
 | Discussion | 高收入高成本城市与成长型城市的权衡 |
 | Limitations | 房价指数、数据缺失、权重主观性 |
@@ -450,8 +449,8 @@ uv run streamlit run app/streamlit_app.py
 |------|------|------|
 | Day 1–3 | 下载统计年鉴与房价指数，整理 `city_panel.csv` | 原始数据表 |
 | Day 4 | 清洗数据，统一单位，处理缺失值 | `city_economic_opportunity.csv` |
-| Day 5 | 构建标准化得分和 UEOI | `ueoi_scores.csv` |
-| Day 6 | 生成 5 张核心图表，做初步解释 | figures |
+| Day 5 | 构建 YEOI 标准化得分 | `yeoi_scores.csv` |
+| Day 6 | 生成核心图表与敏感性分析 | figures + sensitivity_report |
 | Day 7–9 | 开发 Streamlit Dashboard | 可交互页面 |
 | Day 10 | 增加城市对比、排名表和分项展示 | Dashboard 完成版 |
 | Day 11–12 | 撰写经济报告 | 报告初稿 |
@@ -477,7 +476,7 @@ uv run streamlit run app/streamlit_app.py
 3. 能通过 `uv run ueoi-build` 生成指数结果；
 4. 至少有 5 张可用于报告的图表；
 5. Streamlit Dashboard 可选择城市和年份；
-6. 报告能清楚解释为什么项目是“城市经济机会指数”，不是“房价研究”。
+6. 报告能清楚解释为什么项目是“青年城市机会指数”，不是“房价研究”。
 
 ## 14. 项目价值
 

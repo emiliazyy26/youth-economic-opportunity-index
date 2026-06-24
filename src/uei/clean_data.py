@@ -38,9 +38,26 @@ def derive_housing_burden(df: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
+def derive_rent_burden(df: pd.DataFrame) -> pd.DataFrame:
+    """租金负担 = 月租 × 12 / 年可支配收入。"""
+    result = df.copy()
+    if "rent_monthly" not in result.columns:
+        return result
+    can_derive = (
+        result["rent_burden"].isna()
+        & result["rent_monthly"].notna()
+        & result["disposable_income"].notna()
+        & result["disposable_income"].ne(0)
+    )
+    result.loc[can_derive, "rent_burden"] = (
+        result.loc[can_derive, "rent_monthly"] * 12 / result.loc[can_derive, "disposable_income"]
+    )
+    return result
+
+
 def clean_city_panel(df: pd.DataFrame) -> pd.DataFrame:
     """标准化列名、排序并去重。"""
-    result = derive_housing_burden(df)
+    result = derive_rent_burden(derive_housing_burden(df))
     result = result.sort_values(["city", "year"]).drop_duplicates(
         subset=["city", "year"], keep="last"
     )

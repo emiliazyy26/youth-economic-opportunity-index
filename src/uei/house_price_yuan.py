@@ -63,7 +63,9 @@ def _parse_year_page(html: str) -> list[float]:
     return [float(v.replace(",", "")) for v in markdown_rows]
 
 
-def fetch_city_year_new_home_price(city_id: int, year: int, *, session: requests.Session) -> float | None:
+def fetch_city_year_new_home_price(
+    city_id: int, year: int, *, session: requests.Session
+) -> float | None:
     url = f"{GOTOHUI_BASE}/{city_id}/{year}/"
     response = session.get(url, timeout=30, headers={"User-Agent": "Mozilla/5.0"})
     response.raise_for_status()

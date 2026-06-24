@@ -159,14 +159,12 @@ Notebook 主要读取：
 代码中 `housing_burden_score` 已反向标准化，分数越高表示住房压力越低，因此：
 
 ```text
-UEOI = 0.35 × IncomeScore
-     + 0.25 × GDPScore
-     + 0.15 × PopulationGrowthScore
-     + 0.15 × InnovationScore
-     + 0.10 × HousingBurdenScore
+UEOI = 0.25 × IncomeScore + 0.20 × GDPScore + 0.15 × TalentCapitalScore
+     + 0.12 × PopulationGrowthScore + 0.12 × InnovationScore
+     + 0.10 × IndustryStructureScore + 0.06 × HousingBurdenScore
 ```
 
-> 注意：[project-design.md](project-design.md) 第 7 节有一处写法为 `- 0.10 × HousingBurdenScore`；以 `src/uei/build_index.py` 与 `config.py` 中的 `UEOI_WEIGHTS` 为准。
+> 权重定义以 `src/uei/config.py` 中的 `UEOI_WEIGHTS` 为准。
 
 **核心图表**：
 

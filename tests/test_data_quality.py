@@ -7,6 +7,7 @@ from uei.config import (
     MISSING_DATA_REPORT_FILE,
     RAW_DATA_DIR,
     SOURCE_OBSERVATIONS_FILE,
+    TARGET_METRICS,
     YEARS,
 )
 
@@ -59,17 +60,11 @@ def test_source_observations_do_not_contain_estimate_or_proxy_notes():
 def test_missing_required_values_are_reported():
     observations = _load_observations()
     missing = _load_missing()
-    expected_metrics = {
-        "gdp_per_capita",
-        "disposable_income",
-        "population",
-        "house_price",
-        "rd_expenditure",
-        "university_quality",
-        "tertiary_ratio",
-    }
+    expected_metrics = set(TARGET_METRICS) | {"tertiary_ratio"}
 
     assert set(missing["metric"]).issubset(expected_metrics)
+    assert "category" in missing.columns
+    assert "data_tier" in missing.columns
 
     observed_keys = set(
         zip(
