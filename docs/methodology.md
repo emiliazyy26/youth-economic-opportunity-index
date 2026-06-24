@@ -35,7 +35,7 @@ YEOI = 0.25 × JobOpportunity
 
 ## 维度指标与 Fallback
 
-主指数采用“主指标 + 质量门槛 + fallback”机制（见 `src/uei/data_quality.py`）：
+主指数采用“主指标 + 质量门槛 + fallback”机制（见 `src/yei/data_quality.py`）：
 
 | 维度 | 主指标 | Fallback |
 |------|--------|----------|
@@ -113,7 +113,7 @@ PopulationGrowth_t = (Population_t - Population_{t-1}) / Population_{t-1}
 运行：
 
 ```bash
-uv run python -c "from uei.sensitivity import run_sensitivity_report; print(run_sensitivity_report('data/processed/sensitivity_report.csv'))"
+uv run python -c "from yei.sensitivity import run_sensitivity_report; print(run_sensitivity_report('data/processed/sensitivity_report.csv'))"
 ```
 
 测试各维度权重 ±0.05 对 Top-5 排名的影响，确认第三方数据不会单独支配结论。
@@ -121,7 +121,7 @@ uv run python -c "from uei.sensitivity import run_sensitivity_report; print(run_
 ## 实现入口
 
 ```bash
-uv run ueoi-build
+uv run yeoi-build
 ```
 
-配置与权重位于 `src/uei/config.py`；质量门槛位于 `src/uei/data_quality.py`。
+配置与权重位于 `src/yei/config.py`；质量门槛位于 `src/yei/data_quality.py`。

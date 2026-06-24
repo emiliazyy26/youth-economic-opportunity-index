@@ -4,7 +4,7 @@
 
 ## 1. 总体原则
 
-`notebooks/` 承担**研究叙事线**，不是生产流水线。可复现的计算逻辑放在 `src/uei/`；notebook 负责展示：
+`notebooks/` 承担**研究叙事线**，不是生产流水线。可复现的计算逻辑放在 `src/yei/`；notebook 负责展示：
 
 - 数据从哪来、是否可信
 - 城市之间有什么模式
@@ -14,7 +14,7 @@
 推荐分析主线：
 
 ```text
-数据可信度 → 指标分布 → 收入与住房压力的权衡 → UEOI 排名 → 分组解释与稳健性 → 结论
+数据可信度 → 指标分布 → 收入与住房压力的权衡 → YEOI 排名 → 分组解释与稳健性 → 结论
 ```
 
 Notebook 顺序：
@@ -30,8 +30,8 @@ Notebook 顺序：
 运行前需先完成数据准备：
 
 ```bash
-uv run ueoi-download
-uv run ueoi-build
+uv run yeoi-download
+uv run yeoi-build
 ```
 
 Notebook 主要读取：
@@ -43,7 +43,7 @@ Notebook 主要读取：
 | `data/raw/data_sources.csv` | 来源汇总 |
 | `data/raw/missing_data_report.csv` | 缺口报告 |
 | `data/processed/city_economic_opportunity.csv` | 清洗后面板 |
-| `data/processed/ueoi_scores.csv` | 分项得分与排名 |
+| `data/processed/yeoi_scores.csv` | 分项得分与排名 |
 
 ---
 
@@ -56,7 +56,7 @@ Notebook 主要读取：
 **建议内容**：
 
 - 20 城 × 2021–2025 样本设计
-- 城市分组：超大城市、强二线、转型成长、对照组（见 `src/uei/config.py` 中 `CITIES`）
+- 城市分组：超大城市、强二线、转型成长、对照组（见 `src/yei/config.py` 中 `CITIES`）
 - 汇总 `source_observations.csv`、`data_sources.csv` 的来源类型
 - 统计官方来源、第三方镜像、手工补录的比例
 - 展示 `missing_data_report.csv`，说明当前主要缺口为 `rd_expenditure`
@@ -88,7 +88,7 @@ Notebook 主要读取：
 - 说明项目原则：不做 proxy、不随意估算，只保留 source-backed 数据
 - 对缺失值做**解释**，而非强行填补
 
-**实现说明**：权威清洗逻辑在 `src/uei/clean_data.py` 与 `src/uei/download_data.py`；本 notebook 以解释与验证为主，不必重复实现大量清洗代码。
+**实现说明**：权威清洗逻辑在 `src/yei/clean_data.py` 与 `src/yei/download_data.py`；本 notebook 以解释与验证为主，不必重复实现大量清洗代码。
 
 **核心输出**：
 
@@ -136,7 +136,7 @@ Notebook 主要读取：
 
 ---
 
-### 04 Index Calculation — UEOI 如何计算、排名是否合理
+### 04 Index Calculation — YEOI 如何计算、排名是否合理
 
 **目标**：透明展示指数构建与排名结果。
 
@@ -150,7 +150,7 @@ Notebook 主要读取：
   - `innovation_score`
   - `housing_burden_score`（**越高表示住房可负担性越好**）
 - 权重与综合得分
-- 最新年份 UEOI 排名
+- 最新年份 YEOI 排名
 - 2021–2025 排名变化
 - Top 城市分项对比（雷达图或 stacked bar）
 
@@ -159,18 +159,18 @@ Notebook 主要读取：
 代码中 `housing_burden_score` 已反向标准化，分数越高表示住房压力越低，因此：
 
 ```text
-UEOI = 0.25 × IncomeScore + 0.20 × GDPScore + 0.15 × TalentCapitalScore
+YEOI = 0.25 × IncomeScore + 0.20 × GDPScore + 0.15 × TalentCapitalScore
      + 0.12 × PopulationGrowthScore + 0.12 × InnovationScore
      + 0.10 × IndustryStructureScore + 0.06 × HousingBurdenScore
 ```
 
-> 权重定义以 `src/uei/config.py` 中的 `UEOI_WEIGHTS` 为准。
+> 权重定义以 `src/yei/config.py` 中的 `YEOI_WEIGHTS` 为准。
 
 **核心图表**：
 
-- 最新年份 Top 10 UEOI 排名
+- 最新年份 Top 10 YEOI 排名
 - 排名随时间变化折线图
-- 城市分组平均 UEOI
+- 城市分组平均 YEOI
 - Top 城市分项得分对比
 
 **优先级**：在 03 之后完善。
@@ -179,11 +179,11 @@ UEOI = 0.25 × IncomeScore + 0.20 × GDPScore + 0.15 × TalentCapitalScore
 
 ### 05 Explanatory Model — 解释与稳健性（非因果）
 
-**目标**：讨论哪些因素与 UEOI 排名关联，并检验权重敏感性。**不做**复杂机器学习或因果推断。
+**目标**：讨论哪些因素与 YEOI 排名关联，并检验权重敏感性。**不做**复杂机器学习或因果推断。
 
 **建议内容**：
 
-- 各分项得分与 `ueoi_score` 的相关性
+- 各分项得分与 `yeoi_score` 的相关性
 - 城市分组平均分对比
 - Top / Bottom 城市的指标差异
 - **权重敏感性分析**：
@@ -195,7 +195,7 @@ UEOI = 0.25 × IncomeScore + 0.20 × GDPScore + 0.15 × TalentCapitalScore
 
 **核心输出**：
 
-- 分项与 UEOI 相关性条形图
+- 分项与 YEOI 相关性条形图
 - Top / Bottom 城市分项差异表
 - 敏感性排名变化表
 - 稳定排名城市 vs 敏感排名城市
@@ -221,7 +221,7 @@ This is an explanatory index analysis, not a causal model.
 | 3 | 哪些城市在人口增长上仍有吸引力？ |
 | 4 | 高收入是否一定意味着高经济机会？ |
 | 5 | 哪些城市在「收入高 + 住房压力可接受」之间更平衡？ |
-| 6 | UEOI 排名前列城市主要靠哪类优势？ |
+| 6 | YEOI 排名前列城市主要靠哪类优势？ |
 | 7 | 若提高住房压力权重，排名是否会明显变化？ |
 | 8 | 哪些结论受 `rd_expenditure` 缺失影响最大？ |
 
@@ -237,7 +237,7 @@ This is an explanatory index analysis, not a causal model.
 | `house_price` / `housing_burden` | 100/100 | 可完整做住房压力分析 |
 | `population_growth` | 100/100 | 可完整做增长趋势 |
 | `gdp_per_capita` | 100/100 | 可完整做 GDP 对比 |
-| `innovation_index` | 91/100 | 成都/合肥 2024 及 7 城 2025 缺失；创新分项与 UEOI 在该年为空 |
+| `innovation_index` | 91/100 | 成都/合肥 2024 及 7 城 2025 缺失；创新分项与 YEOI 在该年为空 |
 
 在 04、05 中应标注：涉及缺失年份的城市，创新分项与综合排名需审慎解读。
 
@@ -251,7 +251,7 @@ This is an explanatory index analysis, not a causal model.
 | 2 | `04_index_calculation.ipynb` | 排名、分项、权重解释 |
 | 3 | `05_explanatory_model.ipynb` | 稳健性与 sensitivity |
 | 4 | `01_data_sources.ipynb` | 保持简洁，支撑可信度 |
-| 5 | `02_data_cleaning.ipynb` | 保持简洁，指向 `src/uei/` |
+| 5 | `02_data_cleaning.ipynb` | 保持简洁，指向 `src/yei/` |
 
 ---
 

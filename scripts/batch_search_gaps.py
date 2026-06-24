@@ -5,15 +5,13 @@ Usage:
     uv run python scripts/batch_search_gaps.py --year 2025        # 只搜2025年
     uv run python scripts/batch_search_gaps.py --all              # 搜全部缺口
     uv run python scripts/batch_search_gaps.py --dry-run          # 只生成缺口清单，不搜索
-    uv run python scripts/batch_search_gaps.py --merge            # 将 candidate_review.csv 已批准项合并到 manual_source_observations.csv
+    uv run python scripts/batch_search_gaps.py --merge            # 合并已批准项到 manual
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 import re
-import sys
 import time
 from pathlib import Path
 
@@ -153,7 +151,6 @@ def get_tavily_client():
 
 def search_tavily(query: str, max_results: int = 5) -> list[dict]:
     """通过 Tavily MCP 搜索，返回结果列表。"""
-    import json as _json
 
     try:
         from tavily import TavilyClient
@@ -250,7 +247,6 @@ def generate_candidate_review(
     gaps: list[dict], *, dry_run: bool = False
 ) -> pd.DataFrame:
     """对每个缺口执行搜索并生成候选值表。"""
-    import json as _json
 
     rows = []
 
@@ -416,7 +412,9 @@ def main() -> None:
     parser.add_argument("--all", action="store_true", help="Search all gaps (2021-2025)")
     parser.add_argument("--dry-run", action="store_true", help="Generate gap list only, no search")
     parser.add_argument(
-        "--merge", action="store_true", help="Merge approved candidates to manual_source_observations.csv"
+        "--merge",
+        action="store_true",
+        help="Merge approved candidates to manual_source_observations.csv",
     )
     args = parser.parse_args()
 

@@ -2,11 +2,11 @@
 
 import pandas as pd
 
-from uei.build_index import build_scores, min_max_score
-from uei.clean_data import derive_housing_burden, derive_rent_burden
-from uei.config import YEOI_WEIGHTS
-from uei.data_quality import passes_core_threshold, select_dimension_metric
-from uei.sensitivity import sensitivity_shift
+from yei.build_index import build_scores, min_max_score
+from yei.clean_data import derive_housing_burden, derive_rent_burden
+from yei.config import YEOI_WEIGHTS
+from yei.data_quality import passes_core_threshold, select_dimension_metric
+from yei.sensitivity import sensitivity_shift
 
 
 def _sample_panel() -> pd.DataFrame:

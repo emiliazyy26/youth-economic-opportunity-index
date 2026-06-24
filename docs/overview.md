@@ -3,7 +3,7 @@
 ## 项目名称
 
 **Youth Economic Opportunity Index (YEOI)**  
-中国青年城市机会指数（项目简称仍可用 UEOI）
+中国青年城市机会指数（项目简称仍可用 YEOI）
 
 ## 英文标题
 

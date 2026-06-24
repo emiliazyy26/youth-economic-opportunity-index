@@ -2,8 +2,8 @@
 
 import pandas as pd
 
-from uei.clean_data import clean_city_panel, load_raw_data, save_processed
-from uei.config import (
+from yei.clean_data import clean_city_panel, load_raw_data, save_processed
+from yei.config import (
     CITY_BASE_METRICS,
     DIMENSION_SPEC,
     GROWTH_POTENTIAL_METRICS,
@@ -11,7 +11,7 @@ from uei.config import (
     YEOI_SCORES_FILE,
     YEOI_WEIGHTS,
 )
-from uei.data_quality import select_dimension_metric
+from yei.data_quality import select_dimension_metric
 
 
 def min_max_score(series: pd.Series, *, invert: bool = False) -> pd.Series:

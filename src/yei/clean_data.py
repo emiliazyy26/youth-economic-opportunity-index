@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from uei.config import CITY_DATA_FILE, RAW_COLUMNS, RAW_DATA_DIR
+from yei.config import CITY_DATA_FILE, RAW_COLUMNS, RAW_DATA_DIR
 
 
 def load_raw_data(path: Path | None = None) -> pd.DataFrame:

@@ -32,7 +32,7 @@
 ### 2.1 Harbin 2021 GDP inconsistency
 - `gdp_per_capita` = 56,580, but `gdp_total/population × 10^8` = 12,291
 - **Root cause**: `gdp_total` = 1,215.0 (unit unclear, appears wrong) from hongheiku communique
-- **Impact**: None on UEOI — Harbin 2021 `gdp_score` uses `gdp_per_capita` directly
+- **Impact**: None on YEOI — Harbin 2021 `gdp_score` uses `gdp_per_capita` directly
 - **Fix**: Search for official Harbin 2021 communique to verify GDP total
 
 ### 2.2 Xi'an 2023 gdp_per_capita 

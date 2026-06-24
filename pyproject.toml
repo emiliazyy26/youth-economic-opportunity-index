@@ -1,5 +1,5 @@
 [project]
-name = "urban-economic-opportunity-index"
+name = "youth-economic-opportunity-index"
 version = "0.1.0"
 description = "Youth Economic Opportunity Index (YEOI) — 中国青年城市机会指数"
 readme = "README.md"
@@ -31,15 +31,15 @@ dev = [
 ]
 
 [project.scripts]
-ueoi-build = "uei.build_index:main"
-ueoi-download = "uei.download_data:main"
+yeoi-build = "yei.build_index:main"
+yeoi-download = "yei.download_data:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/uei"]
+packages = ["src/yei"]
 
 [tool.uv]
 package = true

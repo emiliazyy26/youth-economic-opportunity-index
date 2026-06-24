@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from uei.config import (
+from yei.config import (
     CORE_METRIC_COVERAGE_THRESHOLD,
     DATA_TIER_A,
     DATA_TIER_B,

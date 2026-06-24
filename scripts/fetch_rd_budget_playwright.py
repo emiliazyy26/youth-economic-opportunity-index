@@ -9,8 +9,8 @@ import time
 from pathlib import Path
 
 import requests
-from pypdf import PdfReader
 from playwright.sync_api import sync_playwright
+from pypdf import PdfReader
 
 RAW = Path("data/raw")
 OUT = RAW / "_playwright_budget"

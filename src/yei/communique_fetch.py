@@ -12,15 +12,15 @@ import pandas as pd
 import requests
 from pypdf import PdfReader
 
-from uei.communique_manifest import COMMUNIQUE_MANIFEST, SSL_VERIFY_EXEMPT_HOSTS
-from uei.communique_ocr import (
+from yei.communique_manifest import COMMUNIQUE_MANIFEST, SSL_VERIFY_EXEMPT_HOSTS
+from yei.communique_ocr import (
     metrics_need_ocr,
     normalize_ocr_text,
     ocr_html_images,
     page_needs_ocr,
 )
-from uei.communique_sources import COMMUNIQUE_SOURCE_BY_CITY
-from uei.config import ALL_CITIES, YEARS
+from yei.communique_sources import COMMUNIQUE_SOURCE_BY_CITY
+from yei.config import ALL_CITIES, YEARS
 
 SESSION = requests.Session()
 SESSION.headers.update(

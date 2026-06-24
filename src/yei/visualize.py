@@ -5,7 +5,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from uei.config import PROCESSED_DATA_DIR, YEOI_SCORES_FILE
+from yei.config import PROCESSED_DATA_DIR, YEOI_SCORES_FILE
 
 
 def plot_yeoi_ranking(scores: pd.DataFrame, year: int, output_dir: Path) -> Path:
@@ -23,11 +23,6 @@ def plot_yeoi_ranking(scores: pd.DataFrame, year: int, output_dir: Path) -> Path
     fig.savefig(output_path, dpi=150)
     plt.close(fig)
     return output_path
-
-
-def plot_ueoi_ranking(scores: pd.DataFrame, year: int, output_dir: Path) -> Path:
-    """Backward-compatible alias."""
-    return plot_yeoi_ranking(scores, year, output_dir)
 
 
 def plot_latest_ranking(output_dir: Path | None = None) -> Path:

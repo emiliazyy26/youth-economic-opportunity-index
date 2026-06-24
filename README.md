@@ -1,4 +1,4 @@
-# Urban Economic Opportunity Index (UEOI / YEOI)
+# Urban Economic Opportunity Index (YEOI / YEOI)
 
 中国青年城市机会指数：就业、起薪与生活成本的数据分析研究。
 
@@ -14,8 +14,8 @@
 
 ```bash
 uv sync
-uv run ueoi-download   # 可选：刷新原始数据
-uv run ueoi-build      # 构建 YEOI
+uv run yeoi-download   # 可选：刷新原始数据
+uv run yeoi-build      # 构建 YEOI
 uv run streamlit run app/streamlit_app.py
 ```
 

@@ -8,9 +8,9 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-from uei.city_names import CITY_NAME_EN, CITY_NAME_ZH, CITY_REGCODE
-from uei.communique_fetch import fetch_communique_panel
-from uei.config import (
+from yei.city_names import CITY_NAME_EN, CITY_NAME_ZH, CITY_REGCODE
+from yei.communique_fetch import fetch_communique_panel
+from yei.config import (
     ALL_CITIES,
     HOUSING_ANNUAL_FILE,
     INTERIM_DATA_DIR,
@@ -25,8 +25,8 @@ from uei.config import (
     YEARS,
     YOUTH_PLATFORM_FILE,
 )
-from uei.data_quality import classify_missing_metric, metric_tier
-from uei.house_price_yuan import (
+from yei.data_quality import classify_missing_metric, metric_tier
+from yei.house_price_yuan import (
     build_house_price_yuan_sqm,
     load_house_price_yuan_sqm,
     save_house_price_yuan_sqm,

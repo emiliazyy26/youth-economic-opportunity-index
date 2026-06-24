@@ -3554,7 +3554,7 @@ wheels = [
 ]
 
 [[package]]
-name = "urban-economic-opportunity-index"
+name = "youth-economic-opportunity-index"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from uei.visualize import plot_yeoi_ranking
+from yei.visualize import plot_yeoi_ranking
 
 
 def test_plot_yeoi_ranking_writes_file(tmp_path):

@@ -9,7 +9,6 @@ EXTERNAL_DATA_DIR = RAW_DATA_DIR / "external"
 
 CITY_DATA_FILE = PROCESSED_DATA_DIR / "city_economic_opportunity.csv"
 YEOI_SCORES_FILE = PROCESSED_DATA_DIR / "yeoi_scores.csv"
-UEOI_SCORES_FILE = YEOI_SCORES_FILE  # backward-compatible alias
 SOURCE_OBSERVATIONS_FILE = RAW_DATA_DIR / "source_observations.csv"
 SOURCE_DOCUMENTS_FILE = RAW_DATA_DIR / "source_documents.csv"
 MISSING_DATA_REPORT_FILE = RAW_DATA_DIR / "missing_data_report.csv"

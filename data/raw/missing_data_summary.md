@@ -8,9 +8,9 @@
 
 ## 一、当前状态总览（2026.06.22 大补齐后）
 
-**UEOI 指数完整度：96/100（96%）**
+**YEOI 指数完整度：96/100（96%）**
 
-| 年份 | UEOI 完整城市数 | 状态 |
+| 年份 | YEOI 完整城市数 | 状态 |
 |------|----------------|------|
 | 2021 | 20/20 | ✅ 完整 |
 | 2022 | 20/20 | ✅ 完整 |
@@ -93,9 +93,9 @@
 
 ---
 
-## 五、UEOI 指数排名（2025）
+## 五、YEOI 指数排名（2025）
 
-| 排名 | 城市 | UEOI 分数 |
+| 排名 | 城市 | YEOI 分数 |
 |------|------|----------|
 | 1 | Shanghai | 84.3 |
 | 2 | Beijing | 80.5 |
@@ -108,7 +108,7 @@
 | 9 | Changsha | 48.5 |
 | 10 | Wuhan | 43.7 |
 
-注：成都/合肥/昆明/南昌 2025 年 UEOI 待 rd_expenditure 补齐后输出。
+注：成都/合肥/昆明/南昌 2025 年 YEOI 待 rd_expenditure 补齐后输出。
 
 ---
 
@@ -121,6 +121,6 @@
 | `data/raw/manual_source_observations.csv` | 手工/决算口径补录（231 条） |
 | `data/raw/source_observations.csv` | 自动+人工合并的源观测长表（710 条） |
 | `data/raw/city_panel.csv` | 20×5 宽表面板（100 行，全覆盖） |
-| `data/processed/ueoi_scores.csv` | UEOI 评分与排名 |
+| `data/processed/yeoi_scores.csv` | YEOI 评分与排名 |
 | `scripts/batch_search_gaps.py` | Tavily 批量缺口搜索工具 |
 | `scripts/fetch_rd_budget_playwright.py` | 成都/合肥决算抓取（playwright） |

@@ -67,7 +67,7 @@ def main() -> None:
     if scores.empty:
         st.warning(
             "尚未生成指数结果。请先准备 `data/raw/city_panel.csv`，然后运行：\n\n"
-            "`uv run ueoi-build`"
+            "`uv run yeoi-build`"
         )
         return
 

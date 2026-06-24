@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from uei.config import (
+from yei.config import (
     ALL_CITIES,
     MISSING_DATA_REPORT_FILE,
     RAW_DATA_DIR,

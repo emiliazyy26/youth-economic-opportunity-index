@@ -9,7 +9,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-from uei.config import ALL_CITIES, RAW_DATA_DIR, YEARS
+from yei.config import ALL_CITIES, RAW_DATA_DIR, YEARS
 
 HOUSE_PRICE_YUAN_FILE = RAW_DATA_DIR / "external" / "house_price_yuan_sqm.csv"
 GOTOHUI_BASE = "https://fangjia.gotohui.com/years"

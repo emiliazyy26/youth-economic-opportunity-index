@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pandas as pd
 
-from uei.build_index import build_scores
-from uei.clean_data import clean_city_panel, load_raw_data
-from uei.config import YEOI_WEIGHTS
+from yei.build_index import build_scores
+from yei.clean_data import clean_city_panel, load_raw_data
+from yei.config import YEOI_WEIGHTS
 
 
 def _rank_by_weights(df: pd.DataFrame, weights: dict[str, float]) -> pd.DataFrame:

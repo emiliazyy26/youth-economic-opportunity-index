@@ -85,4 +85,4 @@ data/raw/external/youth_platform_indicators.csv  # C 级（租金、岗位、起
 - [ ] `listed_company_count`、`rent_monthly` 已写入 source observations
 - [ ] 主指数字段缺失在 missing report 中按 core/supplementary 分类
 - [ ] 平台数据有 source_url 与采集说明
-- [ ] `uv run ueoi-build` 可生成 `yeoi_scores.csv`
+- [ ] `uv run yeoi-build` 可生成 `yeoi_scores.csv`

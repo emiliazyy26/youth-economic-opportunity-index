@@ -98,20 +98,33 @@ def score_anchor(a: dict) -> int:
         return -10
     s = 0
     # boost decisional context
-    if "决算" in blob: s += 5
-    if "全市" in blob: s += 5
-    if "2024年" in blob or "2024" in blob: s += 4
-    if "预算执行" in blob: s += 3
-    if "预算" in blob: s += 1
-    if "草案" in blob: s += 4
-    if "报告" in blob: s += 1
+    if "决算" in blob:
+        s += 5
+    if "全市" in blob:
+        s += 5
+    if "2024年" in blob or "2024" in blob:
+        s += 4
+    if "预算执行" in blob:
+        s += 3
+    if "预算" in blob:
+        s += 1
+    if "草案" in blob:
+        s += 4
+    if "报告" in blob:
+        s += 1
     # downweight irrelevant
-    if "部门" in blob and "决算" not in blob: s -= 3
-    if any(k in blob for k in ["1-12月", "1-11月", "1-10月", "1-9月", "1-8月", "1-7月", "1-6月", "1-5月", "1-4月", "1-3月", "1-2月"]):
+    if "部门" in blob and "决算" not in blob:
+        s -= 3
+    monthly_patterns = [
+        "1-12月", "1-11月", "1-10月", "1-9月", "1-8月",
+        "1-7月", "1-6月", "1-5月", "1-4月", "1-3月", "1-2月",
+    ]
+    if any(k in blob for k in monthly_patterns):
         s -= 4
     if any(k in blob for k in ["招标", "中标", "采购公告", "成交", "登记"]):
         s -= 5
-    if "javascript:" in href: s -= 5
+    if "javascript:" in href:
+        s -= 5
     return s
 
 
@@ -204,20 +217,27 @@ def crawl(city: str, seeds: list[str], max_articles: int = 12, max_pdfs_per_art:
             (OUT / f"v2_{city}_{re.sub(r'[^A-Za-z0-9._-]+', '_', seed)[-80:]}.html").write_text(
                 html or "", encoding="utf-8"
             )
-            result["tried"].append({"url": seed, "title": title, "html_len": len(html), "blocked": blocked})
+            result["tried"].append({
+                "url": seed,
+                "title": title,
+                "html_len": len(html),
+                "blocked": blocked,
+            })
             if blocked or not html:
                 log(f"  seed blocked: {seed}")
                 continue
             anchors = collect_anchors(page)
             scored = sorted(anchors, key=score_anchor, reverse=True)
-            log(f"  seed {seed} -> {len(anchors)} anchors, top score={score_anchor(scored[0]) if scored else 0}")
+            top_score = score_anchor(scored[0]) if scored else 0
+            log(f"  seed {seed} -> {len(anchors)} anchors, top score={top_score}")
             for a in scored[:25]:
                 if score_anchor(a) < 4:
                     break
                 href = a.get("href", "")
                 if href.startswith("http") and href not in seen_urls and href not in seeds:
                     queue.append((1, href))
-                    log(f"    queued ({score_anchor(a)}): {a['text'][:60]}  -> {href[:120]}")
+                    anchor_text = a['text'][:60]
+                    log(f"    queued ({score_anchor(a)}): {anchor_text}  -> {href[:120]}")
 
         # process queue
         idx = 0
@@ -230,7 +250,13 @@ def crawl(city: str, seeds: list[str], max_articles: int = 12, max_pdfs_per_art:
             log(f"  art[{idx}/{max_articles}] depth={depth} {art}")
             html, title = visit(page, art, wait_s=8, retries=1)
             blocked = looks_blocked(html)
-            entry = {"url": art, "title": title, "depth": depth, "html_len": len(html), "blocked": blocked}
+            entry = {
+                "url": art,
+                "title": title,
+                "depth": depth,
+                "html_len": len(html),
+                "blocked": blocked,
+            }
             (OUT / f"v2_{city}_art_{re.sub(r'[^A-Za-z0-9._-]+', '_', art)[-80:]}.html").write_text(
                 html or "", encoding="utf-8"
             )
@@ -276,6 +302,8 @@ def crawl(city: str, seeds: list[str], max_articles: int = 12, max_pdfs_per_art:
         if not row["strong"]:
             continue
         # take first strong hit, find decisional column number heuristically
+        # The 决算数 column is usually the third numeric column
+        # (mid-range of [预算, 调整, 决算]).
         for h in row["strong"]:
             nums = h.get("numbers", [])
             # Drop year fragments like 2024
@@ -285,8 +313,7 @@ def crawl(city: str, seeds: list[str], max_articles: int = 12, max_pdfs_per_art:
             big = [c for c in candidates if c >= 10000]  # 万元 scale
             if not big:
                 continue
-            # Typically the 决算数 column appears around 3rd numeric, but heuristic: largest credible
-            # Sort and take the median of the top 3 (most likely 决算数 is mid-range of [预算,调整,决算])
+            # Heuristic: pick the median of the largest credible numeric values.
             top = sorted(big)[:5]
             if len(top) >= 3:
                 jusuan = sorted(top)[1]  # median-ish
@@ -332,7 +359,9 @@ def main() -> None:
             log(f"  ✓ {city} 全市科学技术支出 决算 = {r['final']['yiyuan']} 亿元")
             log(f"    pdf: {r['final']['pdf_file']}")
         else:
-            log(f"  ✗ {city} no strong hit; {len(r['pdfs'])} PDFs tried, {len(r['articles'])} articles")
+            n_pdfs = len(r['pdfs'])
+            n_articles = len(r['articles'])
+            log(f"  ✗ {city} no strong hit; {n_pdfs} PDFs tried, {n_articles} articles")
 
 
 if __name__ == "__main__":
