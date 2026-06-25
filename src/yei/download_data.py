@@ -63,7 +63,7 @@ METRIC_UNITS = {
     "disposable_income": "yuan/person",
     "population": "person",
     "house_price": "yuan/sqm",
-    "university_quality": "quality_score",
+    "weighted_university_score": "quality_score",
     "rd_expenditure": "100 million yuan",
     "science_technology_expenditure": "100 million yuan",
     "housing_sales_area": "10000 sqm",
@@ -508,7 +508,7 @@ def load_university_counts() -> pd.DataFrame:
     rows = []
     for city, (n985, n211, nother) in _uni_data.items():
         quality = n985 * 5.0 + n211 * 2.5 + nother * 0.3
-        rows.append({"city": city, "university_quality": round(quality, 1)})
+        rows.append({"city": city, "weighted_university_score": round(quality, 1)})
 
     counts = pd.DataFrame(rows)
     counts["source"] = "Ministry of Education university list (quality-weighted, 2025)"
@@ -624,7 +624,7 @@ def build_source_observations(
             source_type="moe_list",
             extraction_method="manual_count",
             is_official_source=True,
-            metrics=["university_quality"],
+            metrics=["weighted_university_score"],
         )
     )
 
@@ -798,7 +798,7 @@ def build_wide_panel(observations: pd.DataFrame) -> pd.DataFrame:
         "housing_sales_area",
         "housing_sales_value",
         "population_growth",
-        "university_quality",
+        "weighted_university_score",
         "tertiary_ratio",
         "rd_expenditure",
         "innovation_index",
@@ -908,7 +908,7 @@ def print_status(panel: pd.DataFrame, observations: pd.DataFrame, missing: pd.Da
         "house_price",
         "population_growth",
         "innovation_index",
-        "university_quality",
+        "weighted_university_score",
         "listed_company_count",
         "high_tech_company_count",
         "rent_burden",

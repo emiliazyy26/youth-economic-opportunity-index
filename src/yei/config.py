@@ -53,7 +53,7 @@ DATA_TIER_A = {
     "housing_burden",
     "rd_expenditure",
     "innovation_index",
-    "university_quality",
+    "weighted_university_score",
 }
 DATA_TIER_B = {"listed_company_count", "high_tech_company_count", "average_wage"}
 DATA_TIER_C = {"job_posting_count", "entry_salary", "rent_monthly", "rent_burden"}
@@ -97,7 +97,7 @@ DIMENSION_SPEC = {
 }
 
 GROWTH_POTENTIAL_METRICS = ["population_growth", "innovation_index"]
-CITY_BASE_METRICS = ["university_quality", "gdp_per_capita"]
+CITY_BASE_METRICS = ["weighted_university_score", "gdp_per_capita"]
 
 # Main index raw fields; tertiary_ratio demoted to supplementary field
 RAW_COLUMNS = [
@@ -108,7 +108,7 @@ RAW_COLUMNS = [
     "house_price",
     "housing_burden",
     "population_growth",
-    "university_quality",
+    "weighted_university_score",
     "innovation_index",
     "listed_company_count",
     "high_tech_company_count",
@@ -159,7 +159,7 @@ TARGET_METRICS = {
     "population": [2020, *YEARS],
     "house_price": YEARS,
     "rd_expenditure": YEARS,
-    "university_quality": YEARS,
+    "weighted_university_score": YEARS,
     "listed_company_count": YEARS,
     "high_tech_company_count": YEARS,
     "job_posting_count": YEARS,

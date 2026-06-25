@@ -112,7 +112,7 @@ Key fields:
 | `housing_burden` | float | Housing burden |
 | `population` | float | Resident population, used for population growth calculation |
 | `population_growth` | float | Resident population growth rate |
-| `university_quality` | float | Quality-weighted university score |
+| `weighted_university_score` | float | Quality-weighted university score |
 | `tertiary_ratio` | float | Tertiary sector share of GDP (%) |
 | `innovation_index` | float | Innovation indicator (R&D expenditure) |
 | `source` | string | Data source shorthand |
@@ -129,7 +129,7 @@ disposable_income
 house_price
 housing_burden
 population_growth
-university_quality
+weighted_university_score
 tertiary_ratio
 innovation_index
 ```
@@ -247,7 +247,7 @@ MOE national higher education institution list + 985/211/Double First-Class offi
 Indicator definition:
 
 ```text
-university_quality = count_985 x 5.0 + count_211_non985 x 2.5 + count_other x 0.3
+weighted_university_score = count_985 x 5.0 + count_211_non985 x 2.5 + count_other x 0.3
 ```
 
 This weighting scheme distinguishes university tiers: top research universities (985) carry approximately 17x the weight of ordinary universities, accurately reflecting the difference in high-end human capital supply. For example, Beijing (8 985 universities) scores far higher than Shenzhen (0 985 universities), while a simple count would fail to capture this gap.

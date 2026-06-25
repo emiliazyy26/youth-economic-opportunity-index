@@ -13,7 +13,7 @@ This file defines the core fields used by the Youth Economic Opportunity Index (
 | `house_price` | float | Comparable housing price | A/C | NBS 70-city index or gotohui yuan/sqm | Used for housing_burden. |
 | `housing_burden` | float | Housing pressure / income | derived | `house_price / disposable_income` | Living cost fallback. |
 | `population_growth` | float | YoY population growth | derived | Population series | Growth potential input. |
-| `university_quality` | float | Quality-weighted HE score | A | MOE lists | City base input. |
+| `weighted_university_score` | float | Quality-weighted HE score | A | MOE lists | City base input. |
 | `innovation_index` | float | R&D expenditure proxy | A | Official R&D source | Job/growth fallback input. |
 | `listed_company_count` | float | A-share listings by domicile | B | `listed_companies_by_city.csv` | Big company dimension. |
 | `job_posting_count` | float | Job postings (platform) | C | Boss/Zhaopin etc. | Job opportunity primary. |
@@ -31,7 +31,7 @@ This file defines the core fields used by the Youth Economic Opportunity Index (
 | `living_cost_score` | 0.20 | Inverted rent_burden or housing_burden. |
 | `big_company_score` | 0.15 | Listed company count. |
 | `growth_potential_score` | 0.10 | Mean of population_growth and innovation scores. |
-| `city_base_score` | 0.10 | Mean of university_quality and gdp_per_capita scores. |
+| `city_base_score` | 0.10 | Mean of weighted_university_score and gdp_per_capita scores. |
 | `yeoi_score` | — | Weighted Youth Economic Opportunity Index. |
 | `rank` | — | Within-year rank by `yeoi_score`. |
 | `job_opportunity_source` | — | Metric label used for job dimension. |

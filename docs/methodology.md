@@ -47,7 +47,7 @@ The main index uses a "primary indicator + quality threshold + fallback" mechani
 `EnterpriseOpportunity` uses **composite scoring**: both `listed_company_count` and `high_tech_company_count` are independently min-max normalized and then averaged. If only one metric is available, that single metric is used. This captures both traditional large enterprises and innovation-driven high-tech firms.
 
 `GrowthPotential` = mean of standardized(`population_growth`, `innovation_index`).
-`HumanCapitalCityBase` = mean of standardized(`university_quality`, `gdp_per_capita`).
+`HumanCapitalCityBase` = mean of standardized(`weighted_university_score`, `gdp_per_capita`).
 
 `tertiary_ratio` has been demoted to a supplementary field and no longer enters the main formula (high missing rate, indirect link to youth opportunity).
 

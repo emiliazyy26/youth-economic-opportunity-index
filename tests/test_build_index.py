@@ -18,7 +18,7 @@ def _sample_panel() -> pd.DataFrame:
             "gdp_per_capita": [100_000.0, 100_000.0],
             "population_growth": [0.01, 0.01],
             "innovation_index": [10.0, 10.0],
-            "university_quality": [50.0, 50.0],
+            "weighted_university_score": [50.0, 50.0],
             "listed_company_count": [100.0, 50.0],
             "high_tech_company_count": [200.0, 80.0],
             "rent_burden": [0.20, 0.30],

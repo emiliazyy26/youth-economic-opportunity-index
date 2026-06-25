@@ -15,7 +15,7 @@ The final panel data is saved as `data/processed/city_economic_opportunity.csv`.
 | `house_price` | float | Housing price level | A/C |
 | `housing_burden` | float | Housing burden `house_price / disposable_income` | derived |
 | `population_growth` | float | YoY population growth rate | derived |
-| `university_quality` | float | Quality-weighted university score | A |
+| `weighted_university_score` | float | Quality-weighted university score | A |
 | `innovation_index` | float | R&D expenditure | A |
 | `listed_company_count` | float | A-share listed company count by domicile | B |
 | `high_tech_company_count` | float | National high-tech enterprise count (火炬中心/科技厅) | B |

@@ -41,7 +41,7 @@ CORE_MATRIX_METRICS = [
     "population",
     "innovation_index",
     "house_price",
-    "university_quality",
+    "weighted_university_score",
 ]
 
 PANEL_METRIC_TO_OBS: dict[str, str] = {
@@ -50,7 +50,7 @@ PANEL_METRIC_TO_OBS: dict[str, str] = {
     "population": "population",
     "innovation_index": "rd_expenditure",
     "house_price": "house_price",
-    "university_quality": "university_quality",
+    "weighted_university_score": "weighted_university_score",
     "population_growth": "population",
     "housing_burden": "house_price",
     "gdp_total": "gdp_total",
@@ -719,7 +719,7 @@ def print_matrix(cell_status: dict[tuple[str, int, str], str], cities: list[str]
         "population": "pop",
         "innovation_index": "innov",
         "house_price": "price",
-        "university_quality": "univ",
+        "weighted_university_score": "univ",
     }
 
     aggregated: dict[tuple[str, str], str] = {}

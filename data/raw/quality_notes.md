@@ -42,7 +42,7 @@ The drop in CRITICAL warnings is not only due to the two data fixes. Several val
 
 ### 3.1 Path and Column Name Updates
 
-- `scripts/validate_observations.py` now reads `data/processed/yeoi_scores.csv` and uses the `university_quality` column name, matching the current pipeline.
+- `scripts/validate_observations.py` now reads `data/processed/yeoi_scores.csv` and uses the `weighted_university_score` column name, matching the current pipeline.
 - The old `yeoi_scores.csv` / `university_resource` references were stale and caused the YEOI-completeness check to run on an empty frame and the university dimension to be reported as missing for every city.
 
 ### 3.2 Source-Provenance Severity
