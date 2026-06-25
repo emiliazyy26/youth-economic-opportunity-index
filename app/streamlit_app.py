@@ -93,7 +93,7 @@ def main() -> None:
         "job_opportunity_score",
         "starting_income_score",
         "living_cost_score",
-        "big_company_score",
+        "enterprise_opportunity_score",
         "growth_potential_score",
         "city_base_score",
     ]
@@ -134,10 +134,10 @@ def main() -> None:
     chart_col3, chart_col4 = st.columns(2)
     with chart_col3:
         _scatter(
-            "Big Company Opportunity vs Living Cost Affordability",
+            "Enterprise Opportunity vs Living Cost Affordability",
             year_merged,
             "living_cost_score",
-            "big_company_score",
+            "enterprise_opportunity_score",
         )
     with chart_col4:
         if "rent_burden" in year_merged.columns and year_merged["rent_burden"].notna().any():
@@ -174,6 +174,7 @@ def main() -> None:
                     "rent_burden",
                     "housing_burden",
                     "listed_company_count",
+                    "high_tech_company_count",
                     "job_posting_count",
                     "population_growth",
                     "innovation_index",

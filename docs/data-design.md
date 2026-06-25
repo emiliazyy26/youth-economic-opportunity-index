@@ -18,6 +18,7 @@ The final panel data is saved as `data/processed/city_economic_opportunity.csv`.
 | `university_quality` | float | Quality-weighted university score | A |
 | `innovation_index` | float | R&D expenditure | A |
 | `listed_company_count` | float | A-share listed company count by domicile | B |
+| `high_tech_company_count` | float | National high-tech enterprise count (火炬中心/科技厅) | B |
 | `job_posting_count` | float | Job posting count (platform sample) | C |
 | `entry_salary` | float | Entry-level / graduate starting salary | C |
 | `rent_monthly` | float | 1BR city-center monthly rent (RMB) | C |
@@ -40,6 +41,7 @@ External youth / enterprise indicators:
 
 ```text
 data/raw/external/listed_companies_by_city.csv   # Tier B
+data/raw/external/high_tech_companies_by_city.csv  # Tier B (high-tech enterprise counts 2021-2025)
 data/raw/external/youth_platform_indicators.csv  # Tier C (rent, job postings, entry salary)
 ```
 
@@ -61,7 +63,8 @@ Missing data report `data/raw/missing_data_report.csv` includes `data_tier` (A/B
 ### Tier B: Institutional Public Data
 
 - A-share listed company domicile statistics (`listed_companies_by_city.csv`)
-- Usage: big company opportunity dimension
+- National high-tech enterprise counts from Torch Center / provincial science bureaus (`high_tech_companies_by_city.csv`)
+- Usage: enterprise opportunity dimension (composite scoring)
 
 ### Tier C: Platform Samples
 
@@ -75,14 +78,14 @@ Missing data report `data/raw/missing_data_report.csv` includes `data_tier` (A/B
 ## Data Collection Priority
 
 1. **Required (main index fallback available):** disposable income, housing burden, population growth, innovation, university quality
-2. **Important (youth dimension):** rent, listed company count
+2. **Important (youth dimension):** rent, listed company count, high-tech company count
 3. **Extension (Tier C):** job postings, entry salary
 4. **Supplementary:** `tertiary_ratio` (not in main formula)
 
 ## Data Quality Checklist
 
 - [x] 20 cities x 2021-2025 panel complete
-- [x] `listed_company_count`, `rent_monthly` written to source observations
+- [x] `listed_company_count`, `high_tech_company_count`, `rent_monthly` written to source observations
 - [x] Core field gaps classified by core/supplementary in missing report
 - [x] Platform data has source_url and collection notes
 - [x] `uv run yeoi-build` generates `yeoi_scores.csv`

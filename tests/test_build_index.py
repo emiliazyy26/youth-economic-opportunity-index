@@ -20,6 +20,7 @@ def _sample_panel() -> pd.DataFrame:
             "innovation_index": [10.0, 10.0],
             "university_quality": [50.0, 50.0],
             "listed_company_count": [100.0, 50.0],
+            "high_tech_company_count": [200.0, 80.0],
             "rent_burden": [0.20, 0.30],
             "housing_burden": [0.20, 0.30],
             "job_posting_count": [pd.NA, pd.NA],
@@ -82,6 +83,25 @@ def test_build_scores_rewards_lower_rent_burden():
     assert scores.loc["A", "living_cost_score"] == 100.0
     assert scores.loc["B", "living_cost_score"] == 0.0
     assert scores.loc["A", "yeoi_score"] > scores.loc["B", "yeoi_score"]
+
+
+def test_enterprise_opportunity_uses_composite_scoring():
+    df = _sample_panel()
+    scores = build_scores(df).set_index("city")
+
+    # City A has more listed + high-tech companies, should score higher
+    assert scores.loc["A", "enterprise_opportunity_score"] == 100.0
+    assert scores.loc["B", "enterprise_opportunity_score"] == 0.0
+
+
+def test_enterprise_opportunity_works_with_single_metric():
+    df = _sample_panel()
+    df = df.drop(columns=["high_tech_company_count"])
+    scores = build_scores(df).set_index("city")
+
+    # Should still work with only listed_company_count
+    assert scores.loc["A", "enterprise_opportunity_score"] == 100.0
+    assert scores.loc["B", "enterprise_opportunity_score"] == 0.0
 
 
 def test_select_dimension_metric_uses_rent_when_available():

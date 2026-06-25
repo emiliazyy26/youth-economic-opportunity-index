@@ -52,8 +52,22 @@ def build_scores(df: pd.DataFrame) -> pd.DataFrame:
             ("job_opportunity", "job_opportunity_score"),
             ("starting_income", "starting_income_score"),
             ("living_cost", "living_cost_score"),
-            ("big_company", "big_company_score"),
+            ("enterprise_opportunity", "enterprise_opportunity_score"),
         ]:
+            if dimension == "enterprise_opportunity":
+                # Composite scoring: normalize each metric independently, take mean
+                enterprise_metrics = ["listed_company_count", "high_tech_company_count"]
+                available = [m for m in enterprise_metrics if m in group.columns and group[m].notna().any()]
+                if available:
+                    scored[score_col] = _score_from_metrics(group, available)
+                    source_col = score_col.replace("_score", "_source")
+                    scored[source_col] = "+".join(available)
+                else:
+                    scored[score_col] = pd.Series(float("nan"), index=group.index)
+                    source_col = score_col.replace("_score", "_source")
+                    scored[source_col] = "none"
+                continue
+
             _metric_name, values, source_label = select_dimension_metric(group, dimension)
             invert = DIMENSION_SPEC[dimension]["invert"]
             scored[score_col] = min_max_score(values, invert=invert)

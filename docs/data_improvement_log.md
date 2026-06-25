@@ -106,3 +106,53 @@ The 2022-2024 communiques reported registered population (户籍人口) because 
   - 2025: +5.97% → +0.29%
 - `yeoi-build` successful, YEOI completeness 100/100
 - Re-running the data pipeline preserves the fix (manual_source_observations.csv is the source of truth)
+
+## Phase 5: Enterprise Opportunity Dimension Upgrade
+
+### Objective
+Rename "Big Company Opportunity" to "Enterprise Opportunity" and incorporate high-tech enterprise counts to better reflect innovation-driven career opportunities for young people.
+
+### Changes Made
+
+**Data Collection:**
+- **`scripts/fetch_high_tech_companies.py`** (new): Script to generate high-tech enterprise counts for 20 cities x 5 years (2021-2025)
+- **`data/raw/external/high_tech_companies_by_city.csv`** (new): 100 rows with `high_tech_company_count` from Torch Center, provincial science bureaus, and city statistical communiques (Tier B)
+
+**Configuration (`src/yei/config.py`):**
+- Added `HIGH_TECH_COMPANIES_FILE` constant
+- Added `high_tech_company_count` to `DATA_TIER_B`, `RAW_COLUMNS`, `TARGET_METRICS`
+- Updated `YEOI_WEIGHTS`: `job_opportunity_score` 0.25 -> 0.20, `enterprise_opportunity_score` 0.15 -> 0.20
+- Renamed `big_company` to `enterprise_opportunity` in `DIMENSION_SPEC` with `high_tech_company_count` as fallback
+- Renamed `big_company_score` to `enterprise_opportunity_score` in `SCORE_COLUMNS`
+
+**Data Loading (`src/yei/download_data.py`):**
+- Added `load_high_tech_company_observations()` function
+- Added `high_tech_company_count` to `METRIC_UNITS`, `build_source_observations()`, `build_wide_panel()` expected columns, and `print_status()` metrics
+
+**Scoring (`src/yei/build_index.py`):**
+- Changed `enterprise_opportunity` to use composite scoring: both `listed_company_count` and `high_tech_company_count` are independently min-max normalized and averaged (via `_score_from_metrics`)
+
+**Sensitivity (`src/yei/sensitivity.py`):**
+- Renamed `big_company_score` to `enterprise_opportunity_score` in score column reference
+
+**Dashboard (`app/streamlit_app.py`):**
+- Renamed `big_company_score` to `enterprise_opportunity_score` in score_cols and chart titles
+- Added `high_tech_company_count` to raw metric snapshot columns
+
+**Tests:**
+- `tests/test_build_index.py`: Added `high_tech_company_count` to sample panel; added tests for composite scoring and single-metric fallback
+- `tests/test_data_quality.py`: `high_tech_company_count` included in `TARGET_METRICS` coverage checks
+
+**Documentation:**
+- `docs/methodology.md`: Updated index formula, weight table, and dimension indicators table
+- `docs/data-design.md`: Added `high_tech_company_count` field, external file reference, and Tier B description
+
+**Data Quality Fixes (pre-existing, applied during rebuild):**
+- Added Harbin 2023 `disposable_income` = 45784.0 to `manual_source_observations.csv` (corrects communique extraction error)
+- Added Kunming 2024 `disposable_income` = 47301.0 to `manual_source_observations.csv` (corrects urban vs all-resident caliber mismatch)
+
+### Verification Results
+- `high_tech_company_count`: 100/100 coverage (20 cities x 5 years)
+- All 20 tests pass (`uv run pytest`)
+- `yeoi-build` successful, YEOI completeness 100/100
+- `validate_observations.py`: 0 CRITICAL warnings (pre-existing Harbin/Kunming disposable_income issues resolved)

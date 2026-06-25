@@ -15,6 +15,7 @@ MISSING_DATA_REPORT_FILE = RAW_DATA_DIR / "missing_data_report.csv"
 HOUSING_ANNUAL_FILE = INTERIM_DATA_DIR / "housing_annual.csv"
 YOUTH_PLATFORM_FILE = EXTERNAL_DATA_DIR / "youth_platform_indicators.csv"
 LISTED_COMPANIES_FILE = EXTERNAL_DATA_DIR / "listed_companies_by_city.csv"
+HIGH_TECH_COMPANIES_FILE = EXTERNAL_DATA_DIR / "high_tech_companies_by_city.csv"
 
 # Analysis sample: 20 cities x 5 years
 YEARS = list(range(2021, 2026))
@@ -54,16 +55,16 @@ DATA_TIER_A = {
     "innovation_index",
     "university_quality",
 }
-DATA_TIER_B = {"listed_company_count", "average_wage"}
+DATA_TIER_B = {"listed_company_count", "high_tech_company_count", "average_wage"}
 DATA_TIER_C = {"job_posting_count", "entry_salary", "rent_monthly", "rent_burden"}
 DATA_TIER_D = {"youth_unemployment_proxy"}
 
 # Main index dimension weights (living_cost / rent_burden are inverted in build_index)
 YEOI_WEIGHTS = {
-    "job_opportunity_score": 0.25,
+    "job_opportunity_score": 0.20,
     "starting_income_score": 0.20,
     "living_cost_score": 0.20,
-    "big_company_score": 0.15,
+    "enterprise_opportunity_score": 0.20,
     "growth_potential_score": 0.10,
     "city_base_score": 0.10,
 }
@@ -88,9 +89,9 @@ DIMENSION_SPEC = {
         "fallback_metrics": ["housing_burden"],
         "invert": True,
     },
-    "big_company": {
+    "enterprise_opportunity": {
         "primary": "listed_company_count",
-        "fallback_metrics": [],
+        "fallback_metrics": ["high_tech_company_count"],
         "invert": False,
     },
 }
@@ -110,6 +111,7 @@ RAW_COLUMNS = [
     "university_quality",
     "innovation_index",
     "listed_company_count",
+    "high_tech_company_count",
     "job_posting_count",
     "entry_salary",
     "rent_monthly",
@@ -140,7 +142,7 @@ SCORE_COLUMNS = [
     "job_opportunity_score",
     "starting_income_score",
     "living_cost_score",
-    "big_company_score",
+    "enterprise_opportunity_score",
     "growth_potential_score",
     "city_base_score",
     "yeoi_score",
@@ -159,6 +161,7 @@ TARGET_METRICS = {
     "rd_expenditure": YEARS,
     "university_quality": YEARS,
     "listed_company_count": YEARS,
+    "high_tech_company_count": YEARS,
     "job_posting_count": YEARS,
     "entry_salary": YEARS,
     "rent_monthly": YEARS,

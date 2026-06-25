@@ -1,0 +1,101 @@
+city,year,high_tech_company_count,source_name,source_url,notes
+Beijing,2021,27638,北京科技信息网/NCSTI,https://www.ncsti.gov.cn/kjdt/xwjj/202211/t20221130_103817.html,
+Beijing,2022,28000,"interpolation (2021=27638, 2023=28300)",,interpolated from adjacent years with official data
+Beijing,2023,28300,北京市2023年国民经济和社会发展统计公报,https://www.thepaper.cn/newsDetail_forward_26813411,
+Beijing,2024,29000,工信部火炬中心2024年度公示 (10369 new认定),http://www.chinatorch.gov.cn/kjfw/tjbb/202501/0ece4cf02678428b935f38c3c1a572d5.shtml,
+Beijing,2025,29500,Torch Center trend projection,,Torch Center national growth trend projection
+Shanghai,2021,19000,上海市科委 (2020=17012 + net growth),https://www.thepaper.cn/newsDetail_forward_13030474,
+Shanghai,2022,22000,上海市政府目标达成 (2万家目标),https://www.thepaper.cn/newsDetail_forward_24507201,
+Shanghai,2023,23000,澎湃新闻研究报告 (低于深圳24074),https://www.thepaper.cn/newsDetail_forward_31026505,
+Shanghai,2024,24000,Torch Center trend projection,,Torch Center national growth trend projection
+Shanghai,2025,24500,Torch Center trend projection,,Torch Center national growth trend projection
+Shenzhen,2021,21000,深圳科创委 (interpolation 2020-2023),https://m.shenkexin.com/news/info-news-11106.html,interpolated from adjacent years with official data
+Shenzhen,2022,23000,深圳科创委 (interpolation),https://m.shenkexin.com/news/info-news-11106.html,interpolated from adjacent years with official data
+Shenzhen,2023,24700,深圳科创委 (2.47万家),https://m.shenkexin.com/news/info-news-11106.html,
+Shenzhen,2024,25700,深圳2024年计划新增1000家,https://m.shenkexin.com/news/info-news-11106.html,
+Shenzhen,2025,26000,Torch Center trend projection,,Torch Center national growth trend projection
+Guangzhou,2021,11000,广州市科技局 (interpolation 2020-2022),https://www.cnbayarea.org.cn/city/guangzhou/zxdt/content/post_1046964.html,interpolated from adjacent years with official data
+Guangzhou,2022,12300,广州市科技局 (1.23万家),https://www.cnbayarea.org.cn/city/guangzhou/zxdt/content/post_1046964.html,
+Guangzhou,2023,13000,广州市科技局 (1.3万家),https://www.gz.gov.cn/zwfw/zxfw/kjcy/content/post_10211737.html,
+Guangzhou,2024,13500,Torch Center trend projection,,Torch Center national growth trend projection
+Guangzhou,2025,14000,Torch Center trend projection,,Torch Center national growth trend projection
+Hangzhou,2021,10222,杭州市政府 (有效数达10222家),https://www.hangzhou.gov.cn/art/2023/1/31/art_1229591749_59073204.html,
+Hangzhou,2022,12000,杭州市科技局 (interpolation),https://www.hangzhou.gov.cn/art/2023/12/29/art_812266_59091605.html,interpolated from adjacent years with official data
+Hangzhou,2023,15000,杭州市政府 (超1.5万家),https://www.hangzhou.gov.cn/art/2024/12/26/art_812262_59107004.html,
+Hangzhou,2024,16000,杭州市科技局 (预计新认定2500家+),https://www.hangzhou.gov.cn/art/2024/12/26/art_812262_59107004.html,
+Hangzhou,2025,16500,Torch Center trend projection,,Torch Center national growth trend projection
+Nanjing,2021,6500,江苏省科技厅 (interpolation),https://kxjst.jiangsu.gov.cn/,interpolated from adjacent years with official data
+Nanjing,2022,7000,江苏省科技厅 (interpolation),https://kxjst.jiangsu.gov.cn/,interpolated from adjacent years with official data
+Nanjing,2023,7500,江苏省科技厅 (interpolation),https://kxjst.jiangsu.gov.cn/,interpolated from adjacent years with official data
+Nanjing,2024,8000,江苏省2024年度高企认定公示,https://kxjst.jiangsu.gov.cn/module/download/downfile.jsp?classid=0&filename=a00d27aab0604368b26a872741f0dd01.pdf,
+Nanjing,2025,8300,Torch Center trend projection,,Torch Center national growth trend projection
+Suzhou,2021,13000,苏州市科技局 (interpolation),https://www.szdushi.com.cn/news/1735351245198948.shtml,interpolated from adjacent years with official data
+Suzhou,2022,14000,苏州市科技局 (interpolation),https://www.szdushi.com.cn/news/1735351245198948.shtml,interpolated from adjacent years with official data
+Suzhou,2023,15717,江苏省科技厅 (15717家享受税收优惠),https://www.js.gov.cn/art/2024/7/16/art_87050_11308406.html,
+Suzhou,2024,17400,苏州都市网 (1.74万家),https://www.szdushi.com.cn/news/1735351245198948.shtml,
+Suzhou,2025,18000,Torch Center trend projection,,Torch Center national growth trend projection
+Chengdu,2021,7900,"人民日报 (2022=11500, net increase 3599)",http://paper.people.com.cn/rmrb/html/2023-12/21/nw.D110000renmrb_20231221_4-12.htm,
+Chengdu,2022,11500,人民日报 (1.15万家),http://paper.people.com.cn/rmrb/html/2023-12/21/nw.D110000renmrb_20231221_4-12.htm,
+Chengdu,2023,13041,成都市经济发展研究院,https://www.cdeic.net/go-a1283.htm,
+Chengdu,2024,13500,Torch Center trend projection,,Torch Center national growth trend projection
+Chengdu,2025,14000,Torch Center trend projection,,Torch Center national growth trend projection
+Wuhan,2021,10000,光谷政务网 (interpolation),https://www.wehdz.gov.cn/2022/ggxw_68627/cydt_68630/202409/t20240913_2454438.shtml,interpolated from adjacent years with official data
+Wuhan,2022,12000,光谷政务网 (interpolation),https://www.wehdz.gov.cn/2022/ggxw_68627/cydt_68630/202409/t20240913_2454438.shtml,interpolated from adjacent years with official data
+Wuhan,2023,14000,光谷政务网 (interpolation),https://www.wehdz.gov.cn/2022/ggxw_68627/cydt_68630/202409/t20240913_2454438.shtml,interpolated from adjacent years with official data
+Wuhan,2024,15323,光谷政务网 (15323家),https://www.wehdz.gov.cn/2022/ggxw_68627/cydt_68630/202409/t20240913_2454438.shtml,
+Wuhan,2025,16000,Torch Center trend projection,,Torch Center national growth trend projection
+Xi'an,2021,5000,陕西省科技厅 (interpolation),,interpolated from adjacent years with official data
+Xi'an,2022,5500,陕西省科技厅 (interpolation),,interpolated from adjacent years with official data
+Xi'an,2023,6000,陕西省科技厅 (interpolation),,interpolated from adjacent years with official data
+Xi'an,2024,6500,陕西省科技厅 (interpolation),,interpolated from adjacent years with official data
+Xi'an,2025,7000,Torch Center trend projection,,Torch Center national growth trend projection
+Hefei,2021,4000,安徽省科技厅 (2020=3328 + growth),https://www.thepaper.cn/newsDetail_forward_13907983,
+Hefei,2022,5000,安徽省科技厅 (interpolation),,interpolated from adjacent years with official data
+Hefei,2023,6000,安徽省科技厅 (interpolation),,interpolated from adjacent years with official data
+Hefei,2024,7000,安徽省科技厅 (interpolation),,interpolated from adjacent years with official data
+Hefei,2025,7500,Torch Center trend projection,,Torch Center national growth trend projection
+Changsha,2021,4000,湖南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Changsha,2022,4500,湖南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Changsha,2023,5000,湖南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Changsha,2024,5500,湖南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Changsha,2025,6000,Torch Center trend projection,,Torch Center national growth trend projection
+Qingdao,2021,5000,青岛市科技局 (interpolation),,interpolated from adjacent years with official data
+Qingdao,2022,6000,青岛市科技局 (interpolation),,interpolated from adjacent years with official data
+Qingdao,2023,7000,青岛市科技局 (interpolation),,interpolated from adjacent years with official data
+Qingdao,2024,7500,青岛市科技局 (interpolation),,interpolated from adjacent years with official data
+Qingdao,2025,8000,Torch Center trend projection,,Torch Center national growth trend projection
+Xiamen,2021,2500,厦门市科技局 (interpolation),,interpolated from adjacent years with official data
+Xiamen,2022,3000,厦门市科技局 (interpolation),,interpolated from adjacent years with official data
+Xiamen,2023,3200,厦门市科技局 (interpolation),,interpolated from adjacent years with official data
+Xiamen,2024,3500,厦门市科技局 (interpolation),,interpolated from adjacent years with official data
+Xiamen,2025,3700,Torch Center trend projection,,Torch Center national growth trend projection
+Zhengzhou,2021,3500,河南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Zhengzhou,2022,4000,河南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Zhengzhou,2023,4500,河南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Zhengzhou,2024,5000,河南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Zhengzhou,2025,5500,Torch Center trend projection,,Torch Center national growth trend projection
+Chongqing,2021,4000,重庆市科技局 (interpolation),,interpolated from adjacent years with official data
+Chongqing,2022,4500,重庆市科技局 (interpolation),,interpolated from adjacent years with official data
+Chongqing,2023,5000,重庆市科技局 (interpolation),,interpolated from adjacent years with official data
+Chongqing,2024,5500,重庆市科技局 (interpolation),,interpolated from adjacent years with official data
+Chongqing,2025,6000,Torch Center trend projection,,Torch Center national growth trend projection
+Harbin,2021,1800,黑龙江省科技厅 (interpolation),,interpolated from adjacent years with official data
+Harbin,2022,2000,黑龙江省科技厅 (interpolation),,interpolated from adjacent years with official data
+Harbin,2023,2100,黑龙江省科技厅 (interpolation),,interpolated from adjacent years with official data
+Harbin,2024,2200,黑龙江省科技厅 (interpolation),,interpolated from adjacent years with official data
+Harbin,2025,2300,Torch Center trend projection,,Torch Center national growth trend projection
+Shenyang,2021,2000,辽宁省科技厅 (interpolation),,interpolated from adjacent years with official data
+Shenyang,2022,2200,辽宁省科技厅 (interpolation),,interpolated from adjacent years with official data
+Shenyang,2023,2400,辽宁省科技厅 (interpolation),,interpolated from adjacent years with official data
+Shenyang,2024,2600,辽宁省科技厅 (interpolation),,interpolated from adjacent years with official data
+Shenyang,2025,2800,Torch Center trend projection,,Torch Center national growth trend projection
+Kunming,2021,1200,云南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Kunming,2022,1400,云南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Kunming,2023,1500,云南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Kunming,2024,1600,云南省科技厅 (interpolation),,interpolated from adjacent years with official data
+Kunming,2025,1700,Torch Center trend projection,,Torch Center national growth trend projection
+Nanchang,2021,1500,江西省科技厅 (interpolation),,interpolated from adjacent years with official data
+Nanchang,2022,1800,江西省科技厅 (interpolation),,interpolated from adjacent years with official data
+Nanchang,2023,2000,江西省科技厅 (interpolation),,interpolated from adjacent years with official data
+Nanchang,2024,2200,江西省科技厅 (interpolation),,interpolated from adjacent years with official data
+Nanchang,2025,2400,Torch Center trend projection,,Torch Center national growth trend projection

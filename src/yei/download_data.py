@@ -12,6 +12,7 @@ from yei.city_names import CITY_NAME_EN, CITY_NAME_ZH, CITY_REGCODE
 from yei.communique_fetch import fetch_communique_panel
 from yei.config import (
     ALL_CITIES,
+    HIGH_TECH_COMPANIES_FILE,
     HOUSING_ANNUAL_FILE,
     INTERIM_DATA_DIR,
     LISTED_COMPANIES_FILE,
@@ -70,6 +71,7 @@ METRIC_UNITS = {
     "tertiary_value": "100 million yuan",
     "tertiary_ratio": "percent",
     "listed_company_count": "count",
+    "high_tech_company_count": "count",
     "job_posting_count": "count",
     "entry_salary": "yuan/person/year",
     "rent_monthly": "yuan/month",
@@ -346,6 +348,36 @@ def load_listed_company_counts() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def load_high_tech_company_observations() -> pd.DataFrame:
+    """Convert high-tech company counts to source observations (year-specific)."""
+    if not HIGH_TECH_COMPANIES_FILE.exists():
+        return pd.DataFrame(columns=SOURCE_OBSERVATION_COLUMNS)
+
+    raw = pd.read_csv(HIGH_TECH_COMPANIES_FILE)
+    records = []
+    for _, row in raw.iterrows():
+        city = row["city"]
+        if city not in ALL_CITIES:
+            continue
+        records.append(
+            {
+                "city": city,
+                "year": int(row["year"]),
+                "metric": "high_tech_company_count",
+                "value": float(row["high_tech_company_count"]),
+                "unit": METRIC_UNITS["high_tech_company_count"],
+                "source_type": "science_bureau",
+                "source_name": row.get("source_name", "Torch Center / science bureau"),
+                "source_url": row.get("source_url", ""),
+                "source_file": str(HIGH_TECH_COMPANIES_FILE),
+                "extraction_method": "manual_csv",
+                "is_official_source": False,
+                "notes": row.get("notes", ""),
+            }
+        )
+    return pd.DataFrame(records, columns=SOURCE_OBSERVATION_COLUMNS)
+
+
 def load_youth_platform_observations() -> pd.DataFrame:
     """Load platform samples for recruitment/entry salary/rent (Tier C), convert to source observations.
 
@@ -604,6 +636,10 @@ def build_source_observations(
     if not listed.empty:
         frames.append(listed)
 
+    high_tech = load_high_tech_company_observations()
+    if not high_tech.empty:
+        frames.append(high_tech)
+
     youth = load_youth_platform_observations()
     if not youth.empty:
         frames.append(youth)
@@ -767,6 +803,7 @@ def build_wide_panel(observations: pd.DataFrame) -> pd.DataFrame:
         "rd_expenditure",
         "innovation_index",
         "listed_company_count",
+        "high_tech_company_count",
         "job_posting_count",
         "entry_salary",
         "rent_monthly",
@@ -873,6 +910,7 @@ def print_status(panel: pd.DataFrame, observations: pd.DataFrame, missing: pd.Da
         "innovation_index",
         "university_quality",
         "listed_company_count",
+        "high_tech_company_count",
         "rent_burden",
         "job_posting_count",
         "entry_salary",

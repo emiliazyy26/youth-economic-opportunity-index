@@ -20,7 +20,7 @@ def _rank_by_weights(df: pd.DataFrame, weights: dict[str, float]) -> pd.DataFram
                 "job_opportunity_score",
                 "starting_income_score",
                 "living_cost_score",
-                "big_company_score",
+                "enterprise_opportunity_score",
                 "growth_potential_score",
                 "city_base_score",
             ]

@@ -12,10 +12,10 @@ YEOI (Youth Economic Opportunity Index) adopts a **transparent weighted linear m
 ## Index Formula
 
 ```text
-YEOI = 0.25 x JobOpportunity
+YEOI = 0.20 x JobOpportunity
      + 0.20 x StartingIncome
      + 0.20 x LivingCostAffordability
-     + 0.15 x BigCompanyOpportunity
+     + 0.20 x EnterpriseOpportunity
      + 0.10 x GrowthPotential
      + 0.10 x HumanCapitalCityBase
 ```
@@ -26,10 +26,10 @@ Each component is a **0-100 standardized score** computed within the same year's
 
 | Dimension | Weight | Economic Meaning |
 |-----------|--------|-------------------|
-| Job Opportunity | 0.25 | Whether young people can find jobs (job postings or employment capacity proxy) |
+| Job Opportunity | 0.20 | Whether young people can find jobs (job postings or employment capacity proxy) |
 | Starting Income | 0.20 | Starting salary or disposable income return |
 | Living Cost Affordability | 0.20 | Rent / housing price relative to income as living cost pressure |
-| Big Company Opportunity | 0.15 | Career opportunities from large enterprises / listed companies |
+| Enterprise Opportunity | 0.20 | Career opportunities from large enterprises, listed companies, and high-tech firms |
 | Growth Potential | 0.10 | Long-term opportunity from population inflow and innovation activity |
 | Human Capital / City Base | 0.10 | University resources and city economic base (down-weighted to avoid macro ranking dominance) |
 
@@ -42,7 +42,9 @@ The main index uses a "primary indicator + quality threshold + fallback" mechani
 | Job Opportunity | `job_posting_count` | mean of `innovation_index` + `population_growth` |
 | Starting Income | `entry_salary` | `disposable_income` |
 | Living Cost | `rent_burden` | `housing_burden` |
-| Big Company | `listed_company_count` | none (partial coverage still enters ranking) |
+| Enterprise Opportunity | `listed_company_count` + `high_tech_company_count` (composite) | `listed_company_count` only |
+
+`EnterpriseOpportunity` uses **composite scoring**: both `listed_company_count` and `high_tech_company_count` are independently min-max normalized and then averaged. If only one metric is available, that single metric is used. This captures both traditional large enterprises and innovation-driven high-tech firms.
 
 `GrowthPotential` = mean of standardized(`population_growth`, `innovation_index`).
 `HumanCapitalCityBase` = mean of standardized(`university_quality`, `gdp_per_capita`).
