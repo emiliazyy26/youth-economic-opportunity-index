@@ -839,6 +839,22 @@ def build_missing_data_report(observations: pd.DataFrame) -> pd.DataFrame:
         hsa_keys = set(zip(hsa["city"], hsa["year"].astype(int), strict=False))
         hsv_keys = set(zip(hsv["city"], hsv["year"].astype(int), strict=False))
         derived_house_price = hsa_keys & hsv_keys
+
+    # Derive tertiary_ratio from tertiary_value / gdp_total
+    derived_tertiary_ratio = set()
+    tertiary_value = observations[observations["metric"] == "tertiary_value"]
+    if not tertiary_value.empty and not gdp_total.empty:
+        tv_keys = set(zip(tertiary_value["city"], tertiary_value["year"].astype(int), strict=False))
+        gdp_keys = set(zip(gdp_total["city"], gdp_total["year"].astype(int), strict=False))
+        derived_tertiary_ratio = tv_keys & gdp_keys
+
+    # Cities with at least one tertiary_ratio (observed or derived) can interpolate all gaps
+    tertiary_ratio_cities = set()
+    tr_obs = observations[observations["metric"] == "tertiary_ratio"]
+    if not tr_obs.empty:
+        tertiary_ratio_cities.update(tr_obs["city"].unique())
+    tertiary_ratio_cities.update(c for c, _ in derived_tertiary_ratio)
+
     records = []
     all_targets = {**TARGET_METRICS, **SUPPLEMENTARY_TARGET_METRICS}
     for metric, years in all_targets.items():
@@ -849,6 +865,10 @@ def build_missing_data_report(observations: pd.DataFrame) -> pd.DataFrame:
                 if metric == "gdp_per_capita" and (city, year) in derived_gdp_per_capita:
                     continue
                 if metric == "house_price" and (city, year) in derived_house_price:
+                    continue
+                if metric == "tertiary_ratio" and (city, year) in derived_tertiary_ratio:
+                    continue
+                if metric == "tertiary_ratio" and city in tertiary_ratio_cities:
                     continue
                 tier = metric_tier(metric)
                 category = classify_missing_metric(metric)
@@ -875,7 +895,17 @@ def build_missing_data_report(observations: pd.DataFrame) -> pd.DataFrame:
                         "explanation": explanation,
                     }
                 )
-    return pd.DataFrame(records)
+    columns = [
+        "city",
+        "year",
+        "metric",
+        "data_tier",
+        "category",
+        "status",
+        "attempted_sources",
+        "explanation",
+    ]
+    return pd.DataFrame(records, columns=columns)
 
 
 def write_outputs(
