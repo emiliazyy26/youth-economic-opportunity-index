@@ -43,3 +43,66 @@ Preserve `rd_expenditure` as a separate field in `city_panel.csv` and correct `i
 - 80/84 manual rd_expenditure observations marked as official; 4 remaining non-official are `budget_estimate`/`derived_estimate` (wide caliber, correctly flagged)
 - `yeoi-build` successful, YEOI completeness 100/100
 - `validate_observations.py`: 3 HIGH warnings (pre-existing, unrelated)
+
+## Phase 3: Fix Wuhan 2020 Population Caliber Mismatch
+
+### Objective
+Fix inflated Wuhan 2021 `population_growth` (10.73%) caused by mixing census snapshot count with year-end resident population.
+
+### Root Cause
+- Wuhan 2020 population was sourced from the 7th census (standard time: 2020-11-01), value = 12,326,518
+- Wuhan 2021 population was sourced from the 2021 statistical communique (year-end resident population), value = 13,648,900
+- The caliber mismatch inflated the growth rate: 13,648,900 / 12,326,518 - 1 = 10.73%
+- The 2020 Wuhan statistical communique explicitly stated no population data would be released (census year)
+- Hubei Statistical Yearbook 2021 confirms Wuhan 2020 year-end resident population = 12,447,700
+- This is consistent with the 2021 communique: 13,648,900 - 120,120 = 12,447,700
+
+### Changes Made
+- **`data/raw/manual_source_observations.csv`**: Updated Wuhan 2020 population from 12,326,518 (census) to 12,447,700 (yearbook year-end resident population); updated source from census to yearbook
+
+### Verification Results
+- Wuhan 2021 `population_growth` corrected: 10.73% → 9.65% (matches official communique: +120.12万)
+- `yeoi-build` successful, YEOI completeness 100/100
+- Re-running the data pipeline preserves the fix (manual_source_observations.csv is the source of truth)
+
+## Phase 4: Fix Harbin 2022-2024 Population Caliber Mismatch
+
+### Objective
+
+Fix inflated Harbin `population_growth` fluctuations (-4.96% in 2022, +5.97% in 2025) caused by mixing registered population (户籍人口) with usual residence population (常住人口).
+
+### Root Cause
+
+- Harbin 2020 population: 10,009,900 (7th census, usual residence) — correct
+- Harbin 2021 population: 9,885,000 (2021 communique, usual residence) — correct
+- Harbin 2022 population: 9,395,000 (2022 communique, **registered population**) — wrong caliber
+- Harbin 2023 population: 9,395,000 (interpolated from registered population) — wrong caliber
+- Harbin 2024 population: 9,330,000 (2024 communique, **registered population**) — wrong caliber
+- Harbin 2025 population: 9,887,000 (CEIC, usual residence) — correct
+
+The 2022-2024 communiques reported registered population (户籍人口) because Harbin did not publish usual residence figures in those years. This caused artificial drops and rebounds in `population_growth`.
+
+### Corrected Values (usual residence, from Heilongjiang Statistical Yearbooks)
+
+| Year | Old Value | Corrected Value | Source |
+| --- | --- | --- | --- |
+| 2022 | 9,395,000 | 9,824,100 | Heilongjiang Statistical Yearbook 2023 |
+| 2023 | 9,395,000 | 9,776,000 | Heilongjiang Statistical Yearbook 2024 |
+| 2024 | 9,330,000 | 9,858,000 | 2024 Communique + Heilongjiang Statistical Yearbook 2025 |
+
+### Changes Made
+
+- **`data/raw/manual_source_observations.csv`**:
+  - Updated Harbin 2022 population from 9,395,000 to 9,824,100 (source: yearbook)
+  - Updated Harbin 2023 population from 9,395,000 to 9,776,000 (source: yearbook)
+  - Added Harbin 2024 population 9,858,000 (source: yearbook, is_official_source=True to override communique registered population)
+
+### Verification Results
+
+- Harbin `population_growth` corrected:
+  - 2022: -4.96% → -0.62%
+  - 2023: 0.00% → -0.49%
+  - 2024: -0.69% → +0.84%
+  - 2025: +5.97% → +0.29%
+- `yeoi-build` successful, YEOI completeness 100/100
+- Re-running the data pipeline preserves the fix (manual_source_observations.csv is the source of truth)
