@@ -1,6 +1,6 @@
 # YEOI Data Improvement Log
 
-## Phase 1: Repairing Employment Market Data (2025-06-24)
+## Phase 1: Repairing Employment Market Data
 
 ### Objective
 Replace static snapshot values of `job_posting_count` and `entry_salary` in `city_panel.csv` with year-specific data (2021-2025) showing realistic variation over time.
@@ -28,7 +28,7 @@ Replace static snapshot values of `job_posting_count` and `entry_salary` in `cit
 - `validate_observations.py` passed: 3 HIGH warnings (pre-existing, unrelated to this change)
 - YEOI completeness: 100/100
 
-## Phase 2: Officialize R&D Data (2025-06-24)
+## Phase 2: Officialize R&D Data
 
 ### Objective
 Preserve `rd_expenditure` as a separate field in `city_panel.csv` and correct `is_official_source` flags for communique-sourced R&D observations.
