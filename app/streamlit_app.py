@@ -153,16 +153,18 @@ def format_dimension_scores(row: pd.Series) -> pd.DataFrame:
 
 
 def build_ranking_chart(
-    year_scores: pd.DataFrame, selected_city: str, n: int = 20
+    year_scores: pd.DataFrame,
+    highlight_city: str | None = None,
+    n: int = 20,
 ) -> go.Figure:
-    """Horizontal bar chart of YEOI ranking with selected city highlighted."""
+    """Horizontal bar chart of YEOI ranking, optionally highlighting one city."""
     data = year_scores.sort_values("yeoi_score", ascending=True).head(n).copy()
     data["color"] = data["city"].apply(
         lambda c: GROUP_COLORS.get(
             _city_group_map().get(c, "control"), "#94a3b8"
         )
     )
-    data["highlight"] = data["city"] == selected_city
+    data["highlight"] = data["city"] == highlight_city if highlight_city else False
 
     fig = go.Figure()
     for _, row in data.iterrows():
@@ -188,6 +190,83 @@ def build_ranking_chart(
         height=500,
         margin={"t": 30, "b": 30},
         yaxis={"categoryorder": "total ascending"},
+    )
+    return fig
+
+
+def build_group_boxplot(year_scores: pd.DataFrame) -> go.Figure:
+    """Box plot of YEOI scores by city group, with individual city scatter overlay."""
+    data = add_city_group(year_scores.copy())
+    data["group_label"] = data["city_group"].map(GROUP_LABELS).fillna(data["city_group"])
+    group_order = list(GROUP_LABELS.values())
+
+    fig = go.Figure()
+    for label in group_order:
+        subset = data[data["group_label"] == label]
+        if subset.empty:
+            continue
+        fig.add_trace(
+            go.Box(
+                y=subset["yeoi_score"],
+                name=label,
+                marker_color=GROUP_COLORS.get(
+                    {v: k for k, v in GROUP_LABELS.items()}.get(label, "control"),
+                    "#94a3b8",
+                ),
+                boxpoints=False,
+                showlegend=False,
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=[label] * len(subset),
+                y=subset["yeoi_score"],
+                mode="markers",
+                marker=dict(size=8, opacity=0.7, color=GROUP_COLORS.get(
+                    {v: k for k, v in GROUP_LABELS.items()}.get(label, "control"),
+                    "#94a3b8",
+                )),
+                text=subset["city"],
+                hovertemplate="<b>%{text}</b><br>YEOI: %{y:.1f}<extra></extra>",
+                showlegend=False,
+            )
+        )
+    fig.update_layout(
+        yaxis_title="YEOI Score",
+        xaxis_title="",
+        height=450,
+        margin={"t": 30, "b": 30},
+    )
+    return fig
+
+
+def build_top5_radar(year_scores: pd.DataFrame) -> go.Figure:
+    """Radar chart comparing sub-scores for the top 5 cities."""
+    data = year_scores.dropna(subset=["yeoi_score"]).nsmallest(5, "rank")
+    dims = [DIMENSION_LABELS[k] for k in DIMENSION_KEYS]
+
+    fig = go.Figure()
+    for _, row in data.iterrows():
+        values = [row.get(k, 0) for k in DIMENSION_KEYS]
+        values += values[:1]
+        fig.add_trace(
+            go.Scatterpolar(
+                r=values,
+                theta=dims + [dims[0]],
+                fill="toself",
+                name=row["city"],
+                hovertemplate=f"<b>{row['city']}</b><br>"
+                + "<br>".join(
+                    f"{d}: %{{r[{i}]}}" for i, d in enumerate(dims)
+                )
+                + "<extra></extra>",
+            )
+        )
+    fig.update_layout(
+        polar={"radialaxis": {"range": [0, 100]}},
+        height=450,
+        margin={"t": 30, "b": 30},
+        legend={"orientation": "h", "y": -0.1},
     )
     return fig
 
@@ -400,23 +479,86 @@ def build_sensitivity_chart(sensitivity: pd.DataFrame) -> go.Figure:
 # ---------------------------------------------------------------------------
 
 
-def _render_overview(
+def _render_national_overview(
     year_scores: pd.DataFrame,
-    selected_city: str,
     selected_year: int,
-    city_row: pd.Series,
 ) -> None:
+    st.title("Youth Economic Opportunity Index (YEOI)")
+    st.caption(
+        "Which Chinese cities offer the best balance of jobs, income, "
+        "and living costs for young professionals?"
+    )
     st.markdown(
         "**Research Question:** Which Chinese cities offer young professionals "
         "the best balance between job opportunities, starting income, and living costs?"
     )
 
-    # Top 5 summary
+    # --- Sample-level KPI ---
+    n_cities = len(year_scores)
+    mean_score = year_scores["yeoi_score"].mean()
+    median_score = year_scores["yeoi_score"].median()
+    top_row = year_scores.nsmallest(1, "rank").iloc[0]
+    score_range = year_scores["yeoi_score"].max() - year_scores["yeoi_score"].min()
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.metric("Cities", n_cities)
+    with col2:
+        st.metric("YEOI Mean", f"{mean_score:.1f}")
+    with col3:
+        st.metric("YEOI Median", f"{median_score:.1f}")
+    with col4:
+        st.metric("Top City", f"{top_row['city']} ({top_row['yeoi_score']:.1f})")
+    with col5:
+        st.metric("Score Range", f"{score_range:.1f}")
+
+    # --- Ranking chart ---
     top5 = year_scores.nsmallest(5, "rank")
     st.markdown(f"**Top 5 Cities in {selected_year}:** "
                 + ", ".join(f"{r['city']} (#{int(r['rank'])})" for _, r in top5.iterrows()))
 
-    # KPI cards
+    st.markdown(f"#### {selected_year} City Ranking")
+    st.plotly_chart(
+        build_ranking_chart(year_scores, highlight_city=None),
+        use_container_width=True,
+    )
+
+    # --- Full ranking table ---
+    st.markdown("#### Full Ranking Table")
+    table_data = add_city_group(year_scores.sort_values("rank"))
+    table_data["city_group"] = table_data["city_group"].map(GROUP_LABELS).fillna(table_data["city_group"])
+    display_cols = ["rank", "city", "city_group", "yeoi_score"] + DIMENSION_KEYS
+    available_cols = [c for c in display_cols if c in table_data.columns]
+    st.dataframe(
+        table_data[available_cols],
+        hide_index=True,
+        use_container_width=True,
+    )
+
+    # --- Group boxplot + Top5 radar ---
+    col_box, col_radar = st.columns(2)
+    with col_box:
+        st.markdown("#### YEOI by City Group")
+        st.plotly_chart(
+            build_group_boxplot(year_scores),
+            use_container_width=True,
+        )
+    with col_radar:
+        st.markdown("#### Top 5 Dimension Radar")
+        st.plotly_chart(
+            build_top5_radar(year_scores),
+            use_container_width=True,
+        )
+
+
+def _render_city_profile(
+    year_scores: pd.DataFrame,
+    selected_city: str,
+    selected_year: int,
+    city_row: pd.Series,
+    panel: pd.DataFrame,
+) -> None:
+    # City-level KPI header
     n_cities = len(year_scores)
     gmap = _city_group_map()
     group = gmap.get(selected_city, "—")
@@ -434,20 +576,6 @@ def _render_overview(
     with col5:
         st.metric("Living Cost Score", f"{city_row['living_cost_score']:.1f}")
 
-    st.markdown(f"#### {selected_year} City Ranking")
-    st.plotly_chart(
-        build_ranking_chart(year_scores, selected_city),
-        use_container_width=True,
-    )
-
-
-def _render_city_profile(
-    year_scores: pd.DataFrame,
-    selected_city: str,
-    selected_year: int,
-    city_row: pd.Series,
-    panel: pd.DataFrame,
-) -> None:
     # Dimension bar chart
     avg_row = year_scores[DIMENSION_KEYS].mean()
     top5 = year_scores.nsmallest(5, "rank")
@@ -663,17 +791,40 @@ def _render_sensitivity(
 
 
 # ---------------------------------------------------------------------------
+# Sidebar helpers
+# ---------------------------------------------------------------------------
+
+
+def _sidebar_year(scores: pd.DataFrame) -> tuple[int, pd.DataFrame]:
+    """Sidebar with Year selector only (for National Overview pages)."""
+    st.sidebar.markdown("### Controls")
+    years = sorted(scores["year"].unique())
+    selected_year = st.sidebar.selectbox("Year", years, index=len(years) - 1)
+    year_scores = scores[scores["year"] == selected_year].copy()
+    return selected_year, year_scores
+
+
+def _sidebar_year_and_city(
+    scores: pd.DataFrame,
+) -> tuple[int, pd.DataFrame, str, pd.Series]:
+    """Sidebar with Year + City selectors (for City Analysis pages)."""
+    st.sidebar.markdown("### Controls")
+    years = sorted(scores["year"].unique())
+    selected_year = st.sidebar.selectbox("Year", years, index=len(years) - 1)
+    year_scores = scores[scores["year"] == selected_year].copy()
+    cities_sorted = year_scores.sort_values("rank")["city"].tolist()
+    selected_city = st.sidebar.selectbox("City", cities_sorted, index=0)
+    city_row = year_scores[year_scores["city"] == selected_city].iloc[0]
+    return selected_year, year_scores, selected_city, city_row
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 
 def main() -> None:
     st.set_page_config(page_title="YEOI Dashboard", layout="wide")
-    st.title("Youth Economic Opportunity Index (YEOI)")
-    st.caption(
-        "Which Chinese cities offer the best balance of jobs, income, "
-        "and living costs for young professionals?"
-    )
 
     scores = load_scores()
     if scores.empty:
@@ -688,32 +839,41 @@ def main() -> None:
     sensitivity = load_sensitivity()
     missing = load_missing()
 
-    # --- Sidebar ---
-    st.sidebar.markdown("### Controls")
-    years = sorted(scores["year"].unique())
-    selected_year = st.sidebar.selectbox("Year", years, index=len(years) - 1)
+    # --- Page functions (closures over shared data) ---
 
-    year_scores = scores[scores["year"] == selected_year].copy()
-    cities_sorted = year_scores.sort_values("rank")["city"].tolist()
-    selected_city = st.sidebar.selectbox("City", cities_sorted, index=0)
+    def _page_ranking_groups() -> None:
+        year, year_scores = _sidebar_year(scores)
+        _render_national_overview(year_scores, year)
 
-    city_row = year_scores[year_scores["city"] == selected_city].iloc[0]
-
-    # --- Tabs ---
-    tab_overview, tab_profile, tab_tradeoff, tab_trend, tab_sensitivity = st.tabs(
-        ["Overview", "City Profile", "Trade-offs", "Trends", "Sensitivity & Data Quality"]
-    )
-
-    with tab_overview:
-        _render_overview(year_scores, selected_city, selected_year, city_row)
-    with tab_profile:
-        _render_city_profile(year_scores, selected_city, selected_year, city_row, panel)
-    with tab_tradeoff:
-        _render_tradeoffs(year_scores, panel, selected_city, selected_year)
-    with tab_trend:
-        _render_trends(scores, selected_city)
-    with tab_sensitivity:
+    def _page_methodology() -> None:
+        _sidebar_year(scores)
         _render_sensitivity(sensitivity, missing)
+
+    def _page_city_profile() -> None:
+        year, year_scores, city, city_row = _sidebar_year_and_city(scores)
+        _render_city_profile(year_scores, city, year, city_row, panel)
+
+    def _page_tradeoffs() -> None:
+        year, year_scores, city, _ = _sidebar_year_and_city(scores)
+        _render_tradeoffs(year_scores, panel, city, year)
+
+    def _page_trends() -> None:
+        _, _, city, _ = _sidebar_year_and_city(scores)
+        _render_trends(scores, city)
+
+    pages = {
+        "National Overview": [
+            st.Page(_page_ranking_groups, title="Ranking & Groups", icon="🌐"),
+            st.Page(_page_methodology, title="Methodology & Data", icon="📋"),
+        ],
+        "City Analysis": [
+            st.Page(_page_city_profile, title="City Profile", icon="🏙️"),
+            st.Page(_page_tradeoffs, title="Trade-offs", icon="⚖️"),
+            st.Page(_page_trends, title="Trends", icon="📈"),
+        ],
+    }
+    pg = st.navigation(pages, position="sidebar")
+    pg.run()
 
 
 if __name__ == "__main__":

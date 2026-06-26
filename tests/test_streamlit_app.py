@@ -7,9 +7,11 @@ from streamlit_app import (
     DIMENSION_KEYS,
     add_city_group,
     build_dimension_bar,
+    build_group_boxplot,
     build_radar_chart,
     build_ranking_chart,
     build_sensitivity_chart,
+    build_top5_radar,
     build_tradeoff_scatter,
     build_trend_chart,
     format_dimension_scores,
@@ -77,7 +79,14 @@ def test_format_dimension_scores_handles_missing_keys():
 
 def test_build_ranking_chart_returns_figure():
     scores = _make_scores_df()
-    fig = build_ranking_chart(scores, "Beijing")
+    fig = build_ranking_chart(scores, highlight_city="Beijing")
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) == 5
+
+
+def test_build_ranking_chart_no_highlight():
+    scores = _make_scores_df()
+    fig = build_ranking_chart(scores, highlight_city=None)
     assert isinstance(fig, go.Figure)
     assert len(fig.data) == 5
 
@@ -174,3 +183,17 @@ def test_build_sensitivity_chart_empty_returns_empty_figure():
     fig = build_sensitivity_chart(pd.DataFrame())
     assert isinstance(fig, go.Figure)
     assert len(fig.data) == 0
+
+
+def test_build_group_boxplot_returns_figure():
+    scores = _make_scores_df()
+    fig = build_group_boxplot(scores)
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) > 0
+
+
+def test_build_top5_radar_returns_figure():
+    scores = _make_scores_df()
+    fig = build_top5_radar(scores)
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) == 5
