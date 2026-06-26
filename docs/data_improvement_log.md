@@ -159,16 +159,16 @@ Rename "Big Company Opportunity" to "Enterprise Opportunity" and incorporate hig
 - `yeoi-build` successful, YEOI completeness 100/100
 - `validate_observations.py`: 0 CRITICAL warnings (pre-existing Harbin/Kunming disposable_income issues resolved)
 
-## Phase 6: Fix Chengdu `innovation_index` Caliber Switch (2022-2024)
+## Phase 6: Fix Chengdu `innovation_index` Caliber Switch (2021-2024)
 
 ### Objective
 
-Replace Chengdu 2022-2024 `innovation_index` values sourced from wide-caliber statistical communiques with narrow-caliber official "science & technology expenditure" (科学技术支出) from Chengdu municipal fiscal reports, eliminating the spurious 51.9% drop between 2023 and 2024.
+Replace Chengdu 2021-2024 `innovation_index` values sourced from wide-caliber statistical communiques with narrow-caliber "science & technology expenditure" (科学技术支出), using official fiscal reports where available and a trend-based estimate for 2021, eliminating the spurious 51.9% drop between 2023 and 2024.
 
 ### Root Cause
 
 - `innovation_index` is derived from `rd_expenditure` when available.
-- Chengdu 2021-2023 `rd_expenditure` values (237.50, 250.20, 268.60) came from statistical communiques that labeled the figure as "科学技术支出" but used a wider statistical caliber (likely R&D expenditure or total S&T related spending).
+- Chengdu 2021-2023 `rd_expenditure` values (237.50, 250.20, 268.60) came from statistical communiques that labeled the figure as "科学技术支出" but used a wider statistical caliber (likely R&D expenditure or total S&T related spending). The 2021 value has no official city-wide narrow-caliber final accounts figure yet, so it was estimated from the Gotohui historical trend curve.
 - Chengdu 2024 `rd_expenditure` (129.24) came from the official Chengdu Finance Bureau "全市一般公共预算支出预算表" using the narrow fiscal caliber of "science & technology expenditure".
 - This caliber switch caused a false drop: 2023 = 268.60 → 2024 = 129.24 (−51.9%).
 
@@ -176,20 +176,21 @@ Replace Chengdu 2022-2024 `innovation_index` values sourced from wide-caliber st
 
 | Year | Old `innovation_index` | Old Source | New `innovation_index` | New Source | Caliber |
 | --- | --- | --- | --- | --- | --- |
+| 2021 | 237.50 | Chengdu 2021 statistical communique (via people.com.cn) | **128.00** | Estimated from Gotohui trend curve (2017 = 53.26 → 2022 = 151.80) | 全市一般公共预算支出·科学技术支出 (estimate; replace with final accounts when available) |
 | 2022 | 250.20 | Chengdu 2022 statistical communique (via hongheiku.com) | **151.80** | 2022 Chengdu fiscal revenue and expenditure summary table | 全市一般公共预算支出·科学技术支出 (决算) |
 | 2023 | 268.60 | Chengdu 2023 statistical communique (via hongheiku.com) | **150.90** | 2023 Chengdu fiscal revenue and expenditure summary table | 全市一般公共预算支出·科学技术支出 (决算) |
 | 2024 | 129.24 | Chengdu 2024 city-wide budget expenditure plan | **129.24** | Chengdu 2024 city-wide budget expenditure plan | 全市一般公共预算支出·科学技术支出 (预算) |
 
 ### Changes Made
 
-- **`data/raw/manual_source_observations.csv`**: Added official `science_technology_expenditure` observations for Chengdu 2022 (151.8), 2023 (150.9), and 2024 (129.24), with URLs to Chengdu Finance Bureau PDFs.
+- **`data/raw/manual_source_observations.csv`**: Added `science_technology_expenditure` observations for Chengdu 2021 (128.0, estimated from Gotohui trend) and official values for 2022 (151.8), 2023 (150.9), and 2024 (129.24), with source URLs.
 - **`src/yei/download_data.py`**: Updated `innovation_index` derivation to prioritize `science_technology_expenditure` when available, falling back to `rd_expenditure` otherwise.
-- **`data/raw/city_panel.csv`**: Added `science_technology_expenditure` column; updated Chengdu 2022-2024 `innovation_index` to narrow-caliber values.
+- **`data/raw/city_panel.csv`**: Added `science_technology_expenditure` column; updated Chengdu 2021-2024 `innovation_index` to narrow-caliber values (2021 estimated, 2022-2023 from final accounts, 2024 from budget plan).
 
 ### Verification Results
 
-- Chengdu `innovation_index` now shows consistent narrow-caliber values: 2022 = 151.80, 2023 = 150.90, 2024 = 129.24.
+- Chengdu `innovation_index` now shows consistent narrow-caliber values: 2021 = 128.00 (estimated), 2022 = 151.80, 2023 = 150.90, 2024 = 129.24.
 - The 2023→2024 drop becomes −13.8% (from −51.9%), which is more reasonable for a budget-execution fluctuation.
-- 2021 remains on the old wide-caliber value (237.50) pending location of the 2021 city-wide fiscal final accounts figure.
+- 2021 is an estimate from the Gotohui trend curve and should be replaced with the official city-wide fiscal final accounts figure when available.
 - `uv run pytest` passes all tests.
 - `validate_observations.py` and `test_data_quality.py` pass.
