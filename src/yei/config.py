@@ -64,7 +64,7 @@ YEOI_WEIGHTS = {
     "job_opportunity_score": 0.20,
     "starting_income_score": 0.20,
     "living_cost_score": 0.20,
-    "enterprise_opportunity_score": 0.20,
+    "business_ecosystem_score": 0.20,
     "growth_potential_score": 0.10,
     "city_base_score": 0.10,
 }
@@ -86,7 +86,7 @@ DIMENSION_SPEC = {
         "primary": "rent_burden",
         "invert": True,
     },
-    "enterprise_opportunity": {
+    "business_ecosystem": {
         "primary": "listed_company_count",
         "invert": False,
     },
@@ -138,7 +138,7 @@ SCORE_COLUMNS = [
     "job_opportunity_score",
     "starting_income_score",
     "living_cost_score",
-    "enterprise_opportunity_score",
+    "business_ecosystem_score",
     "growth_potential_score",
     "city_base_score",
     "yeoi_score",

@@ -29,7 +29,7 @@ Each component is a **0-100 standardized score** computed within the same year's
 | Job Opportunity | 0.20 | Whether young people can find jobs (job postings or employment capacity proxy) |
 | Starting Income | 0.20 | Starting salary or disposable income return |
 | Living Cost Affordability | 0.20 | Rent / housing price relative to income as living cost pressure |
-| Enterprise Opportunity | 0.20 | Career opportunities from large enterprises, listed companies, and high-tech firms |
+| Business Ecosystem | 0.20 | Career opportunities from large enterprises, listed companies, and high-tech firms |
 | Growth Potential | 0.10 | Long-term opportunity from population inflow and innovation activity |
 | Human Capital / City Base | 0.10 | University resources and city economic base (down-weighted to avoid macro ranking dominance) |
 
@@ -42,9 +42,9 @@ The main index uses a "primary indicator + quality threshold + fallback" mechani
 | Job Opportunity | `job_posting_count` | mean of `innovation_index` + `population_growth` |
 | Starting Income | `entry_salary` | `disposable_income` |
 | Living Cost | `rent_burden` | `housing_burden` |
-| Enterprise Opportunity | `listed_company_count` + `high_tech_company_count` (composite) | `listed_company_count` only |
+| Business Ecosystem | `listed_company_count` + `high_tech_company_count` (composite) | `listed_company_count` only |
 
-`EnterpriseOpportunity` uses **composite scoring**: both `listed_company_count` and `high_tech_company_count` are independently min-max normalized and then averaged. If only one metric is available, that single metric is used. This captures both traditional large enterprises and innovation-driven high-tech firms.
+`BusinessEcosystem` uses **composite scoring**: both `listed_company_count` and `high_tech_company_count` are independently min-max normalized and then averaged. If only one metric is available, that single metric is used. This captures both traditional large enterprises and innovation-driven high-tech firms.
 
 `GrowthPotential` = mean of standardized(`population_growth`, `innovation_index`).
 `HumanCapitalCityBase` = mean of standardized(`weighted_university_score`, `gdp_per_capita`).

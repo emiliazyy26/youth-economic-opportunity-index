@@ -107,11 +107,11 @@ The 2022-2024 communiques reported registered population (户籍人口) because 
 - `yeoi-build` successful, YEOI completeness 100/100
 - Re-running the data pipeline preserves the fix (manual_source_observations.csv is the source of truth)
 
-## Phase 5: Enterprise Opportunity Dimension Upgrade
+## Phase 5: Business Ecosystem Dimension Upgrade
 
 ### Objective
 
-Rename "Big Company Opportunity" to "Enterprise Opportunity" and incorporate high-tech enterprise counts to better reflect innovation-driven career opportunities for young people.
+Rename "Big Company Opportunity" to "Business Ecosystem" and incorporate high-tech enterprise counts to better reflect innovation-driven career opportunities for young people.
 
 ### Changes Made
 
@@ -122,22 +122,22 @@ Rename "Big Company Opportunity" to "Enterprise Opportunity" and incorporate hig
 **Configuration (`src/yei/config.py`):**
 - Added `HIGH_TECH_COMPANIES_FILE` constant
 - Added `high_tech_company_count` to `DATA_TIER_B`, `RAW_COLUMNS`, `TARGET_METRICS`
-- Updated `YEOI_WEIGHTS`: `job_opportunity_score` 0.25 -> 0.20, `enterprise_opportunity_score` 0.15 -> 0.20
-- Renamed `big_company` to `enterprise_opportunity` in `DIMENSION_SPEC` with `high_tech_company_count` as fallback
-- Renamed `big_company_score` to `enterprise_opportunity_score` in `SCORE_COLUMNS`
+- Updated `YEOI_WEIGHTS`: `job_opportunity_score` 0.25 -> 0.20, `business_ecosystem_score` 0.15 -> 0.20
+- Renamed `big_company` to `business_ecosystem` in `DIMENSION_SPEC` with `high_tech_company_count` as fallback
+- Renamed `big_company_score` to `business_ecosystem_score` in `SCORE_COLUMNS`
 
 **Data Loading (`src/yei/download_data.py`):**
 - Added `load_high_tech_company_observations()` function
 - Added `high_tech_company_count` to `METRIC_UNITS`, `build_source_observations()`, `build_wide_panel()` expected columns, and `print_status()` metrics
 
 **Scoring (`src/yei/build_index.py`):**
-- Changed `enterprise_opportunity` to use composite scoring: both `listed_company_count` and `high_tech_company_count` are independently min-max normalized and averaged (via `_score_from_metrics`)
+- Changed `business_ecosystem` to use composite scoring: both `listed_company_count` and `high_tech_company_count` are independently min-max normalized and averaged (via `_score_from_metrics`)
 
 **Sensitivity (`src/yei/sensitivity.py`):**
-- Renamed `big_company_score` to `enterprise_opportunity_score` in score column reference
+- Renamed `big_company_score` to `business_ecosystem_score` in score column reference
 
 **Dashboard (`app/streamlit_app.py`):**
-- Renamed `big_company_score` to `enterprise_opportunity_score` in score_cols and chart titles
+- Renamed `big_company_score` to `business_ecosystem_score` in score_cols and chart titles
 - Added `high_tech_company_count` to raw metric snapshot columns
 
 **Tests:**

@@ -52,12 +52,12 @@ def build_scores(df: pd.DataFrame) -> pd.DataFrame:
             ("job_opportunity", "job_opportunity_score"),
             ("starting_income", "starting_income_score"),
             ("living_cost", "living_cost_score"),
-            ("enterprise_opportunity", "enterprise_opportunity_score"),
+            ("business_ecosystem", "business_ecosystem_score"),
         ]:
-            if dimension == "enterprise_opportunity":
+            if dimension == "business_ecosystem":
                 # Composite scoring: normalize each metric independently, take mean
-                enterprise_metrics = ["listed_company_count", "high_tech_company_count"]
-                available = [m for m in enterprise_metrics if m in group.columns and group[m].notna().any()]
+                ecosystem_metrics = ["listed_company_count", "high_tech_company_count"]
+                available = [m for m in ecosystem_metrics if m in group.columns and group[m].notna().any()]
                 if available:
                     scored[score_col] = _score_from_metrics(group, available)
                     source_col = score_col.replace("_score", "_source")

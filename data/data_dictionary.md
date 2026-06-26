@@ -26,10 +26,10 @@ This file defines the core fields used by the Youth Economic Opportunity Index (
 
 | Field | Weight | Meaning |
 |------|--------|---------|
-| `job_opportunity_score` | 0.25 | Job postings or innovation+population growth fallback. |
+| `job_opportunity_score` | 0.20 | Job postings or innovation+population growth fallback. |
 | `starting_income_score` | 0.20 | Entry salary or disposable income fallback. |
 | `living_cost_score` | 0.20 | Inverted rent_burden or housing_burden. |
-| `big_company_score` | 0.15 | Listed company count. |
+| `business_ecosystem_score` | 0.20 | Listed company count + high-tech company count (composite). |
 | `growth_potential_score` | 0.10 | Mean of population_growth and innovation scores. |
 | `city_base_score` | 0.10 | Mean of weighted_university_score and gdp_per_capita scores. |
 | `yeoi_score` | — | Weighted Youth Economic Opportunity Index. |

@@ -3,6 +3,7 @@ name = "youth-economic-opportunity-index"
 version = "0.1.0"
 description = "Youth Economic Opportunity Index (YEOI) — a data-driven analysis of urban economic opportunity for young professionals in China"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.12"
 dependencies = [
     "cn-stats>=0.1.3",
@@ -53,4 +54,4 @@ select = ["E", "F", "I", "UP"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "app"]

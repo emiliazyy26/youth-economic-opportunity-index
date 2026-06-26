@@ -85,23 +85,23 @@ def test_build_scores_rewards_lower_rent_burden():
     assert scores.loc["A", "yeoi_score"] > scores.loc["B", "yeoi_score"]
 
 
-def test_enterprise_opportunity_uses_composite_scoring():
+def test_business_ecosystem_uses_composite_scoring():
     df = _sample_panel()
     scores = build_scores(df).set_index("city")
 
     # City A has more listed + high-tech companies, should score higher
-    assert scores.loc["A", "enterprise_opportunity_score"] == 100.0
-    assert scores.loc["B", "enterprise_opportunity_score"] == 0.0
+    assert scores.loc["A", "business_ecosystem_score"] == 100.0
+    assert scores.loc["B", "business_ecosystem_score"] == 0.0
 
 
-def test_enterprise_opportunity_works_with_single_metric():
+def test_business_ecosystem_works_with_single_metric():
     df = _sample_panel()
     df = df.drop(columns=["high_tech_company_count"])
     scores = build_scores(df).set_index("city")
 
     # Should still work with only listed_company_count
-    assert scores.loc["A", "enterprise_opportunity_score"] == 100.0
-    assert scores.loc["B", "enterprise_opportunity_score"] == 0.0
+    assert scores.loc["A", "business_ecosystem_score"] == 100.0
+    assert scores.loc["B", "business_ecosystem_score"] == 0.0
 
 
 def test_select_dimension_metric_uses_rent_when_available():

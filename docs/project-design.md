@@ -157,7 +157,7 @@ Score table fields:
 | `job_opportunity_score` | Standardized job opportunity score |
 | `starting_income_score` | Standardized starting income / disposable income score |
 | `living_cost_score` | Living cost affordability score (higher = lower pressure) |
-| `big_company_score` | Big company / listed company opportunity score |
+| `business_ecosystem_score` | Business ecosystem / listed + high-tech company opportunity score |
 | `growth_potential_score` | Growth potential score |
 | `city_base_score` | Human capital and city base score |
 | `yeoi_score` | Composite Youth Economic Opportunity Index |

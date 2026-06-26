@@ -64,7 +64,7 @@ Missing data report `data/raw/missing_data_report.csv` includes `data_tier` (A/B
 
 - A-share listed company domicile statistics (`listed_companies_by_city.csv`)
 - National high-tech enterprise counts from Torch Center / provincial science bureaus (`high_tech_companies_by_city.csv`)
-- Usage: enterprise opportunity dimension (composite scoring)
+- Usage: business ecosystem dimension (composite scoring)
 
 ### Tier C: Platform Samples
 
