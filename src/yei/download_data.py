@@ -726,7 +726,13 @@ def build_wide_panel(observations: pd.DataFrame) -> pd.DataFrame:
             panel.loc[can_derive_hp, "housing_sales_value"] * 10000
         ) / panel.loc[can_derive_hp, "housing_sales_area"]
 
-    if "rd_expenditure" in panel.columns:
+    if "science_technology_expenditure" in panel.columns:
+        panel["innovation_index"] = panel["science_technology_expenditure"]
+        if "rd_expenditure" in panel.columns:
+            panel["innovation_index"] = panel["innovation_index"].fillna(
+                panel["rd_expenditure"]
+            )
+    elif "rd_expenditure" in panel.columns:
         panel["innovation_index"] = panel["rd_expenditure"]
     else:
         panel["innovation_index"] = pd.NA
