@@ -72,26 +72,22 @@ YEOI_WEIGHTS = {
 # Main index admission: city coverage threshold
 CORE_METRIC_COVERAGE_THRESHOLD = 0.80
 
-# Dimension primary metrics and fallback (fallback enabled when coverage is insufficient)
+# Dimension primary metrics (used directly; no fallback)
 DIMENSION_SPEC = {
     "job_opportunity": {
         "primary": "job_posting_count",
-        "fallback_metrics": ["innovation_index", "population_growth"],
         "invert": False,
     },
     "starting_income": {
         "primary": "entry_salary",
-        "fallback_metrics": ["disposable_income"],
         "invert": False,
     },
     "living_cost": {
         "primary": "rent_burden",
-        "fallback_metrics": ["housing_burden"],
         "invert": True,
     },
     "enterprise_opportunity": {
         "primary": "listed_company_count",
-        "fallback_metrics": ["high_tech_company_count"],
         "invert": False,
     },
 }

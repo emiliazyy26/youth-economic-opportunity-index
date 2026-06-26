@@ -23,8 +23,8 @@ def _sample_panel() -> pd.DataFrame:
             "high_tech_company_count": [200.0, 80.0],
             "rent_burden": [0.20, 0.30],
             "housing_burden": [0.20, 0.30],
-            "job_posting_count": [pd.NA, pd.NA],
-            "entry_salary": [pd.NA, pd.NA],
+            "job_posting_count": [5000.0, 3000.0],
+            "entry_salary": [6000.0, 4000.0],
             "rent_monthly": [2000.0, 3000.0],
             "tertiary_ratio": [50.0, 50.0],
         }

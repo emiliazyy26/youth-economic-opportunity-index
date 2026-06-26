@@ -48,24 +48,9 @@ def select_dimension_metric(
     primary = spec["primary"]
     if primary in group.columns and passes_core_threshold(group[primary]):
         return primary, group[primary], primary
-
-    fallbacks = spec["fallback_metrics"]
-    if not fallbacks:
-        if primary in group.columns:
-            return primary, group[primary], f"{primary}_partial"
-        raise ValueError(f"No metric available for dimension {dimension}")
-
-    available = [m for m in fallbacks if m in group.columns and group[m].notna().any()]
-    if not available:
-        raise ValueError(f"No fallback metrics for dimension {dimension}")
-
-    if len(available) == 1:
-        metric = available[0]
-        return metric, group[metric], f"{metric}_fallback"
-
-    composite = group[available].mean(axis=1)
-    label = "+".join(available) + "_fallback"
-    return label, composite, label
+    if primary in group.columns:
+        return primary, group[primary], f"{primary}_partial"
+    raise ValueError(f"No metric available for dimension {dimension}")
 
 
 def classify_missing_metric(metric: str) -> str:
