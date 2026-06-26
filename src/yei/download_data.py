@@ -705,6 +705,7 @@ def build_wide_panel(observations: pd.DataFrame) -> pd.DataFrame:
     panel = panel.merge(wide, on=["city", "year"], how="left")
 
     if "gdp_total" in panel.columns and "population" in panel.columns:
+        # Forward: derive gdp_per_capita from gdp_total / population
         can_derive_gdp_pc = (
             panel["gdp_per_capita"].isna()
             & panel["gdp_total"].notna()
@@ -714,6 +715,19 @@ def build_wide_panel(observations: pd.DataFrame) -> pd.DataFrame:
         panel.loc[can_derive_gdp_pc, "gdp_per_capita"] = (
             panel.loc[can_derive_gdp_pc, "gdp_total"] * 100000000
         ) / panel.loc[can_derive_gdp_pc, "population"]
+
+        # Reverse: derive gdp_total from gdp_per_capita * population
+        can_derive_gdp_total = (
+            panel["gdp_total"].isna()
+            & panel["gdp_per_capita"].notna()
+            & panel["population"].notna()
+            & panel["population"].ne(0)
+        )
+        panel.loc[can_derive_gdp_total, "gdp_total"] = (
+            panel.loc[can_derive_gdp_total, "gdp_per_capita"]
+            * panel.loc[can_derive_gdp_total, "population"]
+            / 100000000
+        )
 
     if "housing_sales_area" in panel.columns and "housing_sales_value" in panel.columns:
         can_derive_hp = (
