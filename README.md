@@ -156,6 +156,10 @@ youth-economic-opportunity-index/
 
 Python 3.12+ · uv · pandas · matplotlib · plotly · streamlit · pytest · ruff
 
+## Author
+
+**Zhang Yuyang** — zhangyuyang0126@yeah.net
+
 ## License
 
 MIT
