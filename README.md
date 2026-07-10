@@ -23,7 +23,29 @@ uv run yeoi-build      # Build YEOI (generates processed CSVs)
 uv run streamlit run app/streamlit_app.py
 ```
 
-> **Note:** Processed CSVs in `data/processed/` are gitignored. Run `yeoi-build` after cloning to regenerate them. README charts in `reports/figures/` are committed and viewable on GitHub.
+> **Note:** Processed CSVs in `data/processed/` are gitignored. Run `yeoi-build` after cloning to regenerate them. The project is fully reproducible: `yeoi-build` regenerates all processed datasets and rankings from raw data; `scripts/generate_readme_charts.py` regenerates the README figures.
+
+## Interactive Dashboard
+
+![Dashboard Overview](reports/figures/dashboard_overview.png)
+
+Explore the 2025 YEOI results interactively with city filters, dimension profiles, and sensitivity checks.
+
+Run locally:
+
+```bash
+uv run streamlit run app/streamlit_app.py
+```
+
+Dashboard tabs:
+
+| Tab | Purpose |
+|-----|---------|
+| Overview | Ranking result, selected-city position, and key metrics |
+| City Profile | Dimension scores, radar comparison, raw metrics, and source metrics |
+| Trade-offs | Entry salary versus housing/rent burden, colored by city group |
+| Trends | 2021–2025 YEOI score and rank stability |
+| Sensitivity & Data Quality | Weight robustness and credibility tiers |
 
 ## Methodology Overview
 
@@ -83,28 +105,6 @@ YEOI scores for the 2025 top 5 cities plus Harbin and Kunming as lower-ranked co
 
 ![YEOI Trend 2021–2025](reports/figures/yeoi_trend_2021_2025.png)
 
-## Interactive Dashboard
-
-The Streamlit dashboard turns the static index outputs into an interactive conclusion-checking tool. It follows the same evidence chain as the project analysis: ranking result, dimension explanation, income-cost trade-off, time stability, and weight robustness.
-
-Run locally:
-
-```bash
-uv run streamlit run app/streamlit_app.py
-```
-
-Dashboard tabs:
-
-| Tab | Purpose |
-|-----|---------|
-| Overview | Ranking result, selected-city position, and key metrics |
-| City Profile | Dimension scores, radar comparison, raw metrics, and source metrics |
-| Trade-offs | Entry salary versus housing/rent burden, colored by city group |
-| Trends | 2021–2025 YEOI score and rank stability |
-| Sensitivity & Data Quality | Weight robustness and credibility tiers |
-
-The dashboard is designed to test whether high-ranking cities are genuinely balanced, or whether their scores are driven by a single advantage such as income, enterprise density, or city base.
-
 ## Data Coverage
 
 The index draws on 16 core panel fields across three credibility tiers:
@@ -127,6 +127,28 @@ Tier C metrics enter the core index only when ≥80% of sample cities have non-m
 | `reports/figures/*.png` | README chart images (committed) |
 | `app/streamlit_app.py` | Interactive conclusion-supporting dashboard: ranking, city profile, trade-offs, trends, sensitivity |
 
+## Architecture
+
+```mermaid
+flowchart TD
+    A["Raw Data"] -->|clean_data.py| B["Cleaned Panel"]
+    B -->|build_index.py| C["YEOI Scores"]
+    C -->|visualize.py| D["Figures"]
+    C -->|streamlit_app.py| E["Dashboard"]
+    C -->|sensitivity.py| F["Sensitivity Report"]
+```
+
+The pipeline is linear: raw data → cleaned panel → YEOI scores → figures & dashboard. All computation logic lives in `src/yei/`; notebooks import from it but never duplicate production logic.
+
+## Reproducibility
+
+The project is fully reproducible. Running `yeoi-build` regenerates all processed datasets and rankings from raw data; running `scripts/generate_readme_charts.py` regenerates all README figures from the build outputs.
+
+```bash
+uv run yeoi-build                              # → processed CSVs + rankings
+uv run python scripts/generate_readme_charts.py # → reports/figures/*.png
+```
+
 ## Project Structure
 
 ```
@@ -137,7 +159,7 @@ youth-economic-opportunity-index/
 │   ├── raw/              # Source observations and external data
 │   └── processed/        # Build outputs (gitignored)
 ├── docs/                 # Methodology, architecture, data design
-├── notebooks/            # Exploratory analysis (01–04)
+├── notebooks/            # Exploratory analysis (01–05)
 ├── scripts/              # Data fetching and chart generation
 ├── tests/                # pytest test suite
 └── reports/figures/      # README chart PNGs (committed)
