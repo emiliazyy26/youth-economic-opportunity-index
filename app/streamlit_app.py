@@ -735,6 +735,56 @@ def _render_trends(scores: pd.DataFrame, selected_city: str) -> None:
 def _render_sensitivity(
     sensitivity: pd.DataFrame, missing: pd.DataFrame
 ) -> None:
+    # --- Dimension Overview ---
+    st.markdown("#### How YEOI Is Constructed")
+    st.markdown(
+        "YEOI combines six dimensions into a single 0–100 score. "
+        "Each dimension captures a different aspect of economic opportunity for young professionals."
+    )
+
+    dim_overview = pd.DataFrame(
+        {
+            "Dimension": [DIMENSION_LABELS[k] for k in DIMENSION_KEYS],
+            "Weight": [f"{YEOI_WEIGHTS[k]:.0%}" for k in DIMENSION_KEYS],
+            "What It Measures": [
+                "Availability of jobs",
+                "Early-career earning potential",
+                "Affordability of living",
+                "Enterprise and career environment",
+                "Future development opportunities",
+                "Human capital and economic foundation",
+            ],
+            "Main Indicators": [
+                "Job postings",
+                "Entry salary",
+                "Rent burden",
+                "Listed and high-tech companies",
+                "Population growth, innovation",
+                "University score, GDP per capita",
+            ],
+        }
+    )
+    st.dataframe(dim_overview, hide_index=True, use_container_width=True)
+
+    st.markdown("#### Scoring Rules")
+    st.markdown(
+        "- Each dimension is standardized to a **0–100 score** within each year's city cross-section.\n"
+        "- **Lower** rent or housing burden produces a **higher** Living Cost score.\n"
+        "- Composite dimensions (Business Ecosystem, Growth Potential, City Base) "
+        "average the standardized scores of their indicators.\n"
+        "- The final YEOI score is the **weighted sum** of the six dimension scores."
+    )
+    st.code(
+        "YEOI = 20% × Job Opportunity\n"
+        "     + 20% × Starting Income\n"
+        "     + 20% × Living Cost\n"
+        "     + 20% × Business Ecosystem\n"
+        "     + 10% × Growth Potential\n"
+        "     + 10% × City Base",
+        language="text",
+    )
+
+    # --- Weight Sensitivity Analysis ---
     st.markdown("#### Weight Sensitivity Analysis")
     st.markdown(
         "Each bar shows how many Top-5 cities change when a dimension's weight "
@@ -762,17 +812,13 @@ def _render_sensitivity(
             )
 
     st.markdown("---")
-    st.markdown("#### Data Credibility Tiers")
+    st.markdown("#### Data Credibility")
     st.markdown(
-        "| Tier | Description | Metrics |\n"
-        "|------|-------------|----------|\n"
-        "| **A** | Official / statistical bureau | GDP, disposable income, "
-        "population, house price, R&D, innovation index, university score |\n"
-        "| **B** | Institutional public sources | Listed company count, "
-        "high-tech company count, average wage |\n"
-        "| **C** | Platform sample data | Job posting count, entry salary, "
-        "rent |\n"
-        "| **D** | Unverifiable / proxy | Youth unemployment proxy |"
+        "- **Tier A:** Official statistics (statistical yearbooks, NBS)\n"
+        "- **Tier B:** Institutional public data (listed company directories, "
+        "high-tech firm registries)\n"
+        "- **Tier C:** Platform sample data (job postings, entry salary, rent)\n"
+        "- **Tier D:** Proxy or unverifiable data — not currently used in the main index."
     )
 
     st.markdown("#### Data Gaps")
