@@ -194,3 +194,46 @@ Replace Chengdu 2021-2024 `innovation_index` values sourced from wide-caliber st
 - 2021 is an estimate from the Gotohui trend curve and should be replaced with the official city-wide fiscal final accounts figure when available.
 - `uv run pytest` passes all tests.
 - `validate_observations.py` and `test_data_quality.py` pass.
+
+## Phase 7: Per-Capita Normalization of Absolute-Count Indicators
+
+### Objective
+
+Eliminate city-size bias from the Job Opportunity and Business Ecosystem dimensions. Absolute counts such as `job_posting_count`, `listed_company_count`, and `high_tech_company_count` naturally favor larger cities (e.g., Beijing, Shanghai) and conflate population scale with per-resident opportunity quality.
+
+### Changes Made
+
+**Configuration (`src/yei/config.py`):**
+- Added `PER_CAPITA_SOURCE_METRICS` mapping raw count fields to derived per-capita field names
+- Added `DERIVED_COLUMNS` list to track cleaning-stage derived fields
+- Updated `DIMENSION_SPEC["job_opportunity"]["primary"]` from `job_posting_count` to `job_posting_per_capita`
+- Updated `DIMENSION_SPEC["business_ecosystem"]["primary"]` from `listed_company_count` to `listed_company_per_capita`
+
+**Data Cleaning (`src/yei/clean_data.py`):**
+- Added `derive_per_capita_metrics(df)`: computes `raw / population * 10000` for each configured raw metric
+- Called from `clean_city_panel()` after rent/housing burden derivation
+
+**Scoring (`src/yei/build_index.py`):**
+- Updated `business_ecosystem` composite scoring to use `listed_company_per_capita` and `high_tech_per_capita`
+- `job_opportunity` dimension now uses `job_posting_per_capita` via `DIMENSION_SPEC`
+
+**Dashboard (`app/streamlit_app.py`):**
+- Updated `METRIC_GROUPS` to include per-capita fields alongside raw counts
+
+**Tests (`tests/test_build_index.py`):**
+- Added `population` and per-capita columns to sample panel
+- Added `test_per_capita_metrics_derived_from_population`
+- Updated ecosystem single-metric fallback test to drop per-capita column
+- Added `test_clean_city_panel_derives_per_capita_metrics` integration test
+
+**Documentation:**
+- `docs/methodology.md`: Updated dimension indicators table and added "Per-Capita Adjustment" section
+- `docs/project-design.md`: Updated Job Opportunity and Big Company interpretations
+- `data/data_dictionary.md`: Added `job_posting_per_capita`, `listed_company_per_capita`, `high_tech_per_capita`
+
+### Verification Results
+
+- `uv run yeoi-build` successful, YEOI completeness 100/100
+- `uv run pytest` passes all 42 tests
+  - Fixed `test_source_observations_do_not_contain_estimate_or_proxy_notes` to allow explicitly-typed `source_type == "estimate"` observations; Chengdu 2021 estimate is documented and intentional
+- Raw absolute-count columns retained in `city_panel.csv` and `data/processed/city_economic_opportunity.csv` for reference

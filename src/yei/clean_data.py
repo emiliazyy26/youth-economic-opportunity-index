@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from yei.config import CITY_DATA_FILE, RAW_COLUMNS, RAW_DATA_DIR
+from yei.config import CITY_DATA_FILE, PER_CAPITA_SOURCE_METRICS, RAW_COLUMNS, RAW_DATA_DIR
 
 
 def load_raw_data(path: Path | None = None) -> pd.DataFrame:
@@ -55,9 +55,38 @@ def derive_rent_burden(df: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
+def derive_per_capita_metrics(df: pd.DataFrame) -> pd.DataFrame:
+    """Normalize absolute-count metrics by population to reduce city-size bias.
+
+    Uses a per-10,000 scale so values remain readable in reports.
+    """
+    result = df.copy()
+    if "population" not in result.columns:
+        return result
+
+    for raw_metric, per_capita_metric in PER_CAPITA_SOURCE_METRICS.items():
+        if raw_metric not in result.columns:
+            continue
+        if per_capita_metric not in result.columns:
+            result[per_capita_metric] = float("nan")
+        can_derive = (
+            result[per_capita_metric].isna()
+            & result[raw_metric].notna()
+            & result["population"].notna()
+            & result["population"].ne(0)
+        )
+        if can_derive.any():
+            result.loc[can_derive, per_capita_metric] = (
+                result.loc[can_derive, raw_metric]
+                / result.loc[can_derive, "population"]
+                * 10000.0
+            )
+    return result
+
+
 def clean_city_panel(df: pd.DataFrame) -> pd.DataFrame:
     """Standardize column names, sort and deduplicate."""
-    result = derive_rent_burden(derive_housing_burden(df))
+    result = derive_per_capita_metrics(derive_rent_burden(derive_housing_burden(df)))
     result = result.sort_values(["city", "year"]).drop_duplicates(
         subset=["city", "year"], keep="last"
     )

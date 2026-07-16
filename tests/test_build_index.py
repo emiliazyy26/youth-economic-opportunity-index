@@ -3,7 +3,12 @@
 import pandas as pd
 
 from yei.build_index import build_scores, min_max_score
-from yei.clean_data import derive_housing_burden, derive_rent_burden
+from yei.clean_data import (
+    clean_city_panel,
+    derive_housing_burden,
+    derive_per_capita_metrics,
+    derive_rent_burden,
+)
 from yei.config import YEOI_WEIGHTS
 from yei.data_quality import passes_core_threshold, select_dimension_metric
 from yei.sensitivity import sensitivity_shift
@@ -16,14 +21,18 @@ def _sample_panel() -> pd.DataFrame:
             "year": [2025, 2025],
             "disposable_income": [50_000.0, 50_000.0],
             "gdp_per_capita": [100_000.0, 100_000.0],
+            "population": [10_000_000.0, 10_000_000.0],
             "population_growth": [0.01, 0.01],
             "innovation_index": [10.0, 10.0],
             "weighted_university_score": [50.0, 50.0],
             "listed_company_count": [100.0, 50.0],
+            "listed_company_per_capita": [0.1, 0.05],
             "high_tech_company_count": [200.0, 80.0],
+            "high_tech_per_capita": [0.2, 0.08],
             "rent_burden": [0.20, 0.30],
             "housing_burden": [0.20, 0.30],
             "job_posting_count": [5000.0, 3000.0],
+            "job_posting_per_capita": [5.0, 3.0],
             "entry_salary": [6000.0, 4000.0],
             "rent_monthly": [2000.0, 3000.0],
             "tertiary_ratio": [50.0, 50.0],
@@ -96,10 +105,10 @@ def test_business_ecosystem_uses_composite_scoring():
 
 def test_business_ecosystem_works_with_single_metric():
     df = _sample_panel()
-    df = df.drop(columns=["high_tech_company_count"])
+    df = df.drop(columns=["high_tech_company_count", "high_tech_per_capita"])
     scores = build_scores(df).set_index("city")
 
-    # Should still work with only listed_company_count
+    # Should still work with only listed_company_per_capita
     assert scores.loc["A", "business_ecosystem_score"] == 100.0
     assert scores.loc["B", "business_ecosystem_score"] == 0.0
 
@@ -114,6 +123,45 @@ def test_select_dimension_metric_uses_rent_when_available():
 def test_passes_core_threshold():
     assert passes_core_threshold(pd.Series([1, 2, 3, 4, None] * 4))
     assert not passes_core_threshold(pd.Series([1, None, None, None, None] * 4))
+
+
+def test_per_capita_metrics_derived_from_population():
+    df = pd.DataFrame(
+        {
+            "city": ["A", "B"],
+            "population": [1_000_000.0, 1_000_000.0],
+            "job_posting_count": [5000.0, 3000.0],
+        }
+    )
+    result = derive_per_capita_metrics(df)
+    # Per-10,000 scale: 5000 / 1,000,000 * 10000 = 50
+    assert result["job_posting_per_capita"].iloc[0] == 50.0
+    assert result["job_posting_per_capita"].iloc[1] == 30.0
+
+
+def test_clean_city_panel_derives_per_capita_metrics():
+    df = pd.DataFrame(
+        {
+            "city": ["A", "B"],
+            "year": [2025, 2025],
+            "population": [1_000_000.0, 2_000_000.0],
+            "job_posting_count": [5000.0, 6000.0],
+            "listed_company_count": [10.0, 20.0],
+            "high_tech_company_count": [50.0, 80.0],
+            "house_price": [10_000.0, 10_000.0],
+            "housing_burden": [float("nan"), float("nan")],
+            "disposable_income": [50_000.0, 50_000.0],
+            "rent_monthly": [2_000.0, 2_000.0],
+            "rent_burden": [float("nan"), float("nan")],
+        }
+    )
+    result = clean_city_panel(df)
+    assert "job_posting_per_capita" in result.columns
+    assert "listed_company_per_capita" in result.columns
+    assert "high_tech_per_capita" in result.columns
+    # A has fewer postings but higher per-capita density
+    assert result.loc[result["city"] == "A", "job_posting_per_capita"].iloc[0] == 50.0
+    assert result.loc[result["city"] == "B", "job_posting_per_capita"].iloc[0] == 30.0
 
 
 def test_sensitivity_shift_runs():

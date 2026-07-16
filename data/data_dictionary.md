@@ -15,8 +15,12 @@ This file defines the core fields used by the Youth Economic Opportunity Index (
 | `population_growth` | float | YoY population growth | derived | Population series | Growth potential input. |
 | `weighted_university_score` | float | Quality-weighted HE score | A | MOE lists | City base input. |
 | `innovation_index` | float | R&D expenditure proxy | A | Official R&D source | Job/growth fallback input. |
-| `listed_company_count` | float | A-share listings by domicile | B | `listed_companies_by_city.csv` | Big company dimension. |
-| `job_posting_count` | float | Job postings (platform) | C | Boss/Zhaopin etc. | Job opportunity primary. |
+| `listed_company_count` | float | A-share listings by domicile | B | `listed_companies_by_city.csv` | Business ecosystem raw count. |
+| `listed_company_per_capita` | float | A-share listings per 10,000 residents | derived | `listed_company_count / population * 10000` | Business ecosystem normalized input. |
+| `high_tech_company_count` | float | High-tech enterprise count | B | `high_tech_companies_by_city.csv` | Business ecosystem raw count. |
+| `high_tech_per_capita` | float | High-tech enterprises per 10,000 residents | derived | `high_tech_company_count / population * 10000` | Business ecosystem normalized input. |
+| `job_posting_count` | float | Job postings (platform) | C | Boss/Zhaopin etc. | Job opportunity primary (raw count). |
+| `job_posting_per_capita` | float | Job postings per 10,000 residents | derived | `job_posting_count / population * 10000` | Job opportunity primary (normalized). |
 | `entry_salary` | float | Entry-level salary | C | Recruitment platforms | Starting income primary. |
 | `rent_monthly` | float | 1BR city-centre rent, RMB/month | C | Numbeo / rental platforms | Living cost primary input. |
 | `rent_burden` | float | Rent pressure / income | derived | `rent_monthly × 12 / disposable_income` | Living cost primary score. |
@@ -26,10 +30,10 @@ This file defines the core fields used by the Youth Economic Opportunity Index (
 
 | Field | Weight | Meaning |
 |------|--------|---------|
-| `job_opportunity_score` | 0.20 | Job postings or innovation+population growth fallback. |
+| `job_opportunity_score` | 0.20 | Job postings per capita or innovation+population growth fallback. |
 | `starting_income_score` | 0.20 | Entry salary or disposable income fallback. |
 | `living_cost_score` | 0.20 | Inverted rent_burden or housing_burden. |
-| `business_ecosystem_score` | 0.20 | Listed company count + high-tech company count (composite). |
+| `business_ecosystem_score` | 0.20 | Listed company + high-tech company counts per capita (composite). |
 | `growth_potential_score` | 0.10 | Mean of population_growth and innovation scores. |
 | `city_base_score` | 0.10 | Mean of weighted_university_score and gdp_per_capita scores. |
 | `yeoi_score` | — | Weighted Youth Economic Opportunity Index. |

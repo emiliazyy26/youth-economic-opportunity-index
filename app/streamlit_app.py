@@ -65,8 +65,14 @@ GROUP_LABELS = {
 METRIC_GROUPS = {
     "Income": ["disposable_income", "entry_salary", "average_wage"],
     "Cost": ["house_price", "housing_burden", "rent_monthly", "rent_burden"],
-    "Jobs": ["job_posting_count"],
-    "Ecosystem": ["listed_company_count", "high_tech_company_count", "rd_expenditure"],
+    "Jobs": ["job_posting_count", "job_posting_per_capita"],
+    "Ecosystem": [
+        "listed_company_count",
+        "listed_company_per_capita",
+        "high_tech_company_count",
+        "high_tech_per_capita",
+        "rd_expenditure",
+    ],
     "Growth": ["population_growth", "innovation_index"],
     "City Base": ["gdp_per_capita", "weighted_university_score", "tertiary_ratio"],
 }

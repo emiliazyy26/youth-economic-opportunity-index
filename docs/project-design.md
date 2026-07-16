@@ -300,10 +300,10 @@ YEOI = 0.25 x JobOpportunity
 
 | Dimension | Weight | Interpretation |
 |-----------|--------|----------------|
-| Job Opportunity | 0.25 | Job postings or employment capacity, directly reflecting whether young people can find work |
+| Job Opportunity | 0.25 | Job postings **per capita**, reflecting whether young people can find work |
 | Starting Income | 0.20 | Starting salary preferred, fallback to disposable income |
 | Living Cost | 0.20 | Rent burden preferred, fallback to housing burden |
-| Big Company | 0.15 | Listed company / large enterprise count |
+| Big Company | 0.15 | Listed company + high-tech company counts **per capita** |
 | Growth Potential | 0.10 | Population growth + innovation activity |
 | City Base | 0.10 | University quality + GDP per capita (down-weighted to avoid macro ranking dominance) |
 

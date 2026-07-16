@@ -39,12 +39,22 @@ The main index uses a "primary indicator + quality threshold + fallback" mechani
 
 | Dimension | Primary Indicator | Fallback |
 |-----------|-------------------|----------|
-| Job Opportunity | `job_posting_count` | mean of `innovation_index` + `population_growth` |
+| Job Opportunity | `job_posting_per_capita` | mean of `innovation_index` + `population_growth` |
 | Starting Income | `entry_salary` | `disposable_income` |
 | Living Cost | `rent_burden` | `housing_burden` |
-| Business Ecosystem | `listed_company_count` + `high_tech_company_count` (composite) | `listed_company_count` only |
+| Business Ecosystem | `listed_company_per_capita` + `high_tech_per_capita` (composite) | `listed_company_per_capita` only |
 
-`BusinessEcosystem` uses **composite scoring**: both `listed_company_count` and `high_tech_company_count` are independently min-max normalized and then averaged. If only one metric is available, that single metric is used. This captures both traditional large enterprises and innovation-driven high-tech firms.
+`BusinessEcosystem` uses **composite scoring**: both `listed_company_per_capita` and `high_tech_per_capita` are independently min-max normalized and then averaged. If only one metric is available, that single metric is used. This captures both traditional large enterprises and innovation-driven high-tech firms.
+
+### Per-Capita Adjustment
+
+Absolute-count indicators are divided by city resident population and scaled to a per-10,000 basis to avoid conflating city size with opportunity quality:
+
+```text
+metric_per_capita = metric_count / population * 10000
+```
+
+This adjustment applies to `job_posting_count`, `listed_company_count`, and `high_tech_company_count`. Raw absolute counts remain available in the panel for reference but no longer enter the main YEOI formula directly.
 
 `GrowthPotential` = mean of standardized(`population_growth`, `innovation_index`).
 `HumanCapitalCityBase` = mean of standardized(`weighted_university_score`, `gdp_per_capita`).

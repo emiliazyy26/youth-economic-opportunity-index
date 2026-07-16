@@ -72,10 +72,18 @@ YEOI_WEIGHTS = {
 # Main index admission: city coverage threshold
 CORE_METRIC_COVERAGE_THRESHOLD = 0.80
 
+# Absolute-count metrics that are normalized by population to avoid city-size bias.
+# Map from raw metric name to derived per-capita metric name.
+PER_CAPITA_SOURCE_METRICS = {
+    "job_posting_count": "job_posting_per_capita",
+    "listed_company_count": "listed_company_per_capita",
+    "high_tech_company_count": "high_tech_per_capita",
+}
+
 # Dimension primary metrics (used directly; no fallback)
 DIMENSION_SPEC = {
     "job_opportunity": {
-        "primary": "job_posting_count",
+        "primary": "job_posting_per_capita",
         "invert": False,
     },
     "starting_income": {
@@ -87,7 +95,7 @@ DIMENSION_SPEC = {
         "invert": True,
     },
     "business_ecosystem": {
-        "primary": "listed_company_count",
+        "primary": "listed_company_per_capita",
         "invert": False,
     },
 }
@@ -114,6 +122,9 @@ RAW_COLUMNS = [
     "rent_burden",
     "tertiary_ratio",
 ]
+
+# Derived fields produced in the cleaning stage (not loaded from raw CSV).
+DERIVED_COLUMNS = list(PER_CAPITA_SOURCE_METRICS.values())
 
 SUPPLEMENTARY_COLUMNS = ["tertiary_ratio"]
 

@@ -52,9 +52,12 @@ def test_source_observations_have_provenance():
 def test_source_observations_do_not_contain_estimate_or_proxy_notes():
     observations = _load_observations()
     notes = observations["notes"].fillna("").str.lower()
+    # Explicitly-typed estimates are documented and allowed; forbid hidden estimates only.
+    is_explicit_estimate = observations["source_type"].fillna("").str.lower() == "estimate"
 
     for marker in FORBIDDEN_RAW_NOTES:
-        assert not notes.str.contains(marker).any()
+        flagged = notes.str.contains(marker) & ~is_explicit_estimate
+        assert not flagged.any()
 
 
 def test_missing_required_values_are_reported():

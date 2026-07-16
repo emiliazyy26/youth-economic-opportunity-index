@@ -56,7 +56,7 @@ def build_scores(df: pd.DataFrame) -> pd.DataFrame:
         ]:
             if dimension == "business_ecosystem":
                 # Composite scoring: normalize each metric independently, take mean
-                ecosystem_metrics = ["listed_company_count", "high_tech_company_count"]
+                ecosystem_metrics = ["listed_company_per_capita", "high_tech_per_capita"]
                 available = [m for m in ecosystem_metrics if m in group.columns and group[m].notna().any()]
                 if available:
                     scored[score_col] = _score_from_metrics(group, available)
