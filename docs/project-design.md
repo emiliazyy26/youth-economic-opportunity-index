@@ -460,6 +460,7 @@ The final report should be approximately 8 pages.
 | Innovation indicator caliber inconsistent | Choose the single indicator with highest coverage |
 | Weights are subjective | Include sensitivity analysis in the report |
 | Data collection takes too long | First complete 20-city core 5 indicators, then supplement universities and innovation |
+| Chongqing per-capita dilution | Chongqing's administrative area (82,400 km²) includes a large rural population (~29% of 31.9M residents). Using total resident population as the denominator for per-capita metrics (job postings, listed companies, high-tech firms) systematically understates Chongqing's urban economic opportunity. A future revision should use urban resident population as the denominator for Chongqing, or exclude it from per-capita comparisons and note the caliber difference |
 
 ## 13. Success Criteria
 
