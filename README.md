@@ -75,11 +75,11 @@ Third-party data (job postings, rent) enters the main ranking only after passing
 
 | Rank | City | YEOI Score | Job | Income | Living Cost | Business | Growth | City Base |
 |------|------|-----------|-----|--------|-------------|----------|--------|-----------|
-| 1 | Shanghai | 72.5 | 100.0 | 100.0 | 12.3 | 87.3 | 54.7 | 70.8 |
-| 2 | Beijing | 70.3 | 82.5 | 98.0 | 0.0 | 100.0 | 42.0 | 100.0 |
-| 3 | Shenzhen | 61.0 | 46.9 | 95.6 | 20.8 | 88.1 | 64.8 | 42.8 |
-| 4 | Guangzhou | 50.9 | 36.2 | 75.7 | 62.6 | 37.0 | 38.2 | 47.7 |
-| 5 | Hangzhou | 50.3 | 26.2 | 68.4 | 70.1 | 49.9 | 32.0 | 41.8 |
+| 1 | Beijing | 71.4 | 94.4 | 98.0 | 0.0 | 93.8 | 42.0 | 100.0 |
+| 2 | Shanghai | 68.9 | 100.0 | 100.0 | 12.3 | 69.4 | 54.7 | 70.8 |
+| 3 | Shenzhen | 66.5 | 62.3 | 95.6 | 20.8 | 100.0 | 64.8 | 42.8 |
+| 4 | Hangzhou | 62.2 | 52.5 | 68.4 | 70.1 | 82.9 | 32.0 | 41.8 |
+| 5 | Suzhou | 61.0 | 47.9 | 57.2 | 84.7 | 80.5 | 23.3 | 46.2 |
 
 ![YEOI Ranking 2025](reports/figures/yeoi_ranking_2025.png)
 
@@ -89,7 +89,7 @@ Sub-score radar chart for the top 5 cities in 2025, revealing each city's streng
 
 ![YEOI Radar 2025](reports/figures/yeoi_radar_2025.png)
 
-Beijing and Shanghai dominate on job opportunity and income but score lowest on living cost affordability. Guangzhou and Hangzhou offer a more balanced profile with significantly lower housing pressure.
+Beijing and Shanghai dominate on job opportunity and income but score lowest on living cost affordability. Hangzhou and Suzhou offer a more balanced profile with significantly lower housing pressure.
 
 ## Income vs Housing Cost
 
